@@ -59,7 +59,7 @@ public class VLBufferShort extends VLBufferDirect<Short, ShortBuffer>{
     @Override
     public void remove(int offset, int size){
         ShortBuffer b = buffer;
-        initialize(VLTools.makeDirectByteBuffer(buffer.capacity() - size));
+        initialize(VLTimer.makeDirectByteBuffer(buffer.capacity() - size));
         int cap = b.capacity();
 
         for(int i = 0; i < offset; i++){
@@ -73,7 +73,7 @@ public class VLBufferShort extends VLBufferDirect<Short, ShortBuffer>{
     @Override
     public void removeInterleaved(int offset, int unitsize, int stride, int size){
         ShortBuffer b = buffer;
-        initialize(VLTools.makeDirectByteBuffer(buffer.capacity() - size));
+        initialize(VLTimer.makeDirectByteBuffer(buffer.capacity() - size));
 
         int max = offset + ((size / unitsize) * stride);
         int chunksize = stride - unitsize;

@@ -1,5 +1,7 @@
 package com.shayan.hive;
 
+import java.util.Set;
+
 import firestorm.FSConfig;
 import firestorm.FSLoader;
 import firestorm.FSP;
@@ -7,10 +9,10 @@ import firestorm.FSShader;
 
 public final class ModColor {
 
-    public static final class Uniform extends FSP.Modifier{
+    private static final class SetupUniform extends FSP.Modifier{
 
-        public Uniform(){
-            
+        public SetupUniform(){
+
         }
 
         @Override
@@ -21,16 +23,16 @@ public final class ModColor {
             program.registerUniformLocation(fragment, color);
 
             program.addMeshConfig(color);
-            fragment.addUniform(color.location(), "vec4", "vcolor");
+            fragment.addUniform(color.location(), "vec4", "coloruni");
         }
     }
 
-    public static final class UBO extends FSP.Modifier{
+    private static final class SetupUBO extends FSP.Modifier{
 
         private int segments;
         private int instancecount;
 
-        public UBO(int segments, int instancecount){
+        public SetupUBO(int segments, int instancecount){
             this.segments = segments;
             this.instancecount = instancecount / segments;
         }
@@ -44,7 +46,7 @@ public final class ModColor {
                 program.addMeshConfig(new FSP.UniformBlockElement(policy, FSLoader.ELEMENT_COLOR, "COLORS", 0));
 
                 vertex.addUniformBlock("std140","COLORS", "vec4 colors[" + instancecount + "]");
-                vertex.addMainCode("vcolor = colors[gl_InstanceID];");
+                vertex.addMainCode("colorubo = colors[gl_InstanceID];");
 
             }else if(segments == 2){
                 program.addMeshConfig(new FSP.UniformBlockElement(policy, FSLoader.ELEMENT_COLOR, "COLORS1", 0));
@@ -53,7 +55,7 @@ public final class ModColor {
                 vertex.addUniformBlock("std140","COLORS1", "vec2 colors1[" + instancecount + "]");
                 vertex.addUniformBlock("std140","COLORS2", "vec2 colors2[" + instancecount + "]");
 
-                vertex.addMainCode("vcolor = vec4(colors1[gl_InstanceID], colors2[gl_InstanceID]);");
+                vertex.addMainCode("colorubo = vec4(colors1[gl_InstanceID], colors2[gl_InstanceID]);");
 
             }else if(segments == 4){
                 program.addMeshConfig(new FSP.UniformBlockElement(policy, FSLoader.ELEMENT_COLOR, "COLORS1", 0));
@@ -66,25 +68,21 @@ public final class ModColor {
                 vertex.addUniformBlock("std140","COLORS3", "vec1 colors3[" + instancecount + "]");
                 vertex.addUniformBlock("std140","COLORS4", "vec1 colors4[" + instancecount + "]");
 
-                vertex.addMainCode("vcolor = vec4(colors1[gl_InstanceID], colors2[gl_InstanceID], colors3[gl_InstanceID], colors4[gl_InstanceID]);");
+                vertex.addMainCode("colorubo = vec4(colors1[gl_InstanceID], colors2[gl_InstanceID], colors3[gl_InstanceID], colors4[gl_InstanceID]);");
 
             }else{
                 throw new RuntimeException("Invalid hints : segment[" + segments + "] instance-per-segment[" + instancecount + "].");
             }
 
-            vertex.addPipedOutputField("vec4", "vcolor");
-            fragment.addPipedInputField("vec4", "vcolor");
+            vertex.addPipedOutputField("vec4", "colorubo");
+            fragment.addPipedInputField("vec4", "colorubo");
         }
     }
 
-    public static final class Texture extends FSP.Modifier{
+    private static final class SetupTexture extends FSP.Modifier{
 
-        private int segments;
-        private int instancecount;
+        public SetupTexture(){
 
-        public Texture(int segments, int instancecount){
-            this.segments = segments;
-            this.instancecount = instancecount / segments;
         }
 
         @Override
@@ -114,7 +112,131 @@ public final class ModColor {
 
             fragment.addUniform(unit.location(),"sampler2D", "colortexture");
             fragment.addPipedInputField("vec2", "vcolortexcoord");
-            fragment.addMainCode("vec4 vcolor = texture(colortexture, vcolortexcoord);");
+            fragment.addMainCode("vec4 colortex = texture(colortexture, vcolortexcoord);");
+        }
+    }
+
+    public static final class UBO extends FSP.Modifier{
+
+        private SetupUBO setupubo;
+
+        public UBO(int segments, int instancecount){
+            setupubo = new SetupUBO(segments, instancecount);
+        }
+
+        @Override
+        protected void modify(FSP program, FSConfig.Policy policy){
+            program.modify(setupubo, policy);
+            program.fragmentShader().addMainCode("vec4 vcolor = colorubo;");
+        }
+    }
+
+    public static final class Uniform extends FSP.Modifier{
+
+        private SetupUniform setupuniform;
+
+        public Uniform(){
+            setupuniform = new SetupUniform();
+        }
+
+        @Override
+        protected void modify(FSP program, FSConfig.Policy policy){
+            program.modify(setupuniform, policy);
+            program.fragmentShader().addMainCode("vec4 vcolor = coloruni;");
+        }
+    }
+
+    public static final class Texture extends FSP.Modifier{
+
+        private SetupTexture setuptexture;
+
+        public Texture(){
+            setuptexture = new SetupTexture();
+        }
+
+        @Override
+        protected void modify(FSP program, FSConfig.Policy policy){
+            program.modify(setuptexture, policy);
+            program.fragmentShader().addMainCode("vec4 vcolor = colortex;");
+        }
+    }
+
+    public static final class TextureAndUBO extends FSP.Modifier{
+
+        private SetupTexture setuptexture;
+        private SetupUBO setupubo;
+
+        public TextureAndUBO(int segments, int instancecount){
+            setuptexture = new SetupTexture();
+            setupubo = new SetupUBO(segments, instancecount);
+        }
+
+        @Override
+        protected void modify(FSP program, FSConfig.Policy policy){
+            program.modify(setuptexture, policy);
+            program.modify(setupubo, policy);
+
+            program.fragmentShader().addMainCode("vec4 vcolor = colortex * colorubo;");
+        }
+    }
+
+    public static final class TextureAndUniform extends FSP.Modifier{
+
+        private SetupTexture setuptexture;
+        private SetupUniform setupuniform;
+
+        public TextureAndUniform(){
+            setuptexture = new SetupTexture();
+            setupuniform = new SetupUniform();
+        }
+
+        @Override
+        protected void modify(FSP program, FSConfig.Policy policy){
+            program.modify(setuptexture, policy);
+            program.modify(setupuniform, policy);
+
+            program.fragmentShader().addMainCode("vec4 vcolor = colortex * coloruni;");
+        }
+    }
+
+    public static final class UniformAndUBO extends FSP.Modifier{
+
+        private SetupUniform setupuniform;
+        private SetupUBO setupubo;
+
+        public UniformAndUBO(int segments, int instancecount){
+            setupuniform = new SetupUniform();
+            setupubo = new SetupUBO(segments, instancecount);
+        }
+
+        @Override
+        protected void modify(FSP program, FSConfig.Policy policy){
+            program.modify(setupuniform, policy);
+            program.modify(setupubo, policy);
+
+            program.fragmentShader().addMainCode("vec4 vcolor = coloruni * colorubo;");
+        }
+    }
+
+    public static final class Combined extends FSP.Modifier{
+
+        private SetupUniform setupuniform;
+        private SetupUBO setupubo;
+        private SetupTexture setuptexture;
+
+        public Combined(int segments, int instancecount){
+            setupuniform = new SetupUniform();
+            setupubo = new SetupUBO(segments, instancecount);
+            setuptexture = new SetupTexture();
+        }
+
+        @Override
+        protected void modify(FSP program, FSConfig.Policy policy){
+            program.modify(setupuniform, policy);
+            program.modify(setupubo, policy);
+            program.modify(setuptexture, policy);
+
+            program.fragmentShader().addMainCode("vec4 vcolor = coloruni * colorubo * colortex;");
         }
     }
 }

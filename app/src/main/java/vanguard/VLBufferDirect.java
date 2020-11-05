@@ -16,7 +16,7 @@ public abstract class VLBufferDirect<ELEMENT extends Number, PROVIDER extends ja
 
 
     public final VLBufferDirect initialize(int capacity){
-        return this.initialize(VLTools.makeDirectByteBuffer(capacity * getTypeBytes()));
+        return this.initialize(VLTimer.makeDirectByteBuffer(capacity * getTypeBytes()));
     }
 
     public abstract VLBufferDirect initialize(ByteBuffer buffer);

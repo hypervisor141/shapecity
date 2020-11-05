@@ -1,9 +1,8 @@
 
 package com.shayan.hive;
 
-import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.opengl.GLES32;
 import android.opengl.Matrix;
 import android.view.MotionEvent;
@@ -18,7 +17,6 @@ import firestorm.FSBoundsCuboid;
 import firestorm.FSBrightness;
 import firestorm.FSBufferLayout;
 import firestorm.FSConfig;
-import firestorm.FSControl;
 import firestorm.FSGamma;
 import firestorm.FSInput;
 import firestorm.FSInstance;
@@ -35,6 +33,7 @@ import firestorm.FSSchematics;
 import firestorm.FSShadowDirect;
 import firestorm.FSShadowPoint;
 import firestorm.FSTexture;
+import firestorm.FSTools;
 import vanguard.VLArray;
 import vanguard.VLArrayFloat;
 import vanguard.VLFloat;
@@ -98,9 +97,8 @@ public final class Loader extends FSLoader{
     protected static final float[] CLAMPEDPOINTCACHE = new float[3];
 
     private static final SecureRandom RANDOM = new SecureRandom();
-    private static VLListType<FSTexture> TEXTURES;
 
-    protected static FSTexture TEX_BOX;
+    protected static FSTexture[] TEX_PIECES;
     protected static FSLightDirect LIGHT_DIRECT;
     protected static FSLightPoint LIGHT_POINT;
     protected static FSShadowDirect SHADOW_DIRECT;
@@ -118,8 +116,8 @@ public final class Loader extends FSLoader{
     private static ModDepthMap.SetupPoint MOD_DEPTH_SETUP_POINT;
     private static ModDepthMap.Finish MODE_DEPTH_FINISH;
     private static ModModel.UBO MOD_MODEL_UBO;
-    private static ModColor.UBO MOD_COLOR_UBO;
     private static ModModel.Uniform MOD_MODEL_UNIFORM;
+    private static ModColor.TextureAndUBO MOD_COLOR_TEXTURE_AND_UBO;
     private static ModColor.Uniform MOD_COLOR_UNIFORM;
     private static ModLight.Direct MOD_LIGHT_DIRECT;
     private static ModLight.Point MOD_LIGHT_POINT;
@@ -228,34 +226,27 @@ public final class Loader extends FSLoader{
         MOD_LIGHT_POINT = new ModLight.Point(GAMMA, null, BRIGHTNESS, LIGHT_POINT, SHADOW_POINT, materialsize);
         MOD_NO_LIGHT = new ModNoLight(GAMMA, BRIGHTNESS);
         MOD_MODEL_UBO = new ModModel.UBO(1, PIECES_INSTANCE_COUNT);
-        MOD_COLOR_UBO = new ModColor.UBO(1, PIECES_INSTANCE_COUNT);
         MOD_MODEL_UNIFORM = new ModModel.Uniform();
+        MOD_COLOR_TEXTURE_AND_UBO = new ModColor.TextureAndUBO(1, PIECES_INSTANCE_COUNT);
         MOD_COLOR_UNIFORM = new ModColor.Uniform();
 
-        initializeTextures(act);
-        initializeBuffers();
-    }
+        TEX_PIECES = new FSTexture[PIECES_INSTANCE_COUNT];
+        FSTexture texture;
 
-    private final void initializeTextures(FSActivity act){
-        TEXTURES = new VLListType<>(20, 20);
+        for(int i = 0; i < PIECES_INSTANCE_COUNT; i++){
+            texture = new FSTexture(new VLInt(GLES32.GL_TEXTURE_2D), new VLInt(TEXUNIT));
+            texture.bind();
+            texture.loadBitmap(0, FSTools.generateTextedBitmap(act, String.valueOf(i), 35, Color.WHITE, Color.BLACK, true,
+                    128, 128, FSTools.LOCATION_MID_CENTER, Bitmap.Config.ARGB_8888));
+            texture.minFilter(GLES32.GL_LINEAR);
+            texture.magFilter(GLES32.GL_LINEAR);
+            texture.wrapS(GLES32.GL_CLAMP_TO_EDGE);
+            texture.wrapT(GLES32.GL_CLAMP_TO_EDGE);
+            texture.unbind();
 
-        BitmapFactory.Options op = new BitmapFactory.Options();
-        op.outConfig = Bitmap.Config.ARGB_8888;
-        Resources res = act.getResources();
+            TEX_PIECES[i] = texture;
+        }
 
-//        TEX_BOX = new FSTexture(new VLInt(GLES32.GL_TEXTURE_2D), new VLInt(TEXUNIT));
-//        TEX_BOX.bind();
-//        TEX_BOX.loadBitmap(0, BitmapFactory.decodeResource(res, R.drawable.texbox, op));
-//        TEX_BOX.minFilter(GLES32.GL_LINEAR);
-//        TEX_BOX.magFilter(GLES32.GL_LINEAR);
-//        TEX_BOX.wrapS(GLES32.GL_CLAMP_TO_EDGE);
-//        TEX_BOX.wrapT(GLES32.GL_CLAMP_TO_EDGE);
-//        TEX_BOX.unbind();
-//
-//        TEXTURES.add(TEX_BOX);
-    }
-
-    private final void initializeBuffers(){
         BUFFER_ELEMENT_SHORT_DEFAULT = BUFFERMANAGER.addShortBuffer(GLES32.GL_ELEMENT_ARRAY_BUFFER, GLES32.GL_STATIC_DRAW, -1);
         BUFFER_ARRAY_FLOAT_DEFAULT = BUFFERMANAGER.addFloatBuffer(GLES32.GL_ARRAY_BUFFER, GLES32.GL_STATIC_DRAW, -1);
     }
@@ -324,7 +315,7 @@ public final class Loader extends FSLoader{
 
         FSP program2 = new FSP(DEBUG_DISABLED);
         program2.modify(MOD_MODEL_UBO, FSConfig.POLICY_ALWAYS);
-        program2.modify(MOD_COLOR_UBO, FSConfig.POLICY_ALWAYS);
+        program2.modify(MOD_COLOR_TEXTURE_AND_UBO, FSConfig.POLICY_ALWAYS);
         program2.modify(MOD_LIGHT_POINT, FSConfig.POLICY_ALWAYS);
         program2.addMeshConfig(draw);
         program2.build();
@@ -346,13 +337,13 @@ public final class Loader extends FSLoader{
         assembler.LOAD_MODELS = true;
         assembler.LOAD_POSITIONS = true;
         assembler.LOAD_COLORS = true;
-        assembler.LOAD_TEXCOORDS = false;
+        assembler.LOAD_TEXCOORDS = true;
         assembler.LOAD_NORMALS = true;
         assembler.LOAD_INDICES = true;
         assembler.BUFFER_MODELS = true;
         assembler.BUFFER_POSITIONS = true;
         assembler.BUFFER_COLORS = true;
-        assembler.BUFFER_TEXCOORDS = false;
+        assembler.BUFFER_TEXCOORDS = true;
         assembler.BUFFER_NORMALS = true;
         assembler.BUFFER_INDICES = true;
         assembler.CONVERT_POSITIONS_TO_MODELARRAYS = true;
@@ -361,10 +352,9 @@ public final class Loader extends FSLoader{
         assembler.configure();
 
         VLListType<DataPack> packs = new VLListType<>(PIECES_INSTANCE_COUNT, 10);
-        DataPack defaultpack = new DataPack(new VLArrayFloat(COLOR_PILLARS), null, MATERIAL_OBSIDIAN, null);
 
         for(int i = 0; i < PIECES_INSTANCE_COUNT; i++){
-            packs.add(defaultpack);
+            packs.add(new DataPack(new VLArrayFloat(COLOR_GOLD), TEX_PIECES[i], MATERIAL_OBSIDIAN, null));
         }
 
         Registration reg = AUTOMATOR.addScannerInstanced(assembler, new DataGroup(packs), "piece.", GLES32.GL_TRIANGLES, PIECES_INSTANCE_COUNT);
@@ -381,7 +371,7 @@ public final class Loader extends FSLoader{
 
         layout.add(BUFFERMANAGER, modelbuffer, FSBufferLayout.MECHANISM_SEQUENTIAL_INSTANCED).add(ELEMENT_MODEL);
         layout.add(BUFFERMANAGER, colorbuffer, FSBufferLayout.MECHANISM_SEQUENTIAL_INSTANCED).add(ELEMENT_COLOR);
-        layout.add(BUFFERMANAGER, BUFFER_ARRAY_FLOAT_DEFAULT, FSBufferLayout.MECHANISM_COMPLEX_SINGULAR).add(ELEMENT_POSITION).add(ELEMENT_NORMAL);
+        layout.add(BUFFERMANAGER, BUFFER_ARRAY_FLOAT_DEFAULT, FSBufferLayout.MECHANISM_COMPLEX_SINGULAR).add(ELEMENT_POSITION).add(ELEMENT_TEXCOORD).add(ELEMENT_NORMAL);
         layout.add(BUFFERMANAGER, BUFFER_ELEMENT_SHORT_DEFAULT, FSBufferLayout.MECHANISM_INDICES_SINGULAR).add(ELEMENT_INDEX);
 
         programSet(SHADOW_PROGRAMSET).add(program1);
@@ -591,8 +581,8 @@ public final class Loader extends FSLoader{
     protected void destroyAssets(){
         SHADOW_DIRECT.destroy();
 
-        for(int i = 0; i < TEXTURES.size(); i++){
-            TEXTURES.get(i).destroy();
+        for(int i = 0; i < TEX_PIECES.length; i++){
+            TEX_PIECES[i].destroy();
         }
     }
 }

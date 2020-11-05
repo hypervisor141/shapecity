@@ -300,7 +300,7 @@ public final class Loader extends FSLoader{
         assembler.configure();
 
         Registration reg = AUTOMATOR.addScannerSingle(assembler, new DataPack(COLOR_DARK_ORANGE, null, MATERIAL_DEFAULT, null),
-                "light_sphere.001", GLES32.GL_TRIANGLES);
+                "light_cylinder.001", GLES32.GL_TRIANGLES);
         reg.addProgram(program);
 
         lightbox = reg.mesh();

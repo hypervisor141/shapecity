@@ -5,10 +5,16 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.opengl.GLES32;
 import android.opengl.Matrix;
+import android.util.Log;
 import android.view.MotionEvent;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
 
+import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.security.SecureRandom;
+import java.util.Arrays;
 
 import firestorm.FSActivity;
 import firestorm.FSAttenuation;
@@ -89,6 +95,7 @@ public final class Loader extends FSLoader{
     private static final int SHADOWMAP_ORTHO_DIAMETER = 4;
     private static final int SHADOWMAP_ORTHO_NEAR = 1;
     private static final int SHADOWMAP_ORTHO_FAR = 1500;
+    private static final int PIECE_TEXTURE_DIMENSION = 128;
     private static int UBOBINDPOINT = 0;
     protected static int TEXUNIT = 0;
 
@@ -98,7 +105,7 @@ public final class Loader extends FSLoader{
 
     private static final SecureRandom RANDOM = new SecureRandom();
 
-    protected static FSTexture[] TEX_PIECES;
+    protected static FSTexture TEX_ARRAY;
     protected static FSLightDirect LIGHT_DIRECT;
     protected static FSLightPoint LIGHT_POINT;
     protected static FSShadowDirect SHADOW_DIRECT;
@@ -159,7 +166,7 @@ public final class Loader extends FSLoader{
         BUFFERMANAGER.updateIfNeeded();
     }
 
-    private void prepare(FSActivity act){
+    private void prepare(final FSActivity act){
         BRIGHTNESS = new FSBrightness(new VLFloat(2f));
 
         GAMMA = new FSGamma(new VLFloat(1.5f));
@@ -227,25 +234,43 @@ public final class Loader extends FSLoader{
         MOD_NO_LIGHT = new ModNoLight(GAMMA, BRIGHTNESS);
         MOD_MODEL_UBO = new ModModel.UBO(1, PIECES_INSTANCE_COUNT);
         MOD_MODEL_UNIFORM = new ModModel.Uniform();
-        MOD_COLOR_TEXTURE_AND_UBO = new ModColor.TextureAndUBO(1, PIECES_INSTANCE_COUNT);
+        MOD_COLOR_TEXTURE_AND_UBO = new ModColor.TextureAndUBO(1, PIECES_INSTANCE_COUNT, true, false);
         MOD_COLOR_UNIFORM = new ModColor.Uniform();
 
-        TEX_PIECES = new FSTexture[PIECES_INSTANCE_COUNT];
-        FSTexture texture;
+        TEX_ARRAY = new FSTexture(new VLInt(GLES32.GL_TEXTURE_2D_ARRAY), new VLInt(TEXUNIT));
+        TEX_ARRAY.bind();
+        TEX_ARRAY.loadStorage3D(1, GLES32.GL_RGBA16F, PIECE_TEXTURE_DIMENSION, PIECE_TEXTURE_DIMENSION, PIECES_INSTANCE_COUNT);
+        FSTools.checkGLError();
+
+        ByteBuffer pixels = null;
+        Bitmap b = null;
 
         for(int i = 0; i < PIECES_INSTANCE_COUNT; i++){
-            texture = new FSTexture(new VLInt(GLES32.GL_TEXTURE_2D), new VLInt(TEXUNIT));
-            texture.bind();
-            texture.loadBitmap(0, FSTools.generateTextedBitmap(act, String.valueOf(i), 35, Color.WHITE, Color.BLACK, true,
-                    128, 128, FSTools.LOCATION_MID_CENTER, Bitmap.Config.ARGB_8888));
-            texture.minFilter(GLES32.GL_LINEAR);
-            texture.magFilter(GLES32.GL_LINEAR);
-            texture.wrapS(GLES32.GL_CLAMP_TO_EDGE);
-            texture.wrapT(GLES32.GL_CLAMP_TO_EDGE);
-            texture.unbind();
+            b = FSTools.generateTextedBitmap(act, String.valueOf(i), 35, Color.WHITE, Color.BLACK, true, PIECE_TEXTURE_DIMENSION,
+                    PIECE_TEXTURE_DIMENSION, FSTools.LOCATION_MID_RIGHT, Bitmap.Config.RGBA_F16);
 
-            TEX_PIECES[i] = texture;
+            if(pixels == null){
+                pixels = ByteBuffer.allocateDirect(b.getAllocationByteCount());
+            }
+
+            pixels.position(0);
+            b.copyPixelsToBuffer(pixels);
+            b.recycle();
+            pixels.position(0);
+
+            TEX_ARRAY.loadSubImage3D(0, 0, 0, i, PIECE_TEXTURE_DIMENSION,
+                    PIECE_TEXTURE_DIMENSION, 1, GLES32.GL_RGBA, GLES32.GL_FLOAT, pixels);
+
+            FSTools.checkGLError();
         }
+
+        TEX_ARRAY.minFilter(GLES32.GL_LINEAR);
+        TEX_ARRAY.magFilter(GLES32.GL_LINEAR);
+        TEX_ARRAY.wrapS(GLES32.GL_CLAMP_TO_EDGE);
+        TEX_ARRAY.wrapT(GLES32.GL_CLAMP_TO_EDGE);
+        TEX_ARRAY.baseLevel(0);
+        TEX_ARRAY.maxLevel(PIECES_INSTANCE_COUNT - 1);
+        TEX_ARRAY.unbind();
 
         BUFFER_ELEMENT_SHORT_DEFAULT = BUFFERMANAGER.addShortBuffer(GLES32.GL_ELEMENT_ARRAY_BUFFER, GLES32.GL_STATIC_DRAW, -1);
         BUFFER_ARRAY_FLOAT_DEFAULT = BUFFERMANAGER.addFloatBuffer(GLES32.GL_ARRAY_BUFFER, GLES32.GL_STATIC_DRAW, -1);
@@ -352,9 +377,10 @@ public final class Loader extends FSLoader{
         assembler.configure();
 
         VLListType<DataPack> packs = new VLListType<>(PIECES_INSTANCE_COUNT, 10);
+        DataPack pack = new DataPack(new VLArrayFloat(COLOR_GOLD), TEX_ARRAY, MATERIAL_OBSIDIAN, null);
 
         for(int i = 0; i < PIECES_INSTANCE_COUNT; i++){
-            packs.add(new DataPack(new VLArrayFloat(COLOR_GOLD), TEX_PIECES[i], MATERIAL_OBSIDIAN, null));
+            packs.add(pack);
         }
 
         Registration reg = AUTOMATOR.addScannerInstanced(assembler, new DataGroup(packs), "piece.", GLES32.GL_TRIANGLES, PIECES_INSTANCE_COUNT);
@@ -580,9 +606,6 @@ public final class Loader extends FSLoader{
     @Override
     protected void destroyAssets(){
         SHADOW_DIRECT.destroy();
-
-        for(int i = 0; i < TEX_PIECES.length; i++){
-            TEX_PIECES[i].destroy();
-        }
+        TEX_ARRAY.destroy();
     }
 }

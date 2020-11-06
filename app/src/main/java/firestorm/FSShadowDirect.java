@@ -67,7 +67,7 @@ public final class FSShadowDirect extends FSShadow{
     protected FSTexture initializeTexture(VLInt texunit, VLInt width, VLInt height){
         FSTexture texture = new FSTexture(new VLInt(GLES32.GL_TEXTURE_2D), texunit);
         texture.bind();
-        texture.loadImage2D(0, GLES32.GL_DEPTH_COMPONENT32F, width.get(), height.get(), 0, GLES32.GL_DEPTH_COMPONENT, GLES32.GL_FLOAT, null);
+        texture.storage2D(1, GLES32.GL_DEPTH_COMPONENT32F, width.get(), height.get());
         texture.minFilter(GLES32.GL_NEAREST);
         texture.magFilter(GLES32.GL_NEAREST);
         texture.wrapS(GLES32.GL_CLAMP_TO_EDGE);

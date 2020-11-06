@@ -432,12 +432,36 @@ public final class FSRenderer {
         GLES32.glBindVertexArray(id);
     }
 
+    public static void texStorage2D(int target, int levels, int internalformat, int width, int height){
+        GLES32.glTexStorage2D(target, levels, internalformat, width, height);
+    }
+
     public static void texImage2D(int target, int level, int internalformat, int width, int height, int border, int format, int type, Buffer pixels){
         GLES32.glTexImage2D(target, level, internalformat, width, height, border, format, type, pixels);
     }
 
-    public static void texStorage2D(int target, int levels, int internalformat, int width, int height){
-        GLES32.glTexStorage2D(target, levels, internalformat, width, height);
+    public static void texSubImage2D(int target, int level, int xoffset, int yoffset, int width, int height, int format, int type, Buffer pixels){
+        GLES32.glTexSubImage2D(target, level, xoffset, yoffset, width, height, format, type, pixels);
+    }
+
+    public static void texStorage3D(int target, int levels, int internalFormat, int width, int height, int depth){
+        GLES32.glTexStorage3D(target, levels, internalFormat, width, height, depth);
+    }
+
+    public static void texImage3D(int target, int level, int internalformat, int width, int height, int depth, int border, int format, int type, Buffer pixels){
+        GLES32.glTexImage3D(target, level, internalformat, width, height, depth, border, format, type, pixels);
+    }
+
+    public static void texImage3D(int target, int level, int internalformat, int width, int height, int depth, int border, int format, int type, int offset){
+        GLES32.glTexImage3D(target, level, internalformat, width, height, depth, border, format, type, offset);
+    }
+
+    public static void texSubImage3D(int target, int level, int xoffset, int yoffset, int zoffset, int width, int height, int depth, int format, int type, Buffer pixels){
+        GLES32.glTexSubImage3D(target, level, xoffset, yoffset, zoffset, width, height, depth, format, type, pixels);
+    }
+
+    public static void texSubImage3D(int target, int level, int xoffset, int yoffset, int zoffset, int width, int height, int depth, int format, int type, int offset){
+        GLES32.glTexSubImage3D(target, level, xoffset, yoffset, zoffset, width, height, depth, format, type, offset);
     }
 
     public static void generateMipMap(int target){

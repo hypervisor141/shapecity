@@ -37,7 +37,9 @@ public abstract class FSConfigLocated extends FSConfig{
 
     @Override
     public void debugInfo(FSP program, FSMesh mesh, int debug){
-        VLDebug.append("location[");
+        super.debugInfo(program, mesh, debug);
+
+        VLDebug.append(" location[");
         VLDebug.append(location);
         VLDebug.append("]");
     }

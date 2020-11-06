@@ -52,7 +52,7 @@ public final class FSShader implements VLStringify {
     public void stringify(StringBuilder src, Object hint){
         buildSource();
 
-        int line = 0;
+        int line = 1;
         int currentindex = 0;
         int newlineindex = 0;
 

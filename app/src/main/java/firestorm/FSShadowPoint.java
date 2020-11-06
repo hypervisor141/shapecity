@@ -93,7 +93,7 @@ public final class FSShadowPoint extends FSShadow{
     protected FSTexture initializeTexture(VLInt texunit, VLInt width, VLInt height){
         FSTexture texture = new FSTexture(new VLInt(GLES32.GL_TEXTURE_CUBE_MAP), texunit);
         texture.bind();
-        texture.loadStorage2D(1, GLES32.GL_DEPTH_COMPONENT32F, width.get(), height.get());
+        texture.storage2D(1, GLES32.GL_DEPTH_COMPONENT32F, width.get(), height.get());
         texture.minFilter(GLES32.GL_NEAREST);
         texture.magFilter(GLES32.GL_NEAREST);
         texture.wrapS(GLES32.GL_CLAMP_TO_EDGE);

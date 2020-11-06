@@ -11,17 +11,15 @@ import android.widget.RelativeLayout;
 
 public abstract class FSActivity extends Activity implements View.OnClickListener, FSEvents {
 
-    protected static int WIDTH, HEIGHT, REALWIDTH, REALHEIGHT;
-    protected static float DENSITY;
-    protected static FSSurface SURFACE;
-    protected static Thread UITHREAD;
+    protected int WIDTH, HEIGHT, REALWIDTH, REALHEIGHT;
+    protected float DENSITY;
+    protected FSSurface SURFACE;
 
     protected RelativeLayout BASE;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
-        UITHREAD = Thread.currentThread();
         initialize();
 
         super.onCreate(savedInstanceState);
@@ -31,8 +29,6 @@ public abstract class FSActivity extends Activity implements View.OnClickListene
     public void onConfigurationChanged(Configuration newConfig){
         super.onConfigurationChanged(newConfig);
     }
-
-
 
     protected void initialize(){
         DisplayMetrics metris = new DisplayMetrics();
@@ -68,15 +64,16 @@ public abstract class FSActivity extends Activity implements View.OnClickListene
         BASE.addView(SURFACE, 0);
     }
 
-
-
     protected abstract void modifyUI(RelativeLayout base);
+
+    public RelativeLayout getBaseLayout(){
+        return BASE;
+    }
 
     protected void destroy(){
         BASE.removeAllViews();
 
         BASE = null;
-        UITHREAD = null;
         SURFACE = null;
 
         WIDTH = 0;

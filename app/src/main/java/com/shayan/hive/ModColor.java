@@ -1,13 +1,11 @@
 package com.shayan.hive;
 
-import java.util.Set;
-
 import firestorm.FSConfig;
 import firestorm.FSLoader;
 import firestorm.FSP;
 import firestorm.FSShader;
 
-public final class ModColor {
+public final class ModColor{
 
     private static final class SetupUniform extends FSP.Modifier{
 
@@ -81,8 +79,14 @@ public final class ModColor {
 
     private static final class SetupTexture extends FSP.Modifier{
 
-        public SetupTexture(){
+        private boolean instanced;
+        private boolean instancedcoords;
+        private int instancecount;
 
+        public SetupTexture(boolean instanced, boolean instancedcoords, int instancecount){
+            this.instanced = instanced;
+            this.instancedcoords = instancedcoords;
+            this.instancecount = instancecount;
         }
 
         @Override
@@ -90,28 +94,53 @@ public final class ModColor {
             FSShader vertex = program.vertexShader();
             FSShader fragment = program.fragmentShader();
 
-            FSConfig coords = new FSP.AttribPointer(policy, FSLoader.ELEMENT_TEXCOORD, 0);
-            FSConfig unit = new FSP.TextureColorUnit(policy);
-            FSConfig texturebind = new FSP.TextureColorBind(policy);
+            FSConfig coords;
 
-            program.registerAttributeLocation(vertex, coords);
+            if(instancedcoords && instanced){
+                coords = new FSP.UniformBlockElement(FSLoader.ELEMENT_TEXCOORD, "TEXCOORDS", 0);
+
+            }else{
+                coords = new FSP.AttribPointer(policy, FSLoader.ELEMENT_TEXCOORD, 0);
+            }
+
+            FSConfig unit = new FSP.TextureColorUnit(policy);
+            FSConfig bind = new FSP.TextureColorBind(policy);
+
             program.registerUniformLocation(fragment, unit);
+            program.registerAttributeLocation(vertex, coords);
 
             FSConfig enabletexcoords = new FSP.AttribEnable(policy, coords.location());
             FSConfig disabletexcoords = new FSP.AttribDisable(policy, coords.location());
 
             program.addSetupConfig(enabletexcoords);
-            program.addMeshConfig(texturebind);
+            program.addMeshConfig(bind);
             program.addMeshConfig(unit);
             program.addMeshConfig(coords);
             program.addPostDrawConfig(disabletexcoords);
 
-            vertex.addPipedOutputField("vec2", "vcolortexcoord");
-            vertex.addAttribute(coords.location(), "vec2", "colortexcoords");
-            vertex.addMainCode("vcolortexcoord = colortexcoords;");
+            if(instanced){
+                vertex.addPipedOutputField("vec3", "vcolortexcoord");
 
-            fragment.addUniform(unit.location(),"sampler2D", "colortexture");
-            fragment.addPipedInputField("vec2", "vcolortexcoord");
+                if(instancedcoords){
+                    vertex.addUniformBlock("std140", "TEXCOORDS", new String[]{ "vec2 colortexcoords[" + instancecount + "]" });
+                    vertex.addMainCode("vcolortexcoord = vec3(colortexcoords[gl_InstanceID], gl_InstanceID);");
+
+                }else{
+                    vertex.addAttribute(coords.location(), "vec2", "colortexcoords");
+                    vertex.addMainCode("vcolortexcoord = vec3(colortexcoords, gl_InstanceID);");
+                }
+
+                fragment.addUniform(unit.location(),"mediump sampler2DArray", "colortexture");
+                fragment.addPipedInputField("vec3", "vcolortexcoord");
+
+            }else{
+                vertex.addAttribute(coords.location(), "vec2", "colortexcoords");
+                vertex.addPipedOutputField("vec2", "vcolortexcoord");
+                vertex.addMainCode("vcolortexcoord = colortexcoords;");
+                fragment.addUniform(unit.location(),"sampler2D", "colortexture");
+                fragment.addPipedInputField("vec2", "vcolortexcoord");
+            }
+
             fragment.addMainCode("vec4 colortex = texture(colortexture, vcolortexcoord);");
         }
     }
@@ -150,8 +179,8 @@ public final class ModColor {
 
         private SetupTexture setuptexture;
 
-        public Texture(){
-            setuptexture = new SetupTexture();
+        public Texture(boolean instanced, boolean instancedcoords, int instancecount){
+            setuptexture = new SetupTexture(instanced, instancedcoords, instancecount);
         }
 
         @Override
@@ -166,8 +195,8 @@ public final class ModColor {
         private SetupTexture setuptexture;
         private SetupUBO setupubo;
 
-        public TextureAndUBO(int segments, int instancecount){
-            setuptexture = new SetupTexture();
+        public TextureAndUBO(int segments, int instancecount, boolean instancedtex, boolean instancedtexcoords){
+            setuptexture = new SetupTexture(instancedtex, instancedtexcoords, instancecount);
             setupubo = new SetupUBO(segments, instancecount);
         }
 
@@ -185,8 +214,8 @@ public final class ModColor {
         private SetupTexture setuptexture;
         private SetupUniform setupuniform;
 
-        public TextureAndUniform(){
-            setuptexture = new SetupTexture();
+        public TextureAndUniform(boolean instancedtex, boolean instancedtexcoords, int instancecount){
+            setuptexture = new SetupTexture(instancedtex, instancedtexcoords, instancecount);
             setupuniform = new SetupUniform();
         }
 
@@ -224,10 +253,10 @@ public final class ModColor {
         private SetupUBO setupubo;
         private SetupTexture setuptexture;
 
-        public Combined(int segments, int instancecount){
+        public Combined(int segments, int instancecount, boolean instancedtex, boolean instancedtexcoords){
             setupuniform = new SetupUniform();
             setupubo = new SetupUBO(segments, instancecount);
-            setuptexture = new SetupTexture();
+            setuptexture = new SetupTexture(instancedtex, instancedtexcoords, instancecount);
         }
 
         @Override

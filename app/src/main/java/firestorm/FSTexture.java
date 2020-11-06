@@ -2,6 +2,7 @@ package firestorm;
 
 import android.graphics.Bitmap;
 import android.opengl.GLES32;
+import android.opengl.GLUtils;
 import android.util.Log;
 
 import java.nio.Buffer;
@@ -42,7 +43,11 @@ public class FSTexture extends VLFactory{
         FSRenderer.textureBind(target.get(), 0);
     }
 
-    public void loadBitmap(int level, Bitmap bitmap){
+    public void loadStorage2D(int levels, int internalformat, int width, int height){
+        FSRenderer.texStorage2D(target.get(), levels, internalformat, width, height);
+    }
+
+    public void loadImage2D(int level, Bitmap bitmap){
         android.opengl.GLUtils.texImage2D(target.get(), level, bitmap, 0);
         bitmap.recycle();
     }
@@ -51,11 +56,35 @@ public class FSTexture extends VLFactory{
         FSRenderer.texImage2D(target.get(), level, internalformat, width, height, border, format, type, pixels);
     }
 
-    public void loadStorage2D(int levels, int internalformat, int width, int height){
-        FSRenderer.texStorage2D(target.get(), levels, internalformat, width, height);
+    public void loadSubImage2D(int level, int xoffset, int yoffset, Bitmap bitmap){
+        GLUtils.texSubImage2D(target.get(), level, xoffset, yoffset, bitmap);
     }
 
-    public void loadCubemapBitmap(int level, Bitmap right, Bitmap left, Bitmap top, Bitmap bottom, Bitmap front, Bitmap back){
+    public void loadSubImage2D(int level, int xoffset, int yoffset, int width, int height, int format, int type, Buffer pixels){
+        FSRenderer.texSubImage2D(target.get(), level, xoffset, yoffset, width, height, format, type, pixels);
+    }
+
+    public void loadStorage3D(int levels, int internalFormat, int width, int height, int depth){
+        FSRenderer.texStorage3D(target.get(), levels, internalFormat, width, height, depth);
+    }
+
+    public void loadImage3D(int level, int internalformat, int width, int height, int depth, int border, int format, int type, Buffer pixels){
+        FSRenderer.texImage3D(target.get(), level, internalformat, width, height, depth, border, format, type, pixels);
+    }
+
+    public void loadImage3D(int level, int internalformat, int width, int height, int depth, int border, int format, int type, int offset){
+        FSRenderer.texImage3D(target.get(), level, internalformat, width, height, depth, border, format, type, offset);
+    }
+
+    public void loadSubImage3D(int level, int xoffset, int yoffset, int zoffset, int width, int height, int depth, int format, int type, Buffer pixels){
+        FSRenderer.texSubImage3D(target.get(), level, xoffset, yoffset, zoffset, width, height, depth, format, type, pixels);
+    }
+
+    public void loadSubImage3D(int level, int xoffset, int yoffset, int zoffset, int width, int height, int depth, int format, int type, int offset){
+        FSRenderer.texSubImage3D(target.get(), level, xoffset, yoffset, zoffset, width, height, depth, format, type, offset);
+    }
+
+    public void loadCubemap(int level, Bitmap right, Bitmap left, Bitmap top, Bitmap bottom, Bitmap front, Bitmap back){
         android.opengl.GLUtils.texImage2D(GLES32.GL_TEXTURE_CUBE_MAP_POSITIVE_X, level, right, 0);
         android.opengl.GLUtils.texImage2D(GLES32.GL_TEXTURE_CUBE_MAP_NEGATIVE_X, level, left, 0);
         android.opengl.GLUtils.texImage2D(GLES32.GL_TEXTURE_CUBE_MAP_POSITIVE_Y, level, top, 0);
@@ -71,7 +100,7 @@ public class FSTexture extends VLFactory{
         back.recycle();
     }
 
-    public void loadCubemapBuffer(int level, int internalformat, int width, int height,
+    public void loadCubemap(int level, int internalformat, int width, int height,
                                    int border, int format, int type, Buffer face1, Buffer face2,
                                    Buffer face3, Buffer face4, Buffer face5, Buffer face6){
 
@@ -113,6 +142,30 @@ public class FSTexture extends VLFactory{
 
     public void compareFunc(int mode){
         FSRenderer.textureParameteri(target.get(), GLES32.GL_TEXTURE_COMPARE_FUNC, mode);
+    }
+
+    public void baseLevel(int mode){
+        FSRenderer.textureParameteri(target.get(), GLES32.GL_TEXTURE_BASE_LEVEL, mode);
+    }
+
+    public void maxLevel(int mode){
+        FSRenderer.textureParameteri(target.get(), GLES32.GL_TEXTURE_MAX_LEVEL, mode);
+    }
+
+    public void swizzleR(int mode){
+        FSRenderer.textureParameteri(target.get(), GLES32.GL_TEXTURE_SWIZZLE_R, mode);
+    }
+
+    public void swizzleG(int mode){
+        FSRenderer.textureParameteri(target.get(), GLES32.GL_TEXTURE_SWIZZLE_G, mode);
+    }
+
+    public void swizzleB(int mode){
+        FSRenderer.textureParameteri(target.get(), GLES32.GL_TEXTURE_SWIZZLE_B, mode);
+    }
+
+    public void swizzleA(int mode){
+        FSRenderer.textureParameteri(target.get(), GLES32.GL_TEXTURE_SWIZZLE_A, mode);
     }
 
     public int id(){

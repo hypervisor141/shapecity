@@ -425,6 +425,7 @@ public final class FSP{
         if(FSControl.DEBUG_MODE && debug >= FSLoader.DEBUG_NORMAL){
             try{
                 FSTools.checkGLError();
+
             }catch(Exception ex){
                 throw new RuntimeException("Pre-program-run error (there is an unchecked error somewhere before in the code)", ex);
             }
@@ -2312,7 +2313,7 @@ public final class FSP{
         }
     }
 
-    public static class TextureColorBind extends FSConfig {
+    public static class TextureColorBind extends FSConfig{
 
         public TextureColorBind(Policy policy){
             super(policy);

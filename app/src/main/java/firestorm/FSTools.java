@@ -49,8 +49,10 @@ public final class FSTools{
         paint.setColor(textcolor);
         paint.setAntiAlias(true);
         paint.setDither(false);
+
         if(bold){
             paint.setTypeface(Typeface.create("sans-serif", Typeface.NORMAL));
+
         }else{
             paint.setTypeface(Typeface.create("sans-serif", Typeface.BOLD));
         }
@@ -86,6 +88,9 @@ public final class FSTools{
 
         }else if(location == LOCATION_BOTTOM_RIGHT){
             c.drawText(text, width - textw, height - texth, paint);
+
+        }else{
+            throw new RuntimeException("Invalid location[" + location + "]");
         }
 
         return b;
@@ -317,7 +322,7 @@ public final class FSTools{
             int error;
 
             while((error = GLES32.glGetError()) != GLES32.GL_NO_ERROR){
-                throw new RuntimeException(GLU.gluErrorString(error));
+                throw new RuntimeException(GLU.gluErrorString(error) + "[" + error + "]");
             }
         }
     }

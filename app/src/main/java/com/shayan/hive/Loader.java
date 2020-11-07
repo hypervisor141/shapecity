@@ -7,14 +7,11 @@ import android.opengl.GLES32;
 import android.opengl.Matrix;
 import android.util.Log;
 import android.view.MotionEvent;
-import android.view.View;
-import android.widget.ImageView;
-import android.widget.RelativeLayout;
 
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.security.SecureRandom;
-import java.util.Arrays;
 
 import firestorm.FSActivity;
 import firestorm.FSAttenuation;
@@ -95,7 +92,7 @@ public final class Loader extends FSLoader{
     private static final int SHADOWMAP_ORTHO_DIAMETER = 4;
     private static final int SHADOWMAP_ORTHO_NEAR = 1;
     private static final int SHADOWMAP_ORTHO_FAR = 1500;
-    private static final int PIECE_TEXTURE_DIMENSION = 128;
+    private static final int PIECE_TEXTURE_DIMENSION = 256;
     private static int UBOBINDPOINT = 0;
     protected static int TEXUNIT = 0;
 
@@ -239,18 +236,26 @@ public final class Loader extends FSLoader{
 
         TEX_ARRAY = new FSTexture(new VLInt(GLES32.GL_TEXTURE_2D_ARRAY), new VLInt(TEXUNIT));
         TEX_ARRAY.bind();
-        TEX_ARRAY.loadStorage3D(1, GLES32.GL_RGBA16F, PIECE_TEXTURE_DIMENSION, PIECE_TEXTURE_DIMENSION, PIECES_INSTANCE_COUNT);
+        TEX_ARRAY.storage3D(1, GLES32.GL_RGBA8, PIECE_TEXTURE_DIMENSION, PIECE_TEXTURE_DIMENSION, PIECES_INSTANCE_COUNT);
+        TEX_ARRAY.minFilter(GLES32.GL_LINEAR);
+        TEX_ARRAY.magFilter(GLES32.GL_LINEAR);
+        TEX_ARRAY.wrapS(GLES32.GL_CLAMP_TO_EDGE);
+        TEX_ARRAY.wrapT(GLES32.GL_CLAMP_TO_EDGE);
+        TEX_ARRAY.baseLevel(0);
+        TEX_ARRAY.maxLevel(PIECES_INSTANCE_COUNT - 1);
+
         FSTools.checkGLError();
 
         ByteBuffer pixels = null;
         Bitmap b = null;
 
         for(int i = 0; i < PIECES_INSTANCE_COUNT; i++){
-            b = FSTools.generateTextedBitmap(act, String.valueOf(i), 35, Color.WHITE, Color.BLACK, true, PIECE_TEXTURE_DIMENSION,
-                    PIECE_TEXTURE_DIMENSION, FSTools.LOCATION_MID_RIGHT, Bitmap.Config.RGBA_F16);
+            b = FSTools.generateTextedBitmap(act, String.valueOf(i), 40, Color.WHITE, Color.BLACK, true, PIECE_TEXTURE_DIMENSION,
+                    PIECE_TEXTURE_DIMENSION, FSTools.LOCATION_MID_CENTER, Bitmap.Config.ARGB_8888);
 
             if(pixels == null){
-                pixels = ByteBuffer.allocateDirect(b.getAllocationByteCount());
+                pixels = ByteBuffer.allocate(b.getAllocationByteCount());
+                pixels.order(ByteOrder.nativeOrder());
             }
 
             pixels.position(0);
@@ -258,18 +263,12 @@ public final class Loader extends FSLoader{
             b.recycle();
             pixels.position(0);
 
-            TEX_ARRAY.loadSubImage3D(0, 0, 0, i, PIECE_TEXTURE_DIMENSION,
-                    PIECE_TEXTURE_DIMENSION, 1, GLES32.GL_RGBA, GLES32.GL_FLOAT, pixels);
+            TEX_ARRAY.subImage3D(0, 0, 0, i, PIECE_TEXTURE_DIMENSION,
+                    PIECE_TEXTURE_DIMENSION, 1, GLES32.GL_RGBA, GLES32.GL_UNSIGNED_BYTE, pixels);
 
             FSTools.checkGLError();
         }
 
-        TEX_ARRAY.minFilter(GLES32.GL_LINEAR);
-        TEX_ARRAY.magFilter(GLES32.GL_LINEAR);
-        TEX_ARRAY.wrapS(GLES32.GL_CLAMP_TO_EDGE);
-        TEX_ARRAY.wrapT(GLES32.GL_CLAMP_TO_EDGE);
-        TEX_ARRAY.baseLevel(0);
-        TEX_ARRAY.maxLevel(PIECES_INSTANCE_COUNT - 1);
         TEX_ARRAY.unbind();
 
         BUFFER_ELEMENT_SHORT_DEFAULT = BUFFERMANAGER.addShortBuffer(GLES32.GL_ELEMENT_ARRAY_BUFFER, GLES32.GL_STATIC_DRAW, -1);
@@ -377,7 +376,7 @@ public final class Loader extends FSLoader{
         assembler.configure();
 
         VLListType<DataPack> packs = new VLListType<>(PIECES_INSTANCE_COUNT, 10);
-        DataPack pack = new DataPack(new VLArrayFloat(COLOR_GOLD), TEX_ARRAY, MATERIAL_OBSIDIAN, null);
+        DataPack pack = new DataPack(new VLArrayFloat(COLOR_WHITE), TEX_ARRAY, MATERIAL_OBSIDIAN, null);
 
         for(int i = 0; i < PIECES_INSTANCE_COUNT; i++){
             packs.add(pack);
@@ -538,9 +537,9 @@ public final class Loader extends FSLoader{
 
             colorcluster.addSet(1, 0);
             colorcluster.addRow(i2, 3, 0);
-            colorcluster.addColumn(i2, 0, new VLVInterpolated(COLOR_GOLD[0], 1f, 15, VLV.LOOP_RETURN_ONCE, VLV.INTERP_LINEAR));
-            colorcluster.addColumn(i2, 0, new VLVInterpolated(COLOR_GOLD[1], 1, 15, VLV.LOOP_RETURN_ONCE, VLV.INTERP_LINEAR));
-            colorcluster.addColumn(i2, 0, new VLVInterpolated(COLOR_GOLD[2], 1, 15, VLV.LOOP_RETURN_ONCE, VLV.INTERP_LINEAR));
+            colorcluster.addColumn(i2, 0, new VLVInterpolated(COLOR_WHITE[0], COLOR_OBSIDIAN[0], 15, VLV.LOOP_RETURN_ONCE, VLV.INTERP_LINEAR));
+            colorcluster.addColumn(i2, 0, new VLVInterpolated(COLOR_WHITE[1], COLOR_OBSIDIAN[1], 15, VLV.LOOP_RETURN_ONCE, VLV.INTERP_LINEAR));
+            colorcluster.addColumn(i2, 0, new VLVInterpolated(COLOR_WHITE[2], COLOR_OBSIDIAN[2], 15, VLV.LOOP_RETURN_ONCE, VLV.INTERP_LINEAR));
             colorcluster.SYNCER.add(new VLArray.DefinitionCluster(instance.colors(), i2, 0, 0));
             colorcluster.sync();
 

@@ -115,39 +115,37 @@ public class Start extends FSActivity{
         scene.perspective(60, (float)width / height, 1F, 1500);
         scene.updateViewPort();
 
-//        scene.eyePosition(0, 10, 0.01f);
-//        scene.lookAt(0f, 0, 0f, 0f, 1f, 0f);
-//        scene.eyePosition(0, 13, 3f);
-//        scene.lookAt(0f, 10, 0f, 0f, 1f, 0f);
-//        scene.updateViewProjection();
+        scene.eyePosition(0, 7, 0.01f);
+        scene.lookAt(0f, 0, 0f, 0f, 1f, 0f);
+        scene.updateViewProjection();
 
-        VLVInterpolated v = new VLVInterpolated(0, 360, 1500, VLV.LOOP_FORWARD, VLV.INTERP_LINEAR);
-
-        v.setTask(new VLTaskContinous(new VLTask.Task(){
-
-            private float[] cache = new float[16];
-
-            @Override
-            public void run(VLTask t, VLVConst v){
-                FSViewConfig c = FSControl.getViewConfig();
-                c.eyePosition(0, 5, 5);
-
-                float[] eyepos = c.eyePosition().provider();
-
-                Matrix.setIdentityM(cache, 0);
-                Matrix.rotateM(cache, 0, v.get(), 0f, 1f ,0f);
-                Matrix.multiplyMV(eyepos, 0, cache, 0, eyepos, 0);
-
-                c.eyePositionDivideByW();
-                c.lookAt(0f, 0, 0f, 0f, 1f, 0f);
-                c.updateViewProjection();
-            }
-        }));
-
-        VLVProcessor controlproc = FSRenderer.getControllersProcessor();
-        controlproc.add(new VLVProcessor.Entry(v, 0));
-        controlproc.activateLatest();
-        controlproc.start();
+//        VLVInterpolated v = new VLVInterpolated(0, 360, 1500, VLV.LOOP_FORWARD, VLV.INTERP_LINEAR);
+//
+//        v.setTask(new VLTaskContinous(new VLTask.Task(){
+//
+//            private float[] cache = new float[16];
+//
+//            @Override
+//            public void run(VLTask t, VLVConst v){
+//                FSViewConfig c = FSControl.getViewConfig();
+//                c.eyePosition(0, 10, 0.01F);
+//
+//                float[] eyepos = c.eyePosition().provider();
+//
+//                Matrix.setIdentityM(cache, 0);
+//                Matrix.rotateM(cache, 0, v.get(), 0f, 1f ,0f);
+//                Matrix.multiplyMV(eyepos, 0, cache, 0, eyepos, 0);
+//
+//                c.eyePositionDivideByW();
+//                c.lookAt(0f, 0, 0f, 0f, 1f, 0f);
+//                c.updateViewProjection();
+//            }
+//        }));
+//
+//        VLVProcessor controlproc = FSRenderer.getControllersProcessor();
+//        controlproc.add(new VLVProcessor.Entry(v, 0));
+//        controlproc.activateLatest();
+//        controlproc.start();
     }
 
     @Override

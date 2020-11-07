@@ -67,6 +67,9 @@ public final class Loader extends FSLoader{
     protected static final float[] COLOR_WHITE = new float[]{
             1F, 1F, 1F, 1F
     };
+    protected static final float[] COLOR_WHITE_X2 = new float[]{
+            4F, 4F, 4F, 1F
+    };
     protected static final float[] COLOR_ORANGE = new float[]{
             1.0F, 0.7F, 0F, 1F
     };
@@ -79,10 +82,12 @@ public final class Loader extends FSLoader{
     protected static final float[] COLOR_GOLD = new float[]{
             0.83F, 0.68F, 0.21F, 1F
     };
-    protected static final VLArrayFloat COLOR_DARK_ORANGE = new VLArrayFloat(new float[]{
+    protected static final float[] COLOR_DARK_ORANGE = new float[]{
             1.0F, 0.4F, 0F, 1F
-    });
-    protected static final float[] COLOR_PILLARS = COLOR_ORANGE;
+    };
+
+    protected static final float[] COLOR_CURRENT = COLOR_WHITE;
+    protected static final float[] COLOR_SELECTED = COLOR_WHITE_X2;
 
     private static final int SHADOW_PROGRAMSET = 0;
     private static final int MAIN_PROGRAMSET = 1;
@@ -312,7 +317,7 @@ public final class Loader extends FSLoader{
         assembler.CONVERT_POSITIONS_TO_MODELARRAYS = true;
         assembler.configure();
 
-        Registration reg = AUTOMATOR.addScannerSingle(assembler, new DataPack(COLOR_DARK_ORANGE, null, MATERIAL_DEFAULT, null),
+        Registration reg = AUTOMATOR.addScannerSingle(assembler, new DataPack(new VLArrayFloat(COLOR_WHITE), null, MATERIAL_DEFAULT, null),
                 "light_cylinder.001", GLES32.GL_TRIANGLES);
         reg.addProgram(program);
 
@@ -523,24 +528,27 @@ public final class Loader extends FSLoader{
             yv = modelcluster.getY(0, 0).get();
             schematics = instance.schematics();
 
-            modelcluster.setY(0, 0, new VLVInterpolated(yv, yv + schematics.modelHeight() * 0.5f, 250 + RANDOM.nextInt(60),
+            modelcluster.setY(0, 0, new VLVInterpolated(yv, yv + schematics.modelHeight() * 0.75F, 120 + RANDOM.nextInt(60),
                     VLV.LOOP_FORWARD_BACKWARD, VLV.INTERP_ACCELERATE_DECELERATE_CUBIC));
 
             modelcluster.addSet(0,1, 0);
+            modelcluster.addSet(1,1, 0);
             modelcluster.addRowRotate(0, new VLVConst(-90), VLVConst.ZERO, VLVConst.ZERO, VLVConst.ONE);
+            modelcluster.addRowRotate(1, new VLVConst(180), VLVConst.ZERO, VLVConst.ONE, VLVConst.ZERO);
+            modelcluster.sync();
 
             schematics.inputBounds().add(new FSBoundsCuboid(schematics,
-                    50f, 99f, 50f, FSBounds.MODE_X_OFFSET_VOLUMETRIC, FSBounds.MODE_Y_OFFSET_VOLUMETRIC, FSBounds.MODE_Z_OFFSET_VOLUMETRIC,
-                    40f, 1f, 40f, FSBounds.MODE_X_VOLUMETRIC, FSBounds.MODE_Y_VOLUMETRIC, FSBounds.MODE_Z_VOLUMETRIC));
+                    1f, 50f, 50f, FSBounds.MODE_X_OFFSET_VOLUMETRIC, FSBounds.MODE_Y_OFFSET_VOLUMETRIC, FSBounds.MODE_Z_OFFSET_VOLUMETRIC,
+                    1f, 40f, 40f, FSBounds.MODE_X_VOLUMETRIC, FSBounds.MODE_Y_VOLUMETRIC, FSBounds.MODE_Z_VOLUMETRIC));
 
-            yproc.add(new VLVProcessor.Entry(modelcluster, 1, RANDOM.nextInt(300)));
+            yproc.add(new VLVProcessor.Entry(modelcluster, 2, RANDOM.nextInt(300)));
             yproc.activateLatest();
 
             colorcluster.addSet(1, 0);
             colorcluster.addRow(i2, 3, 0);
-            colorcluster.addColumn(i2, 0, new VLVInterpolated(COLOR_WHITE[0], COLOR_OBSIDIAN[0], 15, VLV.LOOP_RETURN_ONCE, VLV.INTERP_LINEAR));
-            colorcluster.addColumn(i2, 0, new VLVInterpolated(COLOR_WHITE[1], COLOR_OBSIDIAN[1], 15, VLV.LOOP_RETURN_ONCE, VLV.INTERP_LINEAR));
-            colorcluster.addColumn(i2, 0, new VLVInterpolated(COLOR_WHITE[2], COLOR_OBSIDIAN[2], 15, VLV.LOOP_RETURN_ONCE, VLV.INTERP_LINEAR));
+            colorcluster.addColumn(i2, 0, new VLVInterpolated(COLOR_CURRENT[0], COLOR_SELECTED[0], 15, VLV.LOOP_RETURN_ONCE, VLV.INTERP_LINEAR));
+            colorcluster.addColumn(i2, 0, new VLVInterpolated(COLOR_CURRENT[1], COLOR_SELECTED[1], 15, VLV.LOOP_RETURN_ONCE, VLV.INTERP_LINEAR));
+            colorcluster.addColumn(i2, 0, new VLVInterpolated(COLOR_CURRENT[2], COLOR_SELECTED[2], 15, VLV.LOOP_RETURN_ONCE, VLV.INTERP_LINEAR));
             colorcluster.SYNCER.add(new VLArray.DefinitionCluster(instance.colors(), i2, 0, 0));
             colorcluster.sync();
 

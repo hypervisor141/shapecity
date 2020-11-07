@@ -5,10 +5,8 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.opengl.GLES32;
 import android.opengl.Matrix;
-import android.util.Log;
 import android.view.MotionEvent;
 
-import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.security.SecureRandom;
@@ -92,7 +90,7 @@ public final class Loader extends FSLoader{
     private static final int SHADOWMAP_ORTHO_DIAMETER = 4;
     private static final int SHADOWMAP_ORTHO_NEAR = 1;
     private static final int SHADOWMAP_ORTHO_FAR = 1500;
-    private static final int PIECE_TEXTURE_DIMENSION = 256;
+    private static final int PIECE_TEXTURE_DIMENSION = 512;
     private static int UBOBINDPOINT = 0;
     protected static int TEXUNIT = 0;
 
@@ -189,7 +187,7 @@ public final class Loader extends FSLoader{
                 new VLInt(1024),
                 new VLInt(1024),
                 new VLFloat(0.45f), new VLFloat(0.5f),
-                new VLFloat(1.1f),
+                new VLFloat(1.5f),
                 new VLFloat(1f),
                 new VLFloat(1300));
 
@@ -237,8 +235,8 @@ public final class Loader extends FSLoader{
         TEX_ARRAY = new FSTexture(new VLInt(GLES32.GL_TEXTURE_2D_ARRAY), new VLInt(TEXUNIT));
         TEX_ARRAY.bind();
         TEX_ARRAY.storage3D(1, GLES32.GL_RGBA8, PIECE_TEXTURE_DIMENSION, PIECE_TEXTURE_DIMENSION, PIECES_INSTANCE_COUNT);
-        TEX_ARRAY.minFilter(GLES32.GL_LINEAR);
-        TEX_ARRAY.magFilter(GLES32.GL_LINEAR);
+        TEX_ARRAY.minFilter(GLES32.GL_NEAREST);
+        TEX_ARRAY.magFilter(GLES32.GL_NEAREST);
         TEX_ARRAY.wrapS(GLES32.GL_CLAMP_TO_EDGE);
         TEX_ARRAY.wrapT(GLES32.GL_CLAMP_TO_EDGE);
         TEX_ARRAY.baseLevel(0);
@@ -250,8 +248,8 @@ public final class Loader extends FSLoader{
         Bitmap b = null;
 
         for(int i = 0; i < PIECES_INSTANCE_COUNT; i++){
-            b = FSTools.generateTextedBitmap(act, String.valueOf(i), 40, Color.WHITE, Color.BLACK, true, PIECE_TEXTURE_DIMENSION,
-                    PIECE_TEXTURE_DIMENSION, FSTools.LOCATION_MID_CENTER, Bitmap.Config.ARGB_8888);
+            b = FSTools.generateTextedBitmap(act, String.valueOf(i), 40, Color.argb(255, 50, 50, 50),
+                    Color.WHITE, true, PIECE_TEXTURE_DIMENSION, PIECE_TEXTURE_DIMENSION, FSTools.LOCATION_MID_CENTER, Bitmap.Config.ARGB_8888);
 
             if(pixels == null){
                 pixels = ByteBuffer.allocate(b.getAllocationByteCount());
@@ -376,7 +374,7 @@ public final class Loader extends FSLoader{
         assembler.configure();
 
         VLListType<DataPack> packs = new VLListType<>(PIECES_INSTANCE_COUNT, 10);
-        DataPack pack = new DataPack(new VLArrayFloat(COLOR_WHITE), TEX_ARRAY, MATERIAL_OBSIDIAN, null);
+        DataPack pack = new DataPack(new VLArrayFloat(COLOR_WHITE), TEX_ARRAY, MATERIAL_WHITE_RUBBER, null);
 
         for(int i = 0; i < PIECES_INSTANCE_COUNT; i++){
             packs.add(pack);
@@ -481,7 +479,7 @@ public final class Loader extends FSLoader{
                 float[] pos = LIGHT_POINT.position().provider();
 
                 Matrix.setIdentityM(cache, 0);
-                Matrix.rotateM(cache, 0, 0.2f, 0f, 1f ,0f);
+                Matrix.rotateM(cache, 0, 0.4f, 0f, 1f ,0f);
                 Matrix.multiplyMV(pos, 0, cache, 0, pos, 0);
 
                 pos[0] /= pos[3];
@@ -525,14 +523,17 @@ public final class Loader extends FSLoader{
             yv = modelcluster.getY(0, 0).get();
             schematics = instance.schematics();
 
-            modelcluster.setY(0, 0, new VLVInterpolated(yv, yv + schematics.modelHeight() * 0.25f, 60 + RANDOM.nextInt(60),
+            modelcluster.setY(0, 0, new VLVInterpolated(yv, yv + schematics.modelHeight() * 0.5f, 250 + RANDOM.nextInt(60),
                     VLV.LOOP_FORWARD_BACKWARD, VLV.INTERP_ACCELERATE_DECELERATE_CUBIC));
+
+            modelcluster.addSet(0,1, 0);
+            modelcluster.addRowRotate(0, new VLVConst(-90), VLVConst.ZERO, VLVConst.ZERO, VLVConst.ONE);
 
             schematics.inputBounds().add(new FSBoundsCuboid(schematics,
                     50f, 99f, 50f, FSBounds.MODE_X_OFFSET_VOLUMETRIC, FSBounds.MODE_Y_OFFSET_VOLUMETRIC, FSBounds.MODE_Z_OFFSET_VOLUMETRIC,
                     40f, 1f, 40f, FSBounds.MODE_X_VOLUMETRIC, FSBounds.MODE_Y_VOLUMETRIC, FSBounds.MODE_Z_VOLUMETRIC));
 
-            yproc.add(new VLVProcessor.Entry(modelcluster, 0, RANDOM.nextInt(60)));
+            yproc.add(new VLVProcessor.Entry(modelcluster, 1, RANDOM.nextInt(300)));
             yproc.activateLatest();
 
             colorcluster.addSet(1, 0);

@@ -956,7 +956,7 @@ public abstract class FSLoader{
             FSModelCluster set = instance.modelCluster();
 
             set.addSet(4, 1);
-            set.addTranslation(0, new VLVConst(schematics.rawCentroidX()), new VLVConst(schematics.rawCentroidY()), new VLVConst(schematics.rawCentroidZ()));
+            set.addRowTranslation(0, new VLVConst(schematics.rawCentroidX()), new VLVConst(schematics.rawCentroidY()), new VLVConst(schematics.rawCentroidZ()));
             set.sync();
         }
 

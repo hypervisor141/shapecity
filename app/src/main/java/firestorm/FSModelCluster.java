@@ -4,14 +4,14 @@ import vanguard.VLListType;
 import vanguard.VLV;
 import vanguard.VLVCluster;
 
-public class FSModelCluster extends VLVCluster {
+public class FSModelCluster extends VLVCluster{
 
     public FSModelCluster(int initialcapacity, int resizercount){
         super(initialcapacity, resizercount);
     }
 
 
-    public void addTranslation(int setindex, VLV x, VLV y, VLV z){
+    public void addRowTranslation(int setindex, VLV x, VLV y, VLV z){
         VLListType<VLV> row = new VLListType<>(4, 10);
 
         row.add(FSModelArray.TRANSLATE_FLAG);
@@ -22,7 +22,7 @@ public class FSModelCluster extends VLVCluster {
         cluster.get(setindex).add(row);
     }
 
-    public void addScale(int setindex, VLV x, VLV y, VLV z){
+    public void addRowScale(int setindex, VLV x, VLV y, VLV z){
         VLListType<VLV> row = new VLListType<>(4, 10);
 
         row.add(FSModelArray.SCALE_FLAG);
@@ -33,7 +33,7 @@ public class FSModelCluster extends VLVCluster {
         cluster.get(setindex).add(row);
     }
 
-    public void addRotate(int setindex, VLV a, VLV x, VLV y, VLV z){
+    public void addRowRotate(int setindex, VLV a, VLV x, VLV y, VLV z){
         VLListType<VLV> row = new VLListType<>(4, 10);
 
         row.add(FSModelArray.ROTATE_FLAG);

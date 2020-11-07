@@ -37,6 +37,11 @@ public final class FSTools{
     public static final int LOCATION_BOTTOM_CENTER = 2358;
     public static final int LOCATION_BOTTOM_RIGHT = 2359;
 
+    private static final TextPaint PAINTCACHE = new TextPaint();
+    private static final Typeface TYPEFACE_NORMAL = Typeface.create("sans-serif", Typeface.NORMAL);
+    private static final Typeface TYPEFACE_BOLD = Typeface.create("sans-serif", Typeface.BOLD);
+
+
     public static Bitmap generateTextedBitmap(Context cxt, String text, int dpisize, int color, int textcolor,
                                               boolean bold, int width, int height, int location, Bitmap.Config config){
         DisplayMetrics metrics = cxt.getResources().getDisplayMetrics();
@@ -44,50 +49,43 @@ public final class FSTools{
         Bitmap b = Bitmap.createBitmap(metrics, width, height, config);
         Canvas c = new Canvas(b);
 
-        TextPaint paint = new TextPaint();
-        paint.setTextSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dpisize, metrics));
-        paint.setColor(textcolor);
-        paint.setAntiAlias(true);
-        paint.setDither(false);
+        PAINTCACHE.setTextSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dpisize, metrics));
+        PAINTCACHE.setColor(textcolor);
+        PAINTCACHE.setAntiAlias(true);
+        PAINTCACHE.setDither(false);
+        PAINTCACHE.setTypeface(bold ? TYPEFACE_BOLD : TYPEFACE_NORMAL);
 
-        if(bold){
-            paint.setTypeface(Typeface.create("sans-serif", Typeface.NORMAL));
-
-        }else{
-            paint.setTypeface(Typeface.create("sans-serif", Typeface.BOLD));
-        }
-
-        float textw = paint.measureText(text, 0, text.length());
-        float texth = paint.descent() + paint.ascent();
+        float textw = PAINTCACHE.measureText(text, 0, text.length());
+        float texth = PAINTCACHE.descent() + PAINTCACHE.ascent();
 
         c.drawColor(color);
 
         if(location == LOCATION_TOP_LEFT){
-            c.drawText(text, 0, 0, paint);
+            c.drawText(text, 0, 0, PAINTCACHE);
 
         }else if(location == LOCATION_TOP_CENTER){
-            c.drawText(text, width / 2f - textw / 2f, 0, paint);
+            c.drawText(text, width / 2f - textw / 2f, 0, PAINTCACHE);
 
         }else if(location == LOCATION_TOP_RIGHT){
-            c.drawText(text, width - textw, 0, paint);
+            c.drawText(text, width - textw, 0, PAINTCACHE);
 
         }else if(location == LOCATION_MID_LEFT){
-            c.drawText(text, 0, height / 2f - texth / 2f, paint);
+            c.drawText(text, 0, height / 2f - texth / 2f, PAINTCACHE);
 
         }else if(location == LOCATION_MID_CENTER){
-            c.drawText(text, width / 2f - textw / 2f, height / 2 - texth / 2f, paint);
+            c.drawText(text, width / 2f - textw / 2f, height / 2 - texth / 2f, PAINTCACHE);
 
         }else if(location == LOCATION_MID_RIGHT){
-            c.drawText(text, width - textw, height / 2f - texth / 2f, paint);
+            c.drawText(text, width - textw, height / 2f - texth / 2f, PAINTCACHE);
 
         }else if(location == LOCATION_BOTTOM_LEFT){
-            c.drawText(text, 0, height - texth, paint);
+            c.drawText(text, 0, height - texth, PAINTCACHE);
 
         }else if(location == LOCATION_BOTTOM_CENTER){
-            c.drawText(text, width / 2f - textw / 2f, height - texth, paint);
+            c.drawText(text, width / 2f - textw / 2f, height - texth, PAINTCACHE);
 
         }else if(location == LOCATION_BOTTOM_RIGHT){
-            c.drawText(text, width - textw, height - texth, paint);
+            c.drawText(text, width - textw, height - texth, PAINTCACHE);
 
         }else{
             throw new RuntimeException("Invalid location[" + location + "]");
@@ -103,46 +101,41 @@ public final class FSTools{
         int width = b.getWidth();
         int height = b.getHeight();
 
-        TextPaint paint = new TextPaint();
-        paint.setTextSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dip, metrics));
-        paint.setColor(textcolor);
-        paint.setAntiAlias(true);
-        paint.setDither(false);
-        if(bold){
-            paint.setTypeface(Typeface.create("sans-serif", Typeface.NORMAL));
-        }else{
-            paint.setTypeface(Typeface.create("sans-serif", Typeface.BOLD));
-        }
+        PAINTCACHE.setTextSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dip, metrics));
+        PAINTCACHE.setColor(textcolor);
+        PAINTCACHE.setAntiAlias(true);
+        PAINTCACHE.setDither(false);
+        PAINTCACHE.setTypeface(bold ? TYPEFACE_BOLD : TYPEFACE_NORMAL);
 
-        float textw = paint.measureText(text, 0, text.length());
-        float texth = paint.descent() + paint.ascent();
+        float textw = PAINTCACHE.measureText(text, 0, text.length());
+        float texth = PAINTCACHE.descent() + PAINTCACHE.ascent();
 
         if(location == LOCATION_TOP_LEFT){
-            c.drawText(text, 0, 0, paint);
+            c.drawText(text, 0, 0, PAINTCACHE);
 
         }else if(location == LOCATION_TOP_CENTER){
-            c.drawText(text, width / 2f - textw / 2f, 0, paint);
+            c.drawText(text, width / 2f - textw / 2f, 0, PAINTCACHE);
 
         }else if(location == LOCATION_TOP_RIGHT){
-            c.drawText(text, width - textw, 0, paint);
+            c.drawText(text, width - textw, 0, PAINTCACHE);
 
         }else if(location == LOCATION_MID_LEFT){
-            c.drawText(text, 0, height / 2f - texth / 2f, paint);
+            c.drawText(text, 0, height / 2f - texth / 2f, PAINTCACHE);
 
         }else if(location == LOCATION_MID_CENTER){
-            c.drawText(text, width / 2f - textw / 2f, height / 2 - texth / 2f, paint);
+            c.drawText(text, width / 2f - textw / 2f, height / 2 - texth / 2f, PAINTCACHE);
 
         }else if(location == LOCATION_MID_RIGHT){
-            c.drawText(text, width - textw, height / 2f - texth / 2f, paint);
+            c.drawText(text, width - textw, height / 2f - texth / 2f, PAINTCACHE);
 
         }else if(location == LOCATION_BOTTOM_LEFT){
-            c.drawText(text, 0, height - texth, paint);
+            c.drawText(text, 0, height - texth, PAINTCACHE);
 
         }else if(location == LOCATION_BOTTOM_CENTER){
-            c.drawText(text, width / 2f - textw / 2f, height - texth, paint);
+            c.drawText(text, width / 2f - textw / 2f, height - texth, PAINTCACHE);
 
         }else if(location == LOCATION_BOTTOM_RIGHT){
-            c.drawText(text, width - textw, height - texth, paint);
+            c.drawText(text, width - textw, height - texth, PAINTCACHE);
         }
     }
 

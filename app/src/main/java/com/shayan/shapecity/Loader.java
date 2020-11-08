@@ -49,19 +49,6 @@ import vanguard.VLVInterpolated;
 import vanguard.VLVLinear;
 import vanguard.VLVProcessor;
 
-//        7 	1.0 	0.7 	1.8
-//        13 	1.0 	0.35 	0.44
-//        20 	1.0 	0.22 	0.20
-//        32 	1.0 	0.14 	0.07
-//        50 	1.0 	0.09 	0.032
-//        65 	1.0 	0.07 	0.017
-//        100 	1.0 	0.045 	0.0075
-//        160 	1.0 	0.027 	0.0028
-//        200 	1.0 	0.022 	0.0019
-//        325 	1.0 	0.014 	0.0007
-//        600 	1.0 	0.007 	0.0002
-//        3250 	1.0 	0.0014 	0.000007
-
 public final class Loader extends FSLoader{
 
     protected static final float[] COLOR_WHITE = new float[]{
@@ -184,9 +171,22 @@ public final class Loader extends FSLoader{
 //
 //        SHADOW_DIRECT.initialize(new VLInt(Loader.TEXUNIT++));
 
+//        7 	1.0 	0.7 	1.8
+//        13 	1.0 	0.35 	0.44
+//        20 	1.0 	0.22 	0.20
+//        32 	1.0 	0.14 	0.07
+//        50 	1.0 	0.09 	0.032
+//        65 	1.0 	0.07 	0.017
+//        100 	1.0 	0.045 	0.0075
+//        160 	1.0 	0.027 	0.0028
+//        200 	1.0 	0.022 	0.0019
+//        325 	1.0 	0.014 	0.0007
+//        600 	1.0 	0.007 	0.0002
+//        3250 	1.0 	0.0014 	0.000007
+
         LIGHT_POINT = new FSLightPoint(
-                new FSAttenuation(new VLFloat(1.0f), new VLFloat(0.0014f), new VLFloat(0.000007f)),
-                new VLArrayFloat(new float[]{ 0, 10, 20, 1.0f }));
+                new FSAttenuation(new VLFloat(1.0f), new VLFloat(0.014f), new VLFloat(0.0007f)),
+                new VLArrayFloat(new float[]{ -10, 10, 0, 1.0f }));
 
         SHADOW_POINT = new FSShadowPoint(LIGHT_POINT,
                 new VLInt(1024),
@@ -212,7 +212,7 @@ public final class Loader extends FSLoader{
                 new VLArrayFloat(new float[]{ 0.05375f, 0.05f, 0.06625f }),
                 new VLArrayFloat(new float[]{ 0.18275f, 0.17f, 0.22525f }),
                 new VLArrayFloat(new float[]{ 0.332741f, 0.328634f, 0.346435f }),
-                new VLFloat(32));
+                new VLFloat(256));
 
         MATERIAL_WHITE_RUBBER = new FSLightMaterial(
                 new VLArrayFloat(new float[]{ 0.05f, 0.05f, 0.05f }),
@@ -379,7 +379,7 @@ public final class Loader extends FSLoader{
         assembler.configure();
 
         VLListType<DataPack> packs = new VLListType<>(PIECES_INSTANCE_COUNT, 10);
-        DataPack pack = new DataPack(new VLArrayFloat(COLOR_WHITE), TEX_ARRAY, MATERIAL_WHITE_RUBBER, null);
+        DataPack pack = new DataPack(new VLArrayFloat(COLOR_WHITE), TEX_ARRAY, MATERIAL_OBSIDIAN, null);
 
         for(int i = 0; i < PIECES_INSTANCE_COUNT; i++){
             packs.add(pack);
@@ -474,7 +474,10 @@ public final class Loader extends FSLoader{
     }
 
     private void postProcess(){
-        VLVLinear v = new VLVLinear(0, 360, 100, VLV.LOOP_FORWARD).setTask(new VLTaskContinous(new VLTask.Task(){
+        final float[] orgpos = LIGHT_POINT.position().provider().clone();
+
+        VLVInterpolated v = new VLVInterpolated(0, 20, 100, VLV.LOOP_FORWARD_BACKWARD, VLV.INTERP_ACCELERATE_DECELERATE_COS)
+                .setTask(new VLTaskContinous(new VLTask.Task(){
 
             private float[] cache = new float[16];
 
@@ -484,8 +487,9 @@ public final class Loader extends FSLoader{
                 float[] pos = LIGHT_POINT.position().provider();
 
                 Matrix.setIdentityM(cache, 0);
-                Matrix.rotateM(cache, 0, 0.4f, 0f, 1f ,0f);
-                Matrix.multiplyMV(pos, 0, cache, 0, pos, 0);
+                Matrix.translateM(cache, 0, v.get(), 0f ,0f);
+//                Matrix.rotateM(cache, 0, 0.4f, 0f, 1f ,0f);
+                Matrix.multiplyMV(pos, 0, cache, 0, orgpos, 0);
 
                 pos[0] /= pos[3];
                 pos[1] /= pos[3];

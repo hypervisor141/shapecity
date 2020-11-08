@@ -156,6 +156,15 @@ public final class FSSchematics extends VLSyncer.Syncable{
         centroid[1] /= pointcount;
         centroid[2] /= pointcount;
 
+        float b;
+
+        for(int i = 0; i < bounds.length; i++){
+            b = bounds[i];
+
+            boundsmodel[i] = b;
+            boundsmvp[i] = b;
+        }
+
         markForNewUpdates();
     }
 

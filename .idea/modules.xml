@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/hive.iml" filepath="$PROJECT_DIR$/hive.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/hive.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/hive.app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/shapecity.iml" filepath="$PROJECT_DIR$/.idea/modules/shapecity.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/shapecity.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/shapecity.app.iml" />
     </modules>
   </component>
 </project>

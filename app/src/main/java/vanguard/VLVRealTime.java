@@ -13,7 +13,7 @@ public class VLVRealTime extends VLVConst{
     }
 
     @Override
-    protected float advanceValue(){
+    protected float advance(){
         return System.currentTimeMillis() * millismultiplier;
     }
 

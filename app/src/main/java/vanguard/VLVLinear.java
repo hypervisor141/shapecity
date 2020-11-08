@@ -1,6 +1,8 @@
 package vanguard;
 
-public class VLVLinear extends VLVConst {
+import android.util.Log;
+
+public class VLVLinear extends VLVConst{
 
     protected VLTask task;
     protected Loop loop;
@@ -19,21 +21,39 @@ public class VLVLinear extends VLVConst {
         this.loop = loop;
 
         change = (to - from) / cycles;
-        target = cycles < 0 ? from : to;
+        target = to;
     }
 
 
 
     @Override
-    protected float advanceValue(){
+    protected float advance(){
         value += change;
 
-        if((from <= to && ((change < 0 && value < from) || (change > 0 && value > to))) ||
-                (to < from && ((change < 0 && value < to) || (change > 0 && value > from)))){
-            value = to;
+        if(from <= to){
+            if(change > 0 && value > to){
+                value = to;
+
+            }else if(change < 0 && value < from){
+                value = from;
+            }
+
+        }else if(to < from){
+            if(change > 0 && value > from){
+                value = from;
+
+            }else if(change < 0 && value < to){
+                value = to;
+            }
         }
 
         return value;
+    }
+
+    @Override
+    public void reverse(){
+        super.reverse();
+        target = target == to ? from : to;
     }
 
     @Override

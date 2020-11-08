@@ -42,7 +42,7 @@ public class VLVInterpolated extends VLVConst{
 
 
     @Override
-    protected float advanceValue(){
+    protected float advance(){
         tracker += change;
 
         if(tracker > 0 && tracker < 1){

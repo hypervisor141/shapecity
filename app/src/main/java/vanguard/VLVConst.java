@@ -1,5 +1,7 @@
 package vanguard;
 
+import android.util.Log;
+
 public class VLVConst extends VLV{
 
     public static final VLVConst ZERO = new VLVConst(0);
@@ -58,7 +60,7 @@ public class VLVConst extends VLV{
             return getLoop().process(this);
 
         }else{
-            value = advanceValue();
+            value = advance();
             taskCheck();
 
             return true;
@@ -71,7 +73,7 @@ public class VLVConst extends VLV{
     }
 
     @Override
-    protected float advanceValue(){
+    protected float advance(){
         return value;
     }
 
@@ -108,13 +110,10 @@ public class VLVConst extends VLV{
     public void reset(){
         if(isVariableType()){
             resetTask();
-
-            if(getLoop() == LOOP_RETURNING){
-                reverse();
-                setLoop(LOOP_RETURN_ONCE);
-            }
+            getLoop().resetting(this);
 
             value = getChange() < 0 ? getTo() : getFrom();
+            value = advance();
         }
     }
 

@@ -1,5 +1,8 @@
 package vanguard;
 
+import android.app.RecoverableSecurityException;
+import android.util.Log;
+
 import firestorm.FSMath;
 
 public abstract class VLV extends VLSyncer.Syncable implements VLStringify{
@@ -67,7 +70,7 @@ public abstract class VLV extends VLSyncer.Syncable implements VLStringify{
         throw new RuntimeException("Stub");
     }
 
-    protected float advanceValue(){
+    protected float advance(){
         throw new RuntimeException("Stub");
     }
 
@@ -285,51 +288,80 @@ public abstract class VLV extends VLSyncer.Syncable implements VLStringify{
     public abstract static class Loop{
 
         public abstract boolean process(VLV var);
+        public abstract void resetting(VLV var);
     }
 
-    public static final class LoopNone extends Loop{
+    public static class LoopNone extends Loop{
 
         @Override
         public boolean process(VLV var){
             return false;
         }
+
+        @Override
+        public void resetting(VLV var){
+
+        }
     }
 
-    public static final class LoopForward extends Loop{
+    public static class LoopForward extends Loop{
 
         @Override
         public boolean process(VLV var){
             var.reset();
             return true;
         }
+
+        @Override
+        public void resetting(VLV var){
+
+        }
     }
 
-    public static final class LoopForwardBackward extends Loop{
+    public static class LoopForwardBackward extends Loop{
 
         @Override
         public boolean process(VLV var){
             var.reverse();
             var.reset();
+
             return true;
+        }
+
+        @Override
+        public void resetting(VLV var){
+
         }
     }
 
-    public static final class LoopReturnOnce extends Loop{
+    public static class LoopReturnOnce extends Loop{
 
         @Override
         public boolean process(VLV var){
             var.reverse();
             var.reset();
             var.setLoop(LOOP_RETURNING);
+
             return true;
+        }
+
+        @Override
+        public void resetting(VLV var){
+
         }
     }
 
-    public static final class LoopReturning extends Loop{
+    public static class LoopReturning extends Loop{
 
         @Override
         public boolean process(VLV var){
             return false;
+        }
+
+        @Override
+        public void resetting(VLV var){
+            var.reverse();
+            var.setLoop(LOOP_RETURN_ONCE);
         }
     }
 

@@ -108,7 +108,6 @@ public abstract class FSLoader{
         addProgramSets(programsetsize);
     }
 
-
     public void initialize(@Nullable FSActivity act){
         assemble(act);
     }

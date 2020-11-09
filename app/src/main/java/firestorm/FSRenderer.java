@@ -13,7 +13,7 @@ import java.util.NoSuchElementException;
 import vanguard.VLThreadHost;
 import vanguard.VLVProcessor;
 
-public final class FSRenderer {
+public final class FSRenderer{
 
     protected static RenderThread RENDERTHREAD;
     public final static Object RENDERLOCK = new Object();
@@ -29,7 +29,6 @@ public final class FSRenderer {
     protected static int CURRENT_PROGRAM_SET_INDEX;
     private static int EXTERNAL_CHANGES;
     private static int INTERNAL_CHANGES;
-
 
     public static void initialize(){
         passes = new ArrayList<>();

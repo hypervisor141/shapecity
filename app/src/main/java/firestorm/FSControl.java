@@ -200,6 +200,10 @@ public final class FSControl {
         return SURFACE;
     }
 
+    public static FSActivity getActivity(){
+        return SURFACE.getActivity();
+    }
+
     public static Context getContext(){
         return SURFACE.getContext();
     }
@@ -266,6 +270,10 @@ public final class FSControl {
 
     public static float[] getClearColor(){
         return CLEARCOLOR;
+    }
+
+    public static boolean isIsGLInitialized(){
+        return isGLInitialized;
     }
 
 

@@ -14,19 +14,22 @@ public final class FSSurface extends SurfaceView implements SurfaceHolder.Callba
 
     private GestureDetectorCompat gesture;
     private Choreographer choreographer;
+    private FSActivity activity;
 
     private boolean isDestroyed;
 
 
 
-    protected FSSurface(FSActivity act){
-        super(act.getApplicationContext());
+    protected FSSurface(FSActivity activity){
+        super(activity.getApplicationContext());
 
-        FSControl.initialize(act, this, null);
+        this.activity = activity;
+
+        FSControl.initialize(activity, this, null);
         SurfaceHolder holder = getHolder();
         holder.addCallback(this);
 
-        gesture = new GestureDetectorCompat(act, this);
+        gesture = new GestureDetectorCompat(activity, this);
         choreographer = Choreographer.getInstance();
 
         isDestroyed = false;
@@ -40,6 +43,9 @@ public final class FSSurface extends SurfaceView implements SurfaceHolder.Callba
         return isDestroyed;
     }
 
+    public FSActivity getActivity(){
+        return activity;
+    }
 
 
 
@@ -151,6 +157,7 @@ public final class FSSurface extends SurfaceView implements SurfaceHolder.Callba
 
     private void destroy(){
         isDestroyed = false;
+
         FSControl.destroy();
 
         if(!FSControl.SCONFIG.getKeepAlive()){
@@ -160,6 +167,7 @@ public final class FSSurface extends SurfaceView implements SurfaceHolder.Callba
             gesture = null;
             choreographer = null;
             isDestroyed = true;
+            activity = null;
         }
     }
 }

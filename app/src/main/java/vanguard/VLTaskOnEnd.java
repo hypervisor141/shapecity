@@ -1,15 +1,15 @@
 package vanguard;
 
-public final class VLTaskOnEnd extends VLTask {
+public final class VLTaskOnEnd<VARTYPE extends VLV> extends VLTask<VARTYPE>{
 
 
-    public VLTaskOnEnd(Task task){
+    public VLTaskOnEnd(Task<VARTYPE> task){
         super(task);
     }
 
 
     @Override
-    protected boolean checkRun(VLVConst var){
+    protected boolean checkRun(VARTYPE var){
         if(var.isDone()){
             task.run(this, var);
             return true;

@@ -1,19 +1,19 @@
 package vanguard;
 
-public final class VLTaskOnCycle extends VLTask {
+public final class VLTaskOnCycle<VARTYPE extends VLV> extends VLTask<VARTYPE>{
 
     private int cycles;
     private int count;
 
 
-    public VLTaskOnCycle(Task task, int cycles){
+    public VLTaskOnCycle(Task<VARTYPE> task, int cycles){
         super(task);
         this.cycles = cycles;
     }
 
 
     @Override
-    protected boolean checkRun(VLVConst v){
+    protected boolean checkRun(VARTYPE v){
         count++;
 
         if(count >= cycles){

@@ -1,22 +1,22 @@
 package vanguard;
 
-public abstract class VLTask {
+public abstract class VLTask<VARTYPE extends VLV>{
 
-    protected Task task;
+    protected Task<VARTYPE> task;
 
-    public VLTask(Task task){
+    public VLTask(Task<VARTYPE> task){
         this.task = task;
     }
 
 
-    protected abstract boolean checkRun(VLVConst var);
+    protected abstract boolean checkRun(VARTYPE var);
 
     protected void reset(){
 
     }
 
-    public interface Task{
+    public interface Task<VARTYPE extends VLV>{
 
-        void run(VLTask t, VLVConst v);
+        void run(VLTask<VARTYPE> t, VARTYPE v);
     }
 }

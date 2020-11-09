@@ -1,19 +1,19 @@
 package vanguard;
 
-public final class VLTaskIncreasingThreshold extends VLTask {
+public final class VLTaskIncreasingThreshold<VARTYPE extends VLV> extends VLTask<VARTYPE>{
 
     private float threshold;
     private boolean ran = false;
 
 
-    public VLTaskIncreasingThreshold(Task task, float threshold){
+    public VLTaskIncreasingThreshold(Task<VARTYPE> task, float threshold){
         super(task);
         this.threshold = threshold;
     }
 
 
     @Override
-    protected boolean checkRun(VLVConst v){
+    protected boolean checkRun(VARTYPE v){
         if(!ran){
             float val = v.get();
             boolean increasing = v.getIncreasing();

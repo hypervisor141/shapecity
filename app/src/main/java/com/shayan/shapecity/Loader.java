@@ -1,6 +1,7 @@
 
 package com.shayan.shapecity;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.opengl.GLES32;
@@ -18,10 +19,10 @@ import firestorm.FSBoundsCuboid;
 import firestorm.FSBrightness;
 import firestorm.FSBufferLayout;
 import firestorm.FSConfig;
+import firestorm.FSControl;
 import firestorm.FSGamma;
 import firestorm.FSInput;
 import firestorm.FSInstance;
-import firestorm.FSLightDirect;
 import firestorm.FSLightMaterial;
 import firestorm.FSLightPoint;
 import firestorm.FSLoader;
@@ -31,7 +32,6 @@ import firestorm.FSModelCluster;
 import firestorm.FSP;
 import firestorm.FSRenderer;
 import firestorm.FSSchematics;
-import firestorm.FSShadowDirect;
 import firestorm.FSShadowPoint;
 import firestorm.FSTexture;
 import firestorm.FSTools;
@@ -54,8 +54,11 @@ public final class Loader extends FSLoader{
     protected static final float[] COLOR_WHITE = new float[]{
             1F, 1F, 1F, 1F
     };
-    protected static final float[] COLOR_WHITE_X2 = new float[]{
+    protected static final float[] COLOR_WHITE_EXTRA = new float[]{
             4F, 4F, 4F, 1F
+    };
+    protected static final float[] COLOR_WHITE_EXTRA_2 = new float[]{
+            8F, 8F, 8F, 1F
     };
     protected static final float[] COLOR_ORANGE = new float[]{
             1.0F, 0.7F, 0F, 1F
@@ -73,8 +76,10 @@ public final class Loader extends FSLoader{
             1.0F, 0.4F, 0F, 1F
     };
 
-    protected static final float[] COLOR_CURRENT = COLOR_WHITE;
-    protected static final float[] COLOR_SELECTED = COLOR_WHITE_X2;
+    protected static final float[] COLOR_PIECES = COLOR_WHITE;
+    protected static final float[] COLOR_SELECTED = COLOR_WHITE_EXTRA_2;
+    protected static final int COLOR_PIECE_TEXTURE_BG = Color.argb(255,20,20,20);
+    protected static final int COLOR_PIECE_TEXTURE_TEXT = Color.WHITE;
 
     private static final int SHADOW_PROGRAMSET = 0;
     private static final int MAIN_PROGRAMSET = 1;
@@ -83,6 +88,8 @@ public final class Loader extends FSLoader{
     private static final int SHADOWMAP_ORTHO_NEAR = 1;
     private static final int SHADOWMAP_ORTHO_FAR = 1500;
     private static final int PIECE_TEXTURE_DIMENSION = 512;
+    private static final int SELECTION_CYCLES = 5;
+    private static final int LIGHT_SPIN_CYCLES = 3600;
     private static int UBOBINDPOINT = 0;
     protected static int TEXUNIT = 0;
 
@@ -93,9 +100,7 @@ public final class Loader extends FSLoader{
     private static final SecureRandom RANDOM = new SecureRandom();
 
     protected static FSTexture TEX_ARRAY;
-    protected static FSLightDirect LIGHT_DIRECT;
     protected static FSLightPoint LIGHT_POINT;
-    protected static FSShadowDirect SHADOW_DIRECT;
     protected static FSShadowPoint SHADOW_POINT;
     protected static FSBrightness BRIGHTNESS;
     private static FSGamma GAMMA;
@@ -106,20 +111,20 @@ public final class Loader extends FSLoader{
     private static final VLInt SHADOW_POINT_PCF_SAMPLES = new VLInt(20);
 
     private static ModDepthMap.Prepare MOD_DEPTH_PREP;
-    private static ModDepthMap.SetupDirect MOD_DEPTH_SETUP_DIRECT;
     private static ModDepthMap.SetupPoint MOD_DEPTH_SETUP_POINT;
     private static ModDepthMap.Finish MODE_DEPTH_FINISH;
     private static ModModel.UBO MOD_MODEL_UBO;
     private static ModModel.Uniform MOD_MODEL_UNIFORM;
     private static ModColor.TextureAndUBO MOD_COLOR_TEXTURE_AND_UBO;
     private static ModColor.Uniform MOD_COLOR_UNIFORM;
-    private static ModLight.Direct MOD_LIGHT_DIRECT;
     private static ModLight.Point MOD_LIGHT_POINT;
     private static ModNoLight MOD_NO_LIGHT;
 
     private static FSMesh lightbox;
     private static FSMesh pieces;
     private static FSMesh city;
+
+    private static ByteBuffer PIXEL_BUFFER = null;
 
     private static int BUFFER_ELEMENT_SHORT_DEFAULT;
     private static int BUFFER_ARRAY_FLOAT_DEFAULT;
@@ -139,7 +144,7 @@ public final class Loader extends FSLoader{
 
         prepare(act);
 
-        addLightSphere();
+//        addLightSphere();
         addPieces();
         addSingularParts();
 
@@ -154,24 +159,7 @@ public final class Loader extends FSLoader{
     }
 
     private void prepare(final FSActivity act){
-        BRIGHTNESS = new FSBrightness(new VLFloat(2f));
-
-        GAMMA = new FSGamma(new VLFloat(1.5f));
-
-//        LIGHT_DIRECT = new FSLightDirect(
-//                new VLArrayFloat(new float[]{ 0, 10, 30, 1.0f }),
-//                new VLArrayFloat(new float[]{ 0f, 0f, 0f }));
-//
-//        SHADOW_DIRECT = new FSShadowDirect(LIGHT_DIRECT,
-//                new VLInt(2048),
-//                new VLInt(2048),
-//                new VLFloat(0.00001f),
-//                new VLFloat(0.0001f),
-//                new VLFloat(4f));
-//
-//        SHADOW_DIRECT.initialize(new VLInt(Loader.TEXUNIT++));
-
-//        7 	1.0 	0.7 	1.8
+        //        7 	1.0 	0.7 	1.8
 //        13 	1.0 	0.35 	0.44
 //        20 	1.0 	0.22 	0.20
 //        32 	1.0 	0.14 	0.07
@@ -184,14 +172,16 @@ public final class Loader extends FSLoader{
 //        600 	1.0 	0.007 	0.0002
 //        3250 	1.0 	0.0014 	0.000007
 
+        BRIGHTNESS = new FSBrightness(new VLFloat(2f));
+        GAMMA = new FSGamma(new VLFloat(1.5f));
         LIGHT_POINT = new FSLightPoint(
                 new FSAttenuation(new VLFloat(1.0f), new VLFloat(0.014f), new VLFloat(0.0007f)),
                 new VLArrayFloat(new float[]{ -10, 10, 0, 1.0f }));
 
         SHADOW_POINT = new FSShadowPoint(LIGHT_POINT,
-                new VLInt(1024),
-                new VLInt(1024),
-                new VLFloat(0.45f), new VLFloat(0.5f),
+                new VLInt(1250),
+                new VLInt(1250),
+                new VLFloat(0.5f), new VLFloat(0.55f),
                 new VLFloat(1.5f),
                 new VLFloat(1f),
                 new VLFloat(1300));
@@ -222,14 +212,9 @@ public final class Loader extends FSLoader{
 
         int materialsize = MATERIAL_DEFAULT.getGLSLSize();
 
-//        MOD_DEPTH_PREP = new ModDepthMap.Prepare(SHADOW_DIRECT.frameBuffer(), SHADOW_DIRECT.width(), SHADOW_DIRECT.height());
-//        MOD_DEPTH_SETUP_DIRECT = new ModDepthMap.SetupDirect(SHADOW_DIRECT.lightViewProjection());
-//        MOD_DEPTH_PREP = new ModDepthMap.Prepare(SHADOW_POINT.frameBuffer(), SHADOW_POINT.width(), SHADOW_POINT.height(), true);
         MOD_DEPTH_PREP = new ModDepthMap.Prepare(SHADOW_POINT.frameBuffer(), SHADOW_POINT.width(), SHADOW_POINT.height(), false);
         MOD_DEPTH_SETUP_POINT = new ModDepthMap.SetupPoint(SHADOW_POINT, FSShadowPoint.SELECT_LIGHT_TRANSFORMS, LIGHT_POINT.position(), SHADOW_POINT.zFar());
-//        MODE_DEPTH_FINISH = new ModDepthMap.Finish(SHADOW_DIRECT.frameBuffer());
         MODE_DEPTH_FINISH = new ModDepthMap.Finish(SHADOW_POINT.frameBuffer());
-//        MOD_LIGHT_DIRECT = new ModLight.Direct(GAMMA, BRIGHTNESS, LIGHT_DIRECT, SHADOW_DIRECT, materialsize);
         MOD_LIGHT_POINT = new ModLight.Point(GAMMA, null, BRIGHTNESS, LIGHT_POINT, SHADOW_POINT, materialsize);
         MOD_NO_LIGHT = new ModNoLight(GAMMA, BRIGHTNESS);
         MOD_MODEL_UBO = new ModModel.UBO(1, PIECES_INSTANCE_COUNT);
@@ -237,6 +222,11 @@ public final class Loader extends FSLoader{
         MOD_COLOR_TEXTURE_AND_UBO = new ModColor.TextureAndUBO(1, PIECES_INSTANCE_COUNT, true, false);
         MOD_COLOR_UNIFORM = new ModColor.Uniform();
 
+        addTextures(act);
+        addBuffers();
+    }
+
+    private void addTextures(FSActivity act){
         TEX_ARRAY = new FSTexture(new VLInt(GLES32.GL_TEXTURE_2D_ARRAY), new VLInt(TEXUNIT));
         TEX_ARRAY.bind();
         TEX_ARRAY.storage3D(1, GLES32.GL_RGBA8, PIECE_TEXTURE_DIMENSION, PIECE_TEXTURE_DIMENSION, PIECES_INSTANCE_COUNT);
@@ -249,31 +239,34 @@ public final class Loader extends FSLoader{
 
         FSTools.checkGLError();
 
-        ByteBuffer pixels = null;
         Bitmap b = null;
 
         for(int i = 0; i < PIECES_INSTANCE_COUNT; i++){
-            b = FSTools.generateTextedBitmap(act, String.valueOf(i), 40, Color.argb(255, 50, 50, 50),
-                    Color.WHITE, true, PIECE_TEXTURE_DIMENSION, PIECE_TEXTURE_DIMENSION, FSTools.LOCATION_MID_CENTER, Bitmap.Config.ARGB_8888);
+            b = FSTools.generateTextedBitmap(act, String.valueOf(i), 30, COLOR_PIECE_TEXTURE_BG, COLOR_PIECE_TEXTURE_TEXT, true,
+                    PIECE_TEXTURE_DIMENSION, PIECE_TEXTURE_DIMENSION, FSTools.LOCATION_MID_CENTER, Bitmap.Config.ARGB_8888);
 
-            if(pixels == null){
-                pixels = ByteBuffer.allocate(b.getAllocationByteCount());
-                pixels.order(ByteOrder.nativeOrder());
+            if(PIXEL_BUFFER == null){
+                PIXEL_BUFFER = ByteBuffer.allocate(b.getAllocationByteCount());
+                PIXEL_BUFFER.order(ByteOrder.nativeOrder());
             }
 
-            pixels.position(0);
-            b.copyPixelsToBuffer(pixels);
+            PIXEL_BUFFER.position(0);
+
+            b.copyPixelsToBuffer(PIXEL_BUFFER);
             b.recycle();
-            pixels.position(0);
+
+            PIXEL_BUFFER.position(0);
 
             TEX_ARRAY.subImage3D(0, 0, 0, i, PIECE_TEXTURE_DIMENSION,
-                    PIECE_TEXTURE_DIMENSION, 1, GLES32.GL_RGBA, GLES32.GL_UNSIGNED_BYTE, pixels);
+                    PIECE_TEXTURE_DIMENSION, 1, GLES32.GL_RGBA, GLES32.GL_UNSIGNED_BYTE, PIXEL_BUFFER);
 
             FSTools.checkGLError();
         }
 
         TEX_ARRAY.unbind();
+    }
 
+    private void addBuffers(){
         BUFFER_ELEMENT_SHORT_DEFAULT = BUFFERMANAGER.addShortBuffer(GLES32.GL_ELEMENT_ARRAY_BUFFER, GLES32.GL_STATIC_DRAW, -1);
         BUFFER_ARRAY_FLOAT_DEFAULT = BUFFERMANAGER.addFloatBuffer(GLES32.GL_ARRAY_BUFFER, GLES32.GL_STATIC_DRAW, -1);
     }
@@ -379,7 +372,7 @@ public final class Loader extends FSLoader{
         assembler.configure();
 
         VLListType<DataPack> packs = new VLListType<>(PIECES_INSTANCE_COUNT, 10);
-        DataPack pack = new DataPack(new VLArrayFloat(COLOR_WHITE), TEX_ARRAY, MATERIAL_OBSIDIAN, null);
+        DataPack pack = new DataPack(new VLArrayFloat(COLOR_PIECES), TEX_ARRAY, MATERIAL_OBSIDIAN, null);
 
         for(int i = 0; i < PIECES_INSTANCE_COUNT; i++){
             packs.add(pack);
@@ -476,19 +469,18 @@ public final class Loader extends FSLoader{
     private void postProcess(){
         final float[] orgpos = LIGHT_POINT.position().provider().clone();
 
-        VLVInterpolated v = new VLVInterpolated(0, 20, 100, VLV.LOOP_FORWARD_BACKWARD, VLV.INTERP_ACCELERATE_DECELERATE_COS)
-                .setTask(new VLTaskContinous(new VLTask.Task(){
+        VLVLinear v = new VLVLinear(0, 360, LIGHT_SPIN_CYCLES, VLV.LOOP_FORWARD)
+                .setTask(new VLTaskContinous(new VLTask.Task<VLVLinear>(){
 
             private float[] cache = new float[16];
 
             @Override
-            public void run(VLTask t, VLVConst v){
+            public void run(VLTask t, VLVLinear v){
 //                float[] pos = LIGHT_DIRECT.position().provider();
                 float[] pos = LIGHT_POINT.position().provider();
 
                 Matrix.setIdentityM(cache, 0);
-                Matrix.translateM(cache, 0, v.get(), 0f ,0f);
-//                Matrix.rotateM(cache, 0, 0.4f, 0f, 1f ,0f);
+                Matrix.rotateM(cache, 0, v.get(), 0f, 1f ,0f);
                 Matrix.multiplyMV(pos, 0, cache, 0, orgpos, 0);
 
                 pos[0] /= pos[3];
@@ -502,11 +494,11 @@ public final class Loader extends FSLoader{
 
                 SHADOW_POINT.updateLightVP();
 
-                FSModelCluster set = lightbox.get(0).modelCluster();
-                set.getX(0, 0).set(pos[0]);
-                set.getY(0, 0).set(pos[1]);
-                set.getZ(0, 0).set(pos[2]);
-                set.sync();
+//                FSModelCluster set = lightbox.get(0).modelCluster();
+//                set.getX(0, 0).set(pos[0]);
+//                set.getY(0, 0).set(pos[1]);
+//                set.getZ(0, 0).set(pos[2]);
+//                set.sync();
             }
         }));
 
@@ -548,9 +540,9 @@ public final class Loader extends FSLoader{
 
             colorcluster.addSet(1, 0);
             colorcluster.addRow(i2, 3, 0);
-            colorcluster.addColumn(i2, 0, new VLVInterpolated(COLOR_CURRENT[0], COLOR_SELECTED[0], 15, VLV.LOOP_RETURN_ONCE, VLV.INTERP_LINEAR));
-            colorcluster.addColumn(i2, 0, new VLVInterpolated(COLOR_CURRENT[1], COLOR_SELECTED[1], 15, VLV.LOOP_RETURN_ONCE, VLV.INTERP_LINEAR));
-            colorcluster.addColumn(i2, 0, new VLVInterpolated(COLOR_CURRENT[2], COLOR_SELECTED[2], 15, VLV.LOOP_RETURN_ONCE, VLV.INTERP_LINEAR));
+            colorcluster.addColumn(i2, 0, new VLVInterpolated(COLOR_PIECES[0], COLOR_SELECTED[0], SELECTION_CYCLES, VLV.LOOP_RETURN_ONCE, VLV.INTERP_LINEAR));
+            colorcluster.addColumn(i2, 0, new VLVInterpolated(COLOR_PIECES[1], COLOR_SELECTED[1], SELECTION_CYCLES, VLV.LOOP_RETURN_ONCE, VLV.INTERP_LINEAR));
+            colorcluster.addColumn(i2, 0, new VLVInterpolated(COLOR_PIECES[2], COLOR_SELECTED[2], SELECTION_CYCLES, VLV.LOOP_RETURN_ONCE, VLV.INTERP_LINEAR));
             colorcluster.SYNCER.add(new VLArray.DefinitionCluster(instance.colors(), i2, 0, 0));
             colorcluster.sync();
 
@@ -613,9 +605,34 @@ public final class Loader extends FSLoader{
         PROCESSORS.add(cproc);
     }
 
+    private void changePieceTexture(final FSInstance instance, final int subimageindex, final String text){
+        FSRenderer.addTask(new Runnable(){
+
+            @Override
+            public void run(){
+                Bitmap b = FSTools.generateTextedBitmap(FSControl.getContext(), text, 30, COLOR_PIECE_TEXTURE_BG, COLOR_PIECE_TEXTURE_TEXT, true,
+                        PIECE_TEXTURE_DIMENSION, PIECE_TEXTURE_DIMENSION, FSTools.LOCATION_MID_CENTER, Bitmap.Config.ARGB_8888);
+
+                PIXEL_BUFFER.position(0);
+
+                b.copyPixelsToBuffer(PIXEL_BUFFER);
+                b.recycle();
+
+                PIXEL_BUFFER.position(0);
+
+                TEX_ARRAY.bind();
+                TEX_ARRAY.subImage3D(0, 0, 0, subimageindex, PIECE_TEXTURE_DIMENSION, PIECE_TEXTURE_DIMENSION,
+                        1, GLES32.GL_RGBA, GLES32.GL_UNSIGNED_BYTE, PIXEL_BUFFER);
+                TEX_ARRAY.unbind();
+
+                FSTools.checkGLError();
+            }
+        });
+    }
+
     @Override
     protected void destroyAssets(){
-        SHADOW_DIRECT.destroy();
+        SHADOW_POINT.destroy();
         TEX_ARRAY.destroy();
     }
 }

@@ -105,11 +105,11 @@ public class Start extends FSActivity{
         FSViewConfig scene = FSControl.getViewConfig();
         scene.setPerspectiveMode();
         scene.viewPort(0, 0, width, height);
-        scene.perspective(60, (float)width / height, 1F, 1500);
+        scene.perspective(10f, (float)width / height, 1F, 1500F);
         scene.updateViewPort();
 
-        scene.eyePosition(0, 20, -0.01f);
-        scene.lookAt(0f, 0, 0f, 0f, 1f, 0f);
+        scene.eyePosition(0f, 40f, -0.01f);
+        scene.lookAt(0f, 0f, 0f, 0f, 1f, 0f);
         scene.updateViewProjection();
 
 //        VLVInterpolated v = new VLVInterpolated(0, 360, 1500, VLV.LOOP_FORWARD, VLV.INTERP_LINEAR);

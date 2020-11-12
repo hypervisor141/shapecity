@@ -1,13 +1,13 @@
 package com.shayan.shapecity;
 
-import firestorm.FSBrightness;
-import firestorm.FSConfig;
-import firestorm.FSConfigDynamic;
-import firestorm.FSControl;
-import firestorm.FSGamma;
-import firestorm.FSLoader;
-import firestorm.FSP;
-import firestorm.FSShader;
+import com.nurverek.firestorm.FSBrightness;
+import com.nurverek.firestorm.FSConfig;
+import com.nurverek.firestorm.FSConfigDynamic;
+import com.nurverek.firestorm.FSControl;
+import com.nurverek.firestorm.FSGamma;
+import com.nurverek.firestorm.FSLoader;
+import com.nurverek.firestorm.FSP;
+import com.nurverek.firestorm.FSShader;
 
 public class ModNoLight extends FSP.Modifier{
 
@@ -28,8 +28,8 @@ public class ModNoLight extends FSP.Modifier{
         FSConfig position = new FSP.AttribPointer(policy, FSLoader.ELEMENT_POSITION, 0);
         FSConfig color = new FSP.Uniform4fve(policy, 0, FSLoader.ELEMENT_COLOR, 0, 1);
         FSConfig vp = new FSP.UniformMatrix4fvd(policy, FSControl.getViewConfig().viewProjectionMatrix(), 0, 1);
-        FSConfig bright = new FSConfigDynamic<FSBrightness>(brightness);
-        FSConfig gam = new FSConfigDynamic<FSGamma>(gamma);
+        FSConfig bright = new FSConfigDynamic<>(brightness);
+        FSConfig gam = new FSConfigDynamic<>(gamma);
 
         program.registerAttributeLocation(vertex, position);
         program.registerUniformLocation(vertex, vp);

@@ -1,55 +1,54 @@
 
 package com.shayan.shapecity;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.opengl.GLES32;
 import android.opengl.Matrix;
 import android.view.MotionEvent;
 
+import com.nurverek.firestorm.FSActivity;
+import com.nurverek.firestorm.FSAttenuation;
+import com.nurverek.firestorm.FSBounds;
+import com.nurverek.firestorm.FSBoundsCuboid;
+import com.nurverek.firestorm.FSBrightness;
+import com.nurverek.firestorm.FSBufferLayout;
+import com.nurverek.firestorm.FSConfig;
+import com.nurverek.firestorm.FSControl;
+import com.nurverek.firestorm.FSGamma;
+import com.nurverek.firestorm.FSInput;
+import com.nurverek.firestorm.FSInstance;
+import com.nurverek.firestorm.FSLightMaterial;
+import com.nurverek.firestorm.FSLightPoint;
+import com.nurverek.firestorm.FSLoader;
+import com.nurverek.firestorm.FSMesh;
+import com.nurverek.firestorm.FSModelCluster;
+import com.nurverek.firestorm.FSP;
+import com.nurverek.firestorm.FSRenderer;
+import com.nurverek.firestorm.FSSchematics;
+import com.nurverek.firestorm.FSShadowPoint;
+import com.nurverek.firestorm.FSTexture;
+import com.nurverek.firestorm.FSTools;
+import com.nurverek.vanguard.VLArray;
+import com.nurverek.vanguard.VLArrayFloat;
+import com.nurverek.vanguard.VLFloat;
+import com.nurverek.vanguard.VLInt;
+import com.nurverek.vanguard.VLListType;
+import com.nurverek.vanguard.VLMath;
+import com.nurverek.vanguard.VLTask;
+import com.nurverek.vanguard.VLTaskContinous;
+import com.nurverek.vanguard.VLV;
+import com.nurverek.vanguard.VLVCluster;
+import com.nurverek.vanguard.VLVConst;
+import com.nurverek.vanguard.VLVInterpolated;
+import com.nurverek.vanguard.VLVLinear;
+import com.nurverek.vanguard.VLVProcessor;
+
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.security.SecureRandom;
 
-import firestorm.FSActivity;
-import firestorm.FSAttenuation;
-import firestorm.FSBounds;
-import firestorm.FSBoundsCuboid;
-import firestorm.FSBrightness;
-import firestorm.FSBufferLayout;
-import firestorm.FSConfig;
-import firestorm.FSControl;
-import firestorm.FSGamma;
-import firestorm.FSInput;
-import firestorm.FSInstance;
-import firestorm.FSLightMaterial;
-import firestorm.FSLightPoint;
-import firestorm.FSLoader;
-import firestorm.FSMath;
-import firestorm.FSMesh;
-import firestorm.FSModelCluster;
-import firestorm.FSP;
-import firestorm.FSRenderer;
-import firestorm.FSSchematics;
-import firestorm.FSShadowPoint;
-import firestorm.FSTexture;
-import firestorm.FSTools;
-import vanguard.VLArray;
-import vanguard.VLArrayFloat;
-import vanguard.VLFloat;
-import vanguard.VLInt;
-import vanguard.VLListType;
-import vanguard.VLTask;
-import vanguard.VLTaskContinous;
-import vanguard.VLV;
-import vanguard.VLVCluster;
-import vanguard.VLVConst;
-import vanguard.VLVInterpolated;
-import vanguard.VLVLinear;
-import vanguard.VLVProcessor;
-
-public final class Loader extends FSLoader{
+public final class Loader extends FSLoader {
 
     protected static final float[] COLOR_WHITE = new float[]{
             1F, 1F, 1F, 1F
@@ -83,7 +82,7 @@ public final class Loader extends FSLoader{
 
     private static final int SHADOW_PROGRAMSET = 0;
     private static final int MAIN_PROGRAMSET = 1;
-    private static final int PIECES_INSTANCE_COUNT = 36;
+    private static final int LAYER_INSTANCE_COUNT = 36;
     private static final int SHADOWMAP_ORTHO_DIAMETER = 4;
     private static final int SHADOWMAP_ORTHO_NEAR = 1;
     private static final int SHADOWMAP_ORTHO_FAR = 1500;
@@ -121,7 +120,9 @@ public final class Loader extends FSLoader{
     private static ModNoLight MOD_NO_LIGHT;
 
     private static FSMesh lightbox;
-    private static FSMesh pieces;
+    private static FSMesh layer1;
+    private static FSMesh layer2;
+    private static FSMesh layer3;
     private static FSMesh city;
 
     private static ByteBuffer PIXEL_BUFFER = null;
@@ -145,7 +146,7 @@ public final class Loader extends FSLoader{
         prepare(act);
 
 //        addLightSphere();
-        addPieces();
+        addLayers();
         addSingularParts();
 
         AUTOMATOR.execute(DEBUG_DISABLED);
@@ -217,9 +218,9 @@ public final class Loader extends FSLoader{
         MODE_DEPTH_FINISH = new ModDepthMap.Finish(SHADOW_POINT.frameBuffer());
         MOD_LIGHT_POINT = new ModLight.Point(GAMMA, null, BRIGHTNESS, LIGHT_POINT, SHADOW_POINT, materialsize);
         MOD_NO_LIGHT = new ModNoLight(GAMMA, BRIGHTNESS);
-        MOD_MODEL_UBO = new ModModel.UBO(1, PIECES_INSTANCE_COUNT);
+        MOD_MODEL_UBO = new ModModel.UBO(1, LAYER_INSTANCE_COUNT);
         MOD_MODEL_UNIFORM = new ModModel.Uniform();
-        MOD_COLOR_TEXTURE_AND_UBO = new ModColor.TextureAndUBO(1, PIECES_INSTANCE_COUNT, true, false);
+        MOD_COLOR_TEXTURE_AND_UBO = new ModColor.TextureAndUBO(1, LAYER_INSTANCE_COUNT, true, false);
         MOD_COLOR_UNIFORM = new ModColor.Uniform();
 
         addTextures(act);
@@ -229,19 +230,19 @@ public final class Loader extends FSLoader{
     private void addTextures(FSActivity act){
         TEX_ARRAY = new FSTexture(new VLInt(GLES32.GL_TEXTURE_2D_ARRAY), new VLInt(TEXUNIT));
         TEX_ARRAY.bind();
-        TEX_ARRAY.storage3D(1, GLES32.GL_RGBA8, PIECE_TEXTURE_DIMENSION, PIECE_TEXTURE_DIMENSION, PIECES_INSTANCE_COUNT);
+        TEX_ARRAY.storage3D(1, GLES32.GL_RGBA8, PIECE_TEXTURE_DIMENSION, PIECE_TEXTURE_DIMENSION, LAYER_INSTANCE_COUNT);
         TEX_ARRAY.minFilter(GLES32.GL_NEAREST);
         TEX_ARRAY.magFilter(GLES32.GL_NEAREST);
         TEX_ARRAY.wrapS(GLES32.GL_CLAMP_TO_EDGE);
         TEX_ARRAY.wrapT(GLES32.GL_CLAMP_TO_EDGE);
         TEX_ARRAY.baseLevel(0);
-        TEX_ARRAY.maxLevel(PIECES_INSTANCE_COUNT - 1);
+        TEX_ARRAY.maxLevel(LAYER_INSTANCE_COUNT - 1);
 
         FSTools.checkGLError();
 
         Bitmap b = null;
 
-        for(int i = 0; i < PIECES_INSTANCE_COUNT; i++){
+        for(int i = 0; i < LAYER_INSTANCE_COUNT; i++){
             b = FSTools.generateTextedBitmap(act, String.valueOf(i), 30, COLOR_PIECE_TEXTURE_BG, COLOR_PIECE_TEXTURE_TEXT, true,
                     PIECE_TEXTURE_DIMENSION, PIECE_TEXTURE_DIMENSION, FSTools.LOCATION_MID_CENTER, Bitmap.Config.ARGB_8888);
 
@@ -323,7 +324,7 @@ public final class Loader extends FSLoader{
         programSet(MAIN_PROGRAMSET).add(program);
     }
 
-    private void addPieces(){
+    private void addLayers(){
         FSConfig draw = new FSP.DrawElementsInstanced(FSConfig.POLICY_ALWAYS, 0);
 
         FSP program1 = new FSP(DEBUG_DISABLED);
@@ -371,29 +372,48 @@ public final class Loader extends FSLoader{
         assembler.DRAW_MODE_INDEXED = true;
         assembler.configure();
 
-        VLListType<DataPack> packs = new VLListType<>(PIECES_INSTANCE_COUNT, 10);
+        VLListType<DataPack> packs = new VLListType<>(LAYER_INSTANCE_COUNT, 10);
         DataPack pack = new DataPack(new VLArrayFloat(COLOR_PIECES), TEX_ARRAY, MATERIAL_OBSIDIAN, null);
 
-        for(int i = 0; i < PIECES_INSTANCE_COUNT; i++){
+        for(int i = 0; i < LAYER_INSTANCE_COUNT; i++){
             packs.add(pack);
         }
 
-        Registration reg = AUTOMATOR.addScannerInstanced(assembler, new DataGroup(packs), "piece.", GLES32.GL_TRIANGLES, PIECES_INSTANCE_COUNT);
+        Registration reg1 = AUTOMATOR.addScannerInstanced(assembler, new DataGroup(packs), "layer1.", GLES32.GL_TRIANGLES, LAYER_INSTANCE_COUNT);
+        Registration reg2 = AUTOMATOR.addScannerInstanced(assembler, new DataGroup(packs), "layer2.", GLES32.GL_TRIANGLES, LAYER_INSTANCE_COUNT);
+        Registration reg3 = AUTOMATOR.addScannerInstanced(assembler, new DataGroup(packs), "layer3.", GLES32.GL_TRIANGLES, LAYER_INSTANCE_COUNT);
 
-        reg.addProgram(program1);
-        reg.addProgram(program2);
+        reg1.addProgram(program1);
+        reg2.addProgram(program1);
+        reg3.addProgram(program1);
 
-        pieces = reg.mesh();
+        reg1.addProgram(program2);
+        reg2.addProgram(program2);
+        reg3.addProgram(program2);
 
-        FSBufferLayout layout = reg.bufferLayout();
+        layer1 = reg1.mesh();
+        layer2 = reg2.mesh();
+        layer3 = reg3.mesh();
 
-        int modelbuffer = BUFFERMANAGER.addFloatBuffer(GLES32.GL_UNIFORM_BUFFER, GLES32.GL_DYNAMIC_DRAW, UBOBINDPOINT++);
-        int colorbuffer = BUFFERMANAGER.addFloatBuffer(GLES32.GL_UNIFORM_BUFFER, GLES32.GL_DYNAMIC_DRAW, UBOBINDPOINT++);
+        FSBufferLayout[] layouts = new FSBufferLayout[]{
+                reg1.bufferLayout(),
+                reg2.bufferLayout(),
+                reg3.bufferLayout()
+        };
 
-        layout.add(BUFFERMANAGER, modelbuffer, FSBufferLayout.MECHANISM_SEQUENTIAL_INSTANCED).add(ELEMENT_MODEL);
-        layout.add(BUFFERMANAGER, colorbuffer, FSBufferLayout.MECHANISM_SEQUENTIAL_INSTANCED).add(ELEMENT_COLOR);
-        layout.add(BUFFERMANAGER, BUFFER_ARRAY_FLOAT_DEFAULT, FSBufferLayout.MECHANISM_COMPLEX_SINGULAR).add(ELEMENT_POSITION).add(ELEMENT_TEXCOORD).add(ELEMENT_NORMAL);
-        layout.add(BUFFERMANAGER, BUFFER_ELEMENT_SHORT_DEFAULT, FSBufferLayout.MECHANISM_INDICES_SINGULAR).add(ELEMENT_INDEX);
+        FSBufferLayout layout;
+
+        for(int i = 0; i < layouts.length; i++){
+            layout = layouts[i];
+
+            int modelbuffer = BUFFERMANAGER.addFloatBuffer(GLES32.GL_UNIFORM_BUFFER, GLES32.GL_DYNAMIC_DRAW, UBOBINDPOINT++);
+            int colorbuffer = BUFFERMANAGER.addFloatBuffer(GLES32.GL_UNIFORM_BUFFER, GLES32.GL_DYNAMIC_DRAW, UBOBINDPOINT++);
+
+            layout.add(BUFFERMANAGER, modelbuffer, FSBufferLayout.MECHANISM_SEQUENTIAL_INSTANCED).add(ELEMENT_MODEL);
+            layout.add(BUFFERMANAGER, colorbuffer, FSBufferLayout.MECHANISM_SEQUENTIAL_INSTANCED).add(ELEMENT_COLOR);
+            layout.add(BUFFERMANAGER, BUFFER_ARRAY_FLOAT_DEFAULT, FSBufferLayout.MECHANISM_COMPLEX_SINGULAR).add(ELEMENT_POSITION).add(ELEMENT_TEXCOORD).add(ELEMENT_NORMAL);
+            layout.add(BUFFERMANAGER, BUFFER_ELEMENT_SHORT_DEFAULT, FSBufferLayout.MECHANISM_INDICES_SINGULAR).add(ELEMENT_INDEX);
+        }
 
         programSet(SHADOW_PROGRAMSET).add(program1);
         programSet(MAIN_PROGRAMSET).add(program2);
@@ -512,14 +532,14 @@ public final class Loader extends FSLoader{
         FSSchematics schematics;
         float yv;
 
-        final VLVProcessor yproc = new VLVProcessor(PIECES_INSTANCE_COUNT, PIECES_INSTANCE_COUNT / 2);
-        final VLVProcessor cproc = new VLVProcessor(PIECES_INSTANCE_COUNT, PIECES_INSTANCE_COUNT / 2);
+        final VLVProcessor yproc = new VLVProcessor(LAYER_INSTANCE_COUNT, LAYER_INSTANCE_COUNT / 2);
+        final VLVProcessor cproc = new VLVProcessor(LAYER_INSTANCE_COUNT, LAYER_INSTANCE_COUNT / 2);
 
-        VLVCluster colorcluster = new VLVCluster(pieces.size(), pieces.size() / 2);
+        VLVCluster colorcluster = new VLVCluster(layer1.size(), layer1.size() / 2);
         cproc.add(new VLVProcessor.Entry(colorcluster, 0, VLVProcessor.SYNC_INDEX, 0, 0));
 
-        for(int i2 = 0; i2 < pieces.size(); i2++){
-            instance = pieces.get(i2);
+        for(int i2 = 0; i2 < layer1.size(); i2++){
+            instance = layer1.get(i2);
             modelcluster = instance.modelCluster();
             yv = modelcluster.getY(0, 0).get();
             schematics = instance.schematics();
@@ -546,7 +566,7 @@ public final class Loader extends FSLoader{
             colorcluster.SYNCER.add(new VLArray.DefinitionCluster(instance.colors(), i2, 0, 0));
             colorcluster.sync();
 
-            FSInput.add(FSInput.TYPE_TOUCH, new FSInput.Entry(pieces, i2, new FSInput.CollisionListener(){
+            FSInput.add(FSInput.TYPE_TOUCH, new FSInput.Entry(layer1, i2, new FSInput.CollisionListener(){
 
                 @Override
                 public int activated(FSBounds.Collision results, FSInput.Entry entry, int boundindex, MotionEvent e1, MotionEvent e2, float f1, float f2, float[] near, float[] far){
@@ -555,11 +575,11 @@ public final class Loader extends FSLoader{
 
                         float[] coords = bounds.offset().coordinates();
 
-                        CLAMPEDPOINTCACHE[0] = coords[0] + FSMath.clamp(near[0], -bounds.getHalfWidth(), bounds.getHalfWidth());
-                        CLAMPEDPOINTCACHE[1] = coords[1] + FSMath.clamp(near[1], -bounds.getHalfHeight(), bounds.getHalfHeight());
-                        CLAMPEDPOINTCACHE[2] = coords[2] + FSMath.clamp(near[2], -bounds.getHalfDepth(), bounds.getHalfDepth());
+                        CLAMPEDPOINTCACHE[0] = coords[0] + VLMath.clamp(near[0], -bounds.getHalfWidth(), bounds.getHalfWidth());
+                        CLAMPEDPOINTCACHE[1] = coords[1] + VLMath.clamp(near[1], -bounds.getHalfHeight(), bounds.getHalfHeight());
+                        CLAMPEDPOINTCACHE[2] = coords[2] + VLMath.clamp(near[2], -bounds.getHalfDepth(), bounds.getHalfDepth());
 
-                        float distance = FSMath.euclideanDistance(CLAMPEDPOINTCACHE, 0, near, 0, 3);
+                        float distance = VLMath.euclideanDistance(CLAMPEDPOINTCACHE, 0, near, 0, 3);
 
                         if(COLLISION_MIN_DISTANCE > distance){
                             COLLISION_MIN_DISTANCE = distance;
@@ -600,6 +620,8 @@ public final class Loader extends FSLoader{
         });
 
         yproc.start();
+
+        FSControl.setRenderContinuously(true);
 
         PROCESSORS.add(yproc);
         PROCESSORS.add(cproc);

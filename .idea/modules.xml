@@ -4,6 +4,8 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/shapecity.iml" filepath="$PROJECT_DIR$/.idea/modules/shapecity.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/shapecity.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/shapecity.app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/firestorm/shapecity.firestorm.iml" filepath="$PROJECT_DIR$/.idea/modules/firestorm/shapecity.firestorm.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/vanguard/shapecity.vanguard.iml" filepath="$PROJECT_DIR$/.idea/modules/vanguard/shapecity.vanguard.iml" />
     </modules>
   </component>
 </project>

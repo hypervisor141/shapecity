@@ -1,13 +1,13 @@
 package com.shayan.shapecity;
 
-import firestorm.FSBrightness;
-import firestorm.FSConfig;
-import firestorm.FSConfigDynamic;
-import firestorm.FSControl;
-import firestorm.FSGamma;
-import firestorm.FSLoader;
-import firestorm.FSP;
-import firestorm.FSShader;
+import com.nurverek.firestorm.FSBrightness;
+import com.nurverek.firestorm.FSConfig;
+import com.nurverek.firestorm.FSConfigDynamic;
+import com.nurverek.firestorm.FSControl;
+import com.nurverek.firestorm.FSGamma;
+import com.nurverek.firestorm.FSLoader;
+import com.nurverek.firestorm.FSP;
+import com.nurverek.firestorm.FSShader;
 
 public class ModSkyBox extends FSP.Modifier{
 
@@ -30,7 +30,7 @@ public class ModSkyBox extends FSP.Modifier{
         FSConfig skyboxtexbind = new FSP.TextureColorBind(policy);
         FSConfig depthoff = new FSP.DepthMask(policy, false);
         FSConfig depthon = new FSP.DepthMask(policy, true);
-        FSConfig bright = new FSConfigDynamic<FSBrightness>(brightness);
+        FSConfig bright = new FSConfigDynamic<>(brightness);
         FSConfig gam = new FSConfigDynamic<FSGamma>(gamma);
 
         program.registerAttributeLocation(vertex, position);

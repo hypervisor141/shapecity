@@ -1,9 +1,9 @@
 package com.shayan.shapecity;
 
-import firestorm.FSConfig;
-import firestorm.FSLoader;
-import firestorm.FSP;
-import firestorm.FSShader;
+import com.nurverek.firestorm.FSConfig;
+import com.nurverek.firestorm.FSLoader;
+import com.nurverek.firestorm.FSP;
+import com.nurverek.firestorm.FSShader;
 
 public final class ModModel{
 

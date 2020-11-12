@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: artifacts:firestorm:unspecified">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/firestorm/build/.transforms/c31ac27aad35d6909b20cb670a445679/jetified-firestorm-debug/jars/classes.jar!/" />
+      <root url="file://$PROJECT_DIR$/firestorm/build/.transforms/c31ac27aad35d6909b20cb670a445679/jetified-firestorm-debug/res" />
+      <root url="file://$PROJECT_DIR$/firestorm/build/.transforms/c31ac27aad35d6909b20cb670a445679/jetified-firestorm-debug/AndroidManifest.xml" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

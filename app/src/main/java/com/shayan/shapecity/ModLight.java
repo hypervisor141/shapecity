@@ -1,20 +1,20 @@
 package com.shayan.shapecity;
 
-import firestorm.FSBrightness;
-import firestorm.FSConfig;
-import firestorm.FSConfigDynamic;
-import firestorm.FSConfigDynamicSelective;
-import firestorm.FSControl;
-import firestorm.FSGamma;
-import firestorm.FSLightDirect;
-import firestorm.FSLightMaterial;
-import firestorm.FSLightPoint;
-import firestorm.FSLoader;
-import firestorm.FSP;
-import firestorm.FSShader;
-import firestorm.FSShadowDirect;
-import firestorm.FSShadowPoint;
-import vanguard.VLInt;
+import com.nurverek.firestorm.FSBrightness;
+import com.nurverek.firestorm.FSConfig;
+import com.nurverek.firestorm.FSConfigDynamic;
+import com.nurverek.firestorm.FSConfigDynamicSelective;
+import com.nurverek.firestorm.FSControl;
+import com.nurverek.firestorm.FSGamma;
+import com.nurverek.firestorm.FSLightDirect;
+import com.nurverek.firestorm.FSLightMaterial;
+import com.nurverek.firestorm.FSLightPoint;
+import com.nurverek.firestorm.FSLoader;
+import com.nurverek.firestorm.FSP;
+import com.nurverek.firestorm.FSShader;
+import com.nurverek.firestorm.FSShadowDirect;
+import com.nurverek.firestorm.FSShadowPoint;
+import com.nurverek.vanguard.VLInt;
 
 public final class ModLight{
 
@@ -44,7 +44,7 @@ public final class ModLight{
             FSConfig vp = new FSP.UniformMatrix4fvd(policy, FSControl.getViewConfig().viewProjectionMatrix(), 0, 1);
             FSConfig material = new FSP.MaterialDynamic(policy, materialglslsize);
             FSConfig cameraPos = new FSP.Uniform3fvd(policy, FSControl.getViewConfig().eyePosition(),0, 1);
-            FSConfig bright = new FSConfigDynamic<FSBrightness>(brightness);
+            FSConfig bright = new FSConfigDynamic<>(brightness);
             FSConfig gam = new FSConfigDynamic<FSGamma>(gamma);
             FSConfig light = new FSConfigDynamic<FSLightDirect>(lightsource);
 

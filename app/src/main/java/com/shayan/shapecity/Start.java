@@ -1,9 +1,7 @@
-package com.shayan.shapecity;
+ package com.shayan.shapecity;
 
-import android.Manifest;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
-import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.opengl.GLES32;
 import android.view.View;
@@ -12,15 +10,15 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.RelativeLayout;
 
+import com.nurverek.firestorm.FSActivity;
+import com.nurverek.firestorm.FSControl;
+import com.nurverek.firestorm.FSRenderPass;
+import com.nurverek.firestorm.FSRenderer;
+import com.nurverek.firestorm.FSViewConfig;
+
 import javax.security.auth.DestroyFailedException;
 
-import firestorm.FSActivity;
-import firestorm.FSControl;
-import firestorm.FSRenderPass;
-import firestorm.FSRenderer;
-import firestorm.FSViewConfig;
-
-public class Start extends FSActivity{
+public class Start extends FSActivity {
 
     protected static final float[] BG_COLOR = new float[]{ 0.1f, 0.1f, 0.1f, 1f }; //grey
 
@@ -60,11 +58,6 @@ public class Start extends FSActivity{
                             | View.SYSTEM_UI_FLAG_FULLSCREEN
                             | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
         }
-    }
-
-    private void managePermissions(Runnable post){
-        Utils.requestPermissionsIfNeeded(this, new String[]{ Manifest.permission.INTERNET, Manifest.permission.READ_EXTERNAL_STORAGE,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.VIBRATE, Manifest.permission.RECEIVE_BOOT_COMPLETED }, post);
     }
 
     @Override
@@ -148,20 +141,7 @@ public class Start extends FSActivity{
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults){
-        if(requestCode == Utils.PERMISSION_REQUEST_CODE){
-            for(int i = 0; i < grantResults.length; i++){
-                if(grantResults[i] == PackageManager.PERMISSION_GRANTED){
-                    if(POSTPERMISSIONS != null){
-                        POSTPERMISSIONS.run();
-                        POSTPERMISSIONS = null;
-                    }
 
-                }else{
-                    Utils.toast(this, "You must grant all necessary permissions for the app to function");
-                    finish();
-                }
-            }
-        }
     }
 
     @Override
@@ -177,16 +157,6 @@ public class Start extends FSActivity{
     @Override
     protected void onPause(){
         super.onPause();
-
-        if(Utils.isPlayerReady()){
-            Utils.stopWaveLoop();
-
-            if(!FSControl.getSurfaceConfig().getKeepAlive()){
-                destroy();
-            }
-        }
-
-        System.gc();
     }
 
     @Override
@@ -206,11 +176,5 @@ public class Start extends FSActivity{
     @Override
     protected void destroy(){
         super.destroy();
-
-        try{
-            Utils.destroy();
-        }catch(DestroyFailedException ex){
-            ex.printStackTrace();
-        }
     }
 }

@@ -74,11 +74,18 @@ public final class Loader extends FSLoader {
             1.0F, 0.4F, 0F, 1F
     };
 
-    protected static final float[] COLOR_PIECES = COLOR_WHITE;
-    protected static final float[] COLOR_INPUT = COLOR_WHITE_EXTRA_2;
-    protected static final float[] COLOR_ACTIVE = COLOR_DARK_ORANGE;
-    protected static final int COLOR_PIECE_TEXTURE_BG = Color.argb(255,20,20,20);
-    protected static final int COLOR_PIECE_TEXTURE_TEXT = Color.WHITE;
+    private static final float[] COLOR_PIECES = COLOR_WHITE;
+    private static final float[] COLOR_INPUT = COLOR_WHITE_EXTRA_2;
+    private static final float[] COLOR_ACTIVE = COLOR_DARK_ORANGE;
+    private static final int COLOR_PIECE_TEXTURE_BG = Color.argb(255,20,20,20);
+    private static final int COLOR_PIECE_TEXTURE_TEXT = Color.WHITE;
+    
+    private static final int CLUSTER_COLOR_INPUT = 0;
+    private static final int CLUSTER_COLOR_ACTIVATE = 1;
+    private static final int CLUSTER_MODEL_ROTATE_Z = 0;
+    private static final int CLUSTER_MODEL_ROTATE_Y = 1;
+    private static final int CLUSTER_MODEL_NAVIGATION = 2;
+    
 
     private static final int CYCLES_INPUT = 20;
     private static final int CYCLES_ACTIVATE = 60;
@@ -95,7 +102,7 @@ public final class Loader extends FSLoader {
     private static final int SELECTION_CYCLES = 5;
     private static final int LIGHT_SPIN_CYCLES = 3600;
     private static int UBOBINDPOINT = 0;
-    protected static int TEXUNIT = 0;
+    private static int TEXUNIT = 0;
 
     private FSInput.Entry COLLISION_CLOSEST;
     private float COLLISION_MIN_DISTANCE;
@@ -133,16 +140,24 @@ public final class Loader extends FSLoader {
     private VLVProcessor PROC_Y_LAYER2;
     private VLVProcessor PROC_Y_LAYER3;
 
-    private VLVProcessor PROC_C_LAYER1;
-    private VLVProcessor PROC_C_LAYER2;
-    private VLVProcessor PROC_C_LAYER3;
+    private VLVProcessor PROC_R_LAYER1;
+    private VLVProcessor PROC_R_LAYER2;
+    private VLVProcessor PROC_R_LAYER3;
+
+    private VLVProcessor PROC_C_I_LAYER1;
+    private VLVProcessor PROC_C_I_LAYER2;
+    private VLVProcessor PROC_C_I_LAYER3;
+
+    private VLVProcessor PROC_C_A_LAYER1;
+    private VLVProcessor PROC_C_A_LAYER2;
+    private VLVProcessor PROC_C_A_LAYER3;
 
     private ByteBuffer PIXEL_BUFFER = null;
 
     private int BUFFER_ELEMENT_SHORT_DEFAULT;
     private int BUFFER_ARRAY_FLOAT_DEFAULT;
 
-    protected Loader(){
+    private Loader(){
         super(2);
     }
 
@@ -480,18 +495,32 @@ public final class Loader extends FSLoader {
         PROC_Y_LAYER2 = new VLVProcessor(LAYER_INSTANCE_COUNT, 0);
         PROC_Y_LAYER3 = new VLVProcessor(LAYER_INSTANCE_COUNT, 0);
 
-        PROC_C_LAYER1 = new VLVProcessor(LAYER_INSTANCE_COUNT, 0);
-        PROC_C_LAYER2 = new VLVProcessor(LAYER_INSTANCE_COUNT, 0);
-        PROC_C_LAYER3 = new VLVProcessor(LAYER_INSTANCE_COUNT, 0);
+        PROC_R_LAYER1 = new VLVProcessor(LAYER_INSTANCE_COUNT, 0);
+        PROC_R_LAYER2 = new VLVProcessor(LAYER_INSTANCE_COUNT, 0);
+        PROC_R_LAYER3 = new VLVProcessor(LAYER_INSTANCE_COUNT, 0);
+
+        PROC_C_I_LAYER1 = new VLVProcessor(LAYER_INSTANCE_COUNT, 0);
+        PROC_C_I_LAYER2 = new VLVProcessor(LAYER_INSTANCE_COUNT, 0);
+        PROC_C_I_LAYER3 = new VLVProcessor(LAYER_INSTANCE_COUNT, 0);
+        
+        PROC_C_A_LAYER1 = new VLVProcessor(LAYER_INSTANCE_COUNT, 0);
+        PROC_C_A_LAYER2 = new VLVProcessor(LAYER_INSTANCE_COUNT, 0);
+        PROC_C_A_LAYER3 = new VLVProcessor(LAYER_INSTANCE_COUNT, 0);
         
         FSMesh[] layers = new FSMesh[]{
                 layer1, layer2, layer3
         };
-        VLVProcessor[] cprocs = new VLVProcessor[]{
-                PROC_C_LAYER1, PROC_C_LAYER2, PROC_C_LAYER3
+        VLVProcessor[] rprocs = new VLVProcessor[]{
+                PROC_R_LAYER1, PROC_R_LAYER1, PROC_R_LAYER1
         };
         VLVProcessor[] yprocs = new VLVProcessor[]{
                 PROC_Y_LAYER1, PROC_Y_LAYER2, PROC_Y_LAYER3
+        };
+        VLVProcessor[] ciprocs = new VLVProcessor[]{
+                PROC_C_I_LAYER2, PROC_C_I_LAYER2, PROC_C_I_LAYER2
+        };
+        VLVProcessor[] caprocs = new VLVProcessor[]{
+                PROC_C_A_LAYER1, PROC_C_A_LAYER1, PROC_C_A_LAYER1
         };
 
         FSMesh layer;
@@ -499,16 +528,20 @@ public final class Loader extends FSLoader {
         FSModelCluster modelcluster;
         FSSchematics schematics;
         VLVCluster colorcluster;
-        VLVProcessor colorproc;
         VLVProcessor yproc;
+        VLVProcessor rproc;
+        VLVProcessor ciproc;
+        VLVProcessor caproc;
         float yv;
 
         for(int i = 0; i < layers.length; i++){
             layer = layers[i];
-            colorproc = cprocs[i];
             yproc = yprocs[i];
+            rproc = rprocs[i];
+            ciproc = ciprocs[i];
+            caproc = caprocs[i];
 
-            PROCESSORS.add(colorproc);
+            PROCESSORS.add(caproc);
             PROCESSORS.add(yproc);
 
             for(int i2 = 0; i2 < layer.size(); i2++){
@@ -519,8 +552,8 @@ public final class Loader extends FSLoader {
 
                 modelcluster.addSet(0,1, 0);
                 modelcluster.addSet(0,1, 0);
-                modelcluster.addRowRotate(0, new VLVConst(-90), VLVConst.ZERO, VLVConst.ZERO, VLVConst.ONE);
-                modelcluster.addRowRotate(1, new VLVInterpolated(0, -90, CYCLES_ROTATE, VLV.LOOP_NONE, VLV.INTERP_DECELERATE_SINE_SQRT), VLVConst.ZERO, VLVConst.ZERO, VLVConst.ONE);
+                modelcluster.addRowRotate(CLUSTER_MODEL_ROTATE_Z, new VLVConst(-90), VLVConst.ZERO, VLVConst.ZERO, VLVConst.ONE);
+                modelcluster.addRowRotate(CLUSTER_MODEL_ROTATE_Y, new VLVInterpolated(0, -45, CYCLES_ROTATE, VLV.LOOP_NONE, VLV.INTERP_DECELERATE_SINE_SQRT), VLVConst.ZERO, VLVConst.ONE, VLVConst.ZERO);
                 modelcluster.setY(2, 0, new VLVInterpolated(yv, yv + schematics.modelHeight() * 0.75F, 120 + RANDOM.nextInt(60), VLV.LOOP_FORWARD_BACKWARD, VLV.INTERP_ACCELERATE_DECELERATE_CUBIC));
                 modelcluster.sync();
 
@@ -528,25 +561,28 @@ public final class Loader extends FSLoader {
                 colorcluster.addSet(1, 0);
                 colorcluster.addSet(1, 0);
 
-                colorcluster.addRow(0, 4, 0);
-                colorcluster.addColumn(0, 0, new VLVInterpolated(COLOR_PIECES[0], COLOR_INPUT[0], CYCLES_INPUT, VLV.LOOP_FORWARD_BACKWARD, VLV.INTERP_ACCELERATE_DECELERATE_COS));
-                colorcluster.addColumn(0, 0, new VLVInterpolated(COLOR_PIECES[0], COLOR_INPUT[1], CYCLES_INPUT, VLV.LOOP_FORWARD_BACKWARD, VLV.INTERP_ACCELERATE_DECELERATE_COS));
-                colorcluster.addColumn(0, 0, new VLVInterpolated(COLOR_PIECES[0], COLOR_INPUT[2], CYCLES_INPUT, VLV.LOOP_FORWARD_BACKWARD, VLV.INTERP_ACCELERATE_DECELERATE_COS));
-                colorcluster.addColumn(0, 0, new VLVInterpolated(COLOR_PIECES[0], COLOR_INPUT[3], CYCLES_INPUT, VLV.LOOP_FORWARD_BACKWARD, VLV.INTERP_ACCELERATE_DECELERATE_COS));
+                colorcluster.addRow(CLUSTER_COLOR_INPUT, 4, 0);
+                colorcluster.addColumn(CLUSTER_COLOR_INPUT, 0, new VLVInterpolated(COLOR_PIECES[0], COLOR_INPUT[0], CYCLES_INPUT, VLV.LOOP_FORWARD_BACKWARD, VLV.INTERP_ACCELERATE_DECELERATE_COS));
+                colorcluster.addColumn(CLUSTER_COLOR_INPUT, 0, new VLVInterpolated(COLOR_PIECES[0], COLOR_INPUT[1], CYCLES_INPUT, VLV.LOOP_FORWARD_BACKWARD, VLV.INTERP_ACCELERATE_DECELERATE_COS));
+                colorcluster.addColumn(CLUSTER_COLOR_INPUT, 0, new VLVInterpolated(COLOR_PIECES[0], COLOR_INPUT[2], CYCLES_INPUT, VLV.LOOP_FORWARD_BACKWARD, VLV.INTERP_ACCELERATE_DECELERATE_COS));
+                colorcluster.addColumn(CLUSTER_COLOR_INPUT, 0, new VLVInterpolated(COLOR_PIECES[0], COLOR_INPUT[3], CYCLES_INPUT, VLV.LOOP_FORWARD_BACKWARD, VLV.INTERP_ACCELERATE_DECELERATE_COS));
 
-                colorcluster.addRow(1, 4, 0);
-                colorcluster.addColumn(1, 0, new VLVInterpolated(COLOR_PIECES[0], COLOR_ACTIVE[0], CYCLES_ACTIVATE, VLV.LOOP_NONE, VLV.INTERP_ACCELERATE_DECELERATE_COS));
-                colorcluster.addColumn(1, 0, new VLVInterpolated(COLOR_PIECES[0], COLOR_ACTIVE[1], CYCLES_ACTIVATE, VLV.LOOP_NONE, VLV.INTERP_ACCELERATE_DECELERATE_COS));
-                colorcluster.addColumn(1, 0, new VLVInterpolated(COLOR_PIECES[0], COLOR_ACTIVE[2], CYCLES_ACTIVATE, VLV.LOOP_NONE, VLV.INTERP_ACCELERATE_DECELERATE_COS));
-                colorcluster.addColumn(1, 0, new VLVInterpolated(COLOR_PIECES[0], COLOR_ACTIVE[3], CYCLES_ACTIVATE, VLV.LOOP_NONE, VLV.INTERP_ACCELERATE_DECELERATE_COS));
+                colorcluster.addRow(CLUSTER_COLOR_ACTIVATE, 4, 0);
+                colorcluster.addColumn(CLUSTER_COLOR_ACTIVATE, 0, new VLVInterpolated(COLOR_PIECES[0], COLOR_ACTIVE[0], CYCLES_ACTIVATE, VLV.LOOP_NONE, VLV.INTERP_ACCELERATE_DECELERATE_COS));
+                colorcluster.addColumn(CLUSTER_COLOR_ACTIVATE, 0, new VLVInterpolated(COLOR_PIECES[0], COLOR_ACTIVE[1], CYCLES_ACTIVATE, VLV.LOOP_NONE, VLV.INTERP_ACCELERATE_DECELERATE_COS));
+                colorcluster.addColumn(CLUSTER_COLOR_ACTIVATE, 0, new VLVInterpolated(COLOR_PIECES[0], COLOR_ACTIVE[2], CYCLES_ACTIVATE, VLV.LOOP_NONE, VLV.INTERP_ACCELERATE_DECELERATE_COS));
+                colorcluster.addColumn(CLUSTER_COLOR_ACTIVATE, 0, new VLVInterpolated(COLOR_PIECES[0], COLOR_ACTIVE[3], CYCLES_ACTIVATE, VLV.LOOP_NONE, VLV.INTERP_ACCELERATE_DECELERATE_COS));
+
+                rproc.add(new VLVProcessor.Entry(modelcluster, CLUSTER_MODEL_ROTATE_Y, RANDOM.nextInt(300)));
+                yproc.add(new VLVProcessor.Entry(modelcluster, CLUSTER_MODEL_NAVIGATION, RANDOM.nextInt(300)));
+
+                caproc.add(new VLVProcessor.Entry(colorcluster, CLUSTER_COLOR_INPUT, VLVProcessor.SYNC_INDEX, 0, 0));
+                ciproc.add(new VLVProcessor.Entry(colorcluster, CLUSTER_COLOR_ACTIVATE, VLVProcessor.SYNC_INDEX, 0, 0));
 
                 schematics.inputBounds().add(new FSBoundsCuboid(schematics,
                         50, 50f, 50f, FSBounds.MODE_X_OFFSET_VOLUMETRIC, FSBounds.MODE_Y_OFFSET_VOLUMETRIC, FSBounds.MODE_Z_OFFSET_VOLUMETRIC,
                         40f, 40f, 40f, FSBounds.MODE_X_VOLUMETRIC, FSBounds.MODE_Y_VOLUMETRIC, FSBounds.MODE_Z_VOLUMETRIC));
-
-                yproc.add(new VLVProcessor.Entry(modelcluster, 1, RANDOM.nextInt(300)));
-                colorproc.add(new VLVProcessor.Entry(colorcluster, 0, VLVProcessor.SYNC_INDEX, 0, 0));
-
+                
                 FSInput.add(FSInput.TYPE_TOUCH, new FSInput.Entry(layer1, i2, new FSInput.CollisionListener(){
 
                     @Override
@@ -591,19 +627,14 @@ public final class Loader extends FSLoader {
         });
     }
 
-    private void moveLayer1Vertical(){
+    private void activateProc(VLVProcessor proc, int index){
+        proc.pause();
+        proc.reset();
+        proc.deactivateAll();
+        proc.activate(index);
+        proc.start();
 
         FSControl.setRenderContinuously(true);
-    }
-
-    private void animateLayer1Vertical(int index){
-        PROC_Y_LAYER1.activate(index);
-        PROC_Y_LAYER1.start();
-        FSControl.setRenderContinuously(true);
-    }
-
-    private void changeLayerColor(){
-
     }
 
     private void changePieceTexture(final FSInstance instance, final int subimageindex, final String text){

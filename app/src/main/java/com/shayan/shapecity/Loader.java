@@ -29,7 +29,6 @@ import com.nurverek.firestorm.FSSchematics;
 import com.nurverek.firestorm.FSShadowPoint;
 import com.nurverek.firestorm.FSTexture;
 import com.nurverek.firestorm.FSTools;
-import com.nurverek.vanguard.VLArray;
 import com.nurverek.vanguard.VLArrayFloat;
 import com.nurverek.vanguard.VLFloat;
 import com.nurverek.vanguard.VLInt;
@@ -50,35 +49,41 @@ import java.security.SecureRandom;
 
 public final class Loader extends FSLoader {
 
-    protected static final float[] COLOR_WHITE = new float[]{
+    private static final float[] COLOR_WHITE = new float[]{
             1F, 1F, 1F, 1F
     };
-    protected static final float[] COLOR_WHITE_EXTRA = new float[]{
+    private static final float[] COLOR_WHITE_EXTRA = new float[]{
             4F, 4F, 4F, 1F
     };
-    protected static final float[] COLOR_WHITE_EXTRA_2 = new float[]{
+    private static final float[] COLOR_WHITE_EXTRA_2 = new float[]{
             8F, 8F, 8F, 1F
     };
-    protected static final float[] COLOR_ORANGE = new float[]{
+    private static final float[] COLOR_ORANGE = new float[]{
             1.0F, 0.7F, 0F, 1F
     };
-    protected static final float[] COLOR_OBSIDIAN = new float[]{
+    private static final float[] COLOR_OBSIDIAN = new float[]{
             0.3F, 0.3F, 0.3F, 1F
     };
-    protected static final float[] COLOR_OBSIDIAN2 = new float[]{
+    private static final float[] COLOR_OBSIDIAN2 = new float[]{
             0.4F, 0.4F, 0.4F, 1F
     };
-    protected static final float[] COLOR_GOLD = new float[]{
+    private static final float[] COLOR_GOLD = new float[]{
             0.83F, 0.68F, 0.21F, 1F
     };
-    protected static final float[] COLOR_DARK_ORANGE = new float[]{
+    private static final float[] COLOR_DARK_ORANGE = new float[]{
             1.0F, 0.4F, 0F, 1F
     };
 
     protected static final float[] COLOR_PIECES = COLOR_WHITE;
-    protected static final float[] COLOR_SELECTED = COLOR_WHITE_EXTRA_2;
+    protected static final float[] COLOR_INPUT = COLOR_WHITE_EXTRA_2;
+    protected static final float[] COLOR_ACTIVE = COLOR_DARK_ORANGE;
     protected static final int COLOR_PIECE_TEXTURE_BG = Color.argb(255,20,20,20);
     protected static final int COLOR_PIECE_TEXTURE_TEXT = Color.WHITE;
+
+    private static final int CYCLES_INPUT = 20;
+    private static final int CYCLES_ACTIVATE = 60;
+    private static final int CYCLES_ROTATE = 30;
+    private static final int CYCLES_VERTICAL_MOVE = 200;
 
     private static final int SHADOW_PROGRAMSET = 0;
     private static final int MAIN_PROGRAMSET = 1;
@@ -92,43 +97,50 @@ public final class Loader extends FSLoader {
     private static int UBOBINDPOINT = 0;
     protected static int TEXUNIT = 0;
 
-    protected static FSInput.Entry COLLISION_CLOSEST;
-    protected static float COLLISION_MIN_DISTANCE;
-    protected static final float[] CLAMPEDPOINTCACHE = new float[3];
+    private FSInput.Entry COLLISION_CLOSEST;
+    private float COLLISION_MIN_DISTANCE;
+    private static final float[] CLAMPEDPOINTCACHE = new float[3];
 
     private static final SecureRandom RANDOM = new SecureRandom();
 
-    protected static FSTexture TEX_ARRAY;
-    protected static FSLightPoint LIGHT_POINT;
-    protected static FSShadowPoint SHADOW_POINT;
-    protected static FSBrightness BRIGHTNESS;
-    private static FSGamma GAMMA;
-    private static FSLightMaterial MATERIAL_DEFAULT;
-    private static FSLightMaterial MATERIAL_GOLD;
-    private static FSLightMaterial MATERIAL_OBSIDIAN;
-    private static FSLightMaterial MATERIAL_WHITE_RUBBER;
-    private static final VLInt SHADOW_POINT_PCF_SAMPLES = new VLInt(20);
+    private FSTexture TEX_ARRAY;
+    private FSLightPoint LIGHT_POINT;
+    private FSShadowPoint SHADOW_POINT;
+    private FSBrightness BRIGHTNESS;
+    private FSGamma GAMMA;
+    private FSLightMaterial MATERIAL_DEFAULT;
+    private FSLightMaterial MATERIAL_GOLD;
+    private FSLightMaterial MATERIAL_OBSIDIAN;
+    private FSLightMaterial MATERIAL_WHITE_RUBBER;
+    private final VLInt SHADOW_POINT_PCF_SAMPLES = new VLInt(20);
 
-    private static ModDepthMap.Prepare MOD_DEPTH_PREP;
-    private static ModDepthMap.SetupPoint MOD_DEPTH_SETUP_POINT;
-    private static ModDepthMap.Finish MODE_DEPTH_FINISH;
-    private static ModModel.UBO MOD_MODEL_UBO;
-    private static ModModel.Uniform MOD_MODEL_UNIFORM;
-    private static ModColor.TextureAndUBO MOD_COLOR_TEXTURE_AND_UBO;
-    private static ModColor.Uniform MOD_COLOR_UNIFORM;
-    private static ModLight.Point MOD_LIGHT_POINT;
-    private static ModNoLight MOD_NO_LIGHT;
+    private ModDepthMap.Prepare MOD_DEPTH_PREP;
+    private ModDepthMap.SetupPoint MOD_DEPTH_SETUP_POINT;
+    private ModDepthMap.Finish MODE_DEPTH_FINISH;
+    private ModModel.UBO MOD_MODEL_UBO;
+    private ModModel.Uniform MOD_MODEL_UNIFORM;
+    private ModColor.TextureAndUBO MOD_COLOR_TEXTURE_AND_UBO;
+    private ModColor.Uniform MOD_COLOR_UNIFORM;
+    private ModLight.Point MOD_LIGHT_POINT;
+    private ModNoLight MOD_NO_LIGHT;
 
-    private static FSMesh lightbox;
-    private static FSMesh layer1;
-    private static FSMesh layer2;
-    private static FSMesh layer3;
-    private static FSMesh city;
+    private FSMesh layer1;
+    private FSMesh layer2;
+    private FSMesh layer3;
+    private FSMesh city;
 
-    private static ByteBuffer PIXEL_BUFFER = null;
+    private VLVProcessor PROC_Y_LAYER1;
+    private VLVProcessor PROC_Y_LAYER2;
+    private VLVProcessor PROC_Y_LAYER3;
 
-    private static int BUFFER_ELEMENT_SHORT_DEFAULT;
-    private static int BUFFER_ARRAY_FLOAT_DEFAULT;
+    private VLVProcessor PROC_C_LAYER1;
+    private VLVProcessor PROC_C_LAYER2;
+    private VLVProcessor PROC_C_LAYER3;
+
+    private ByteBuffer PIXEL_BUFFER = null;
+
+    private int BUFFER_ELEMENT_SHORT_DEFAULT;
+    private int BUFFER_ARRAY_FLOAT_DEFAULT;
 
     protected Loader(){
         super(2);
@@ -145,13 +157,12 @@ public final class Loader extends FSLoader {
 
         prepare(act);
 
-//        addLightSphere();
         addLayers();
         addSingularParts();
 
         AUTOMATOR.execute(DEBUG_DISABLED);
 
-        postProcess();
+        setupProcessors();
     }
 
     @Override
@@ -270,58 +281,6 @@ public final class Loader extends FSLoader {
     private void addBuffers(){
         BUFFER_ELEMENT_SHORT_DEFAULT = BUFFERMANAGER.addShortBuffer(GLES32.GL_ELEMENT_ARRAY_BUFFER, GLES32.GL_STATIC_DRAW, -1);
         BUFFER_ARRAY_FLOAT_DEFAULT = BUFFERMANAGER.addFloatBuffer(GLES32.GL_ARRAY_BUFFER, GLES32.GL_STATIC_DRAW, -1);
-    }
-
-    private void addLightSphere(){
-        FSConfig draw = new FSP.DrawElements(FSConfig.POLICY_ALWAYS, 0);
-
-        FSP program = new FSP(DEBUG_DISABLED);
-        program.modify(MOD_NO_LIGHT, FSConfig.POLICY_ALWAYS);
-        program.addMeshConfig(draw);
-        program.build();
-
-        Assembler assembler = new Assembler();
-        assembler.ENABLE_DATA_PACK = true;
-        assembler.ENABLE_COLOR_FILL = true;
-        assembler.SYNC_MODELCLUSTER_AND_MODELARRAY = true;
-        assembler.SYNC_MODELARRAY_AND_SCHEMATICS = true;
-        assembler.SYNC_MODELARRAY_AND_BUFFER = true;
-        assembler.SYNC_POSITION_AND_BUFFER = true;
-        assembler.SYNC_COLOR_AND_BUFFER = true;
-        assembler.SYNC_TEXCOORD_AND_BUFFER = true;
-        assembler.SYNC_NORMAL_AND_BUFFER = true;
-        assembler.SYNC_INDICES_AND_BUFFER = true;
-        assembler.INSTANCE_SHARE_POSITIONS = true;
-        assembler.INSTANCE_SHARE_COLORS = true;
-        assembler.INSTANCE_SHARE_TEXCOORDS = true;
-        assembler.INSTANCE_SHARE_NORMALS = true;
-        assembler.LOAD_MODELS = true;
-        assembler.LOAD_POSITIONS = true;
-        assembler.LOAD_COLORS = true;
-        assembler.LOAD_TEXCOORDS = false;
-        assembler.LOAD_NORMALS = false;
-        assembler.LOAD_INDICES = true;
-        assembler.BUFFER_MODELS = false;
-        assembler.BUFFER_POSITIONS = true;
-        assembler.BUFFER_COLORS = false;
-        assembler.BUFFER_TEXCOORDS = false;
-        assembler.BUFFER_NORMALS = false;
-        assembler.BUFFER_INDICES = true;
-        assembler.DRAW_MODE_INDEXED = true;
-        assembler.CONVERT_POSITIONS_TO_MODELARRAYS = true;
-        assembler.configure();
-
-        Registration reg = AUTOMATOR.addScannerSingle(assembler, new DataPack(new VLArrayFloat(COLOR_WHITE), null, MATERIAL_DEFAULT, null),
-                "light_cylinder.001", GLES32.GL_TRIANGLES);
-        reg.addProgram(program);
-
-        lightbox = reg.mesh();
-
-        FSBufferLayout layout = reg.bufferLayout();
-        layout.add(BUFFERMANAGER, BUFFER_ARRAY_FLOAT_DEFAULT, FSBufferLayout.MECHANISM_SEQUENTIAL_SINGULAR).add(ELEMENT_POSITION);
-        layout.add(BUFFERMANAGER, BUFFER_ELEMENT_SHORT_DEFAULT, FSBufferLayout.MECHANISM_INDICES_SINGULAR).add(ELEMENT_INDEX);
-
-        programSet(MAIN_PROGRAMSET).add(program);
     }
 
     private void addLayers(){
@@ -486,110 +445,133 @@ public final class Loader extends FSLoader {
         programSet(MAIN_PROGRAMSET).add(program2);
     }
 
-    private void postProcess(){
+    private void rotateLightSource(){
         final float[] orgpos = LIGHT_POINT.position().provider().clone();
 
         VLVLinear v = new VLVLinear(0, 360, LIGHT_SPIN_CYCLES, VLV.LOOP_FORWARD)
                 .setTask(new VLTaskContinous(new VLTask.Task<VLVLinear>(){
 
-            private float[] cache = new float[16];
+                    private float[] cache = new float[16];
 
-            @Override
-            public void run(VLTask t, VLVLinear v){
-//                float[] pos = LIGHT_DIRECT.position().provider();
-                float[] pos = LIGHT_POINT.position().provider();
+                    @Override
+                    public void run(VLTask t, VLVLinear v){
+                        float[] pos = LIGHT_POINT.position().provider();
 
-                Matrix.setIdentityM(cache, 0);
-                Matrix.rotateM(cache, 0, v.get(), 0f, 1f ,0f);
-                Matrix.multiplyMV(pos, 0, cache, 0, orgpos, 0);
+                        Matrix.setIdentityM(cache, 0);
+                        Matrix.rotateM(cache, 0, v.get(), 0f, 1f ,0f);
+                        Matrix.multiplyMV(pos, 0, cache, 0, orgpos, 0);
 
-                pos[0] /= pos[3];
-                pos[1] /= pos[3];
-                pos[2] /= pos[3];
+                        pos[0] /= pos[3];
+                        pos[1] /= pos[3];
+                        pos[2] /= pos[3];
 
-//                SHADOW_DIRECT.updateLightProjection(0, 1, 0, -SHADOWMAP_ORTHO_DIAMETER, SHADOWMAP_ORTHO_DIAMETER,
-//                        -SHADOWMAP_ORTHO_DIAMETER, SHADOWMAP_ORTHO_DIAMETER, SHADOWMAP_ORTHO_NEAR, SHADOWMAP_ORTHO_FAR);
-//
-//                LIGHT_DIRECT.updateDirection();
-
-                SHADOW_POINT.updateLightVP();
-
-//                FSModelCluster set = lightbox.get(0).modelCluster();
-//                set.getX(0, 0).set(pos[0]);
-//                set.getY(0, 0).set(pos[1]);
-//                set.getZ(0, 0).set(pos[2]);
-//                set.sync();
-            }
-        }));
+                        SHADOW_POINT.updateLightVP();
+                    }
+                }));
 
         VLVProcessor controlproc = FSRenderer.getControllersProcessor();
         controlproc.add(new VLVProcessor.Entry(v, 0));
         controlproc.activateLatest();
         controlproc.start();
+    }
 
+    private void setupProcessors(){
+        PROC_Y_LAYER1 = new VLVProcessor(LAYER_INSTANCE_COUNT, 0);
+        PROC_Y_LAYER2 = new VLVProcessor(LAYER_INSTANCE_COUNT, 0);
+        PROC_Y_LAYER3 = new VLVProcessor(LAYER_INSTANCE_COUNT, 0);
+
+        PROC_C_LAYER1 = new VLVProcessor(LAYER_INSTANCE_COUNT, 0);
+        PROC_C_LAYER2 = new VLVProcessor(LAYER_INSTANCE_COUNT, 0);
+        PROC_C_LAYER3 = new VLVProcessor(LAYER_INSTANCE_COUNT, 0);
+        
+        FSMesh[] layers = new FSMesh[]{
+                layer1, layer2, layer3
+        };
+        VLVProcessor[] cprocs = new VLVProcessor[]{
+                PROC_C_LAYER1, PROC_C_LAYER2, PROC_C_LAYER3
+        };
+        VLVProcessor[] yprocs = new VLVProcessor[]{
+                PROC_Y_LAYER1, PROC_Y_LAYER2, PROC_Y_LAYER3
+        };
+
+        FSMesh layer;
         FSInstance instance;
         FSModelCluster modelcluster;
         FSSchematics schematics;
+        VLVCluster colorcluster;
+        VLVProcessor colorproc;
+        VLVProcessor yproc;
         float yv;
 
-        final VLVProcessor yproc = new VLVProcessor(LAYER_INSTANCE_COUNT, LAYER_INSTANCE_COUNT / 2);
-        final VLVProcessor cproc = new VLVProcessor(LAYER_INSTANCE_COUNT, LAYER_INSTANCE_COUNT / 2);
+        for(int i = 0; i < layers.length; i++){
+            layer = layers[i];
+            colorproc = cprocs[i];
+            yproc = yprocs[i];
 
-        VLVCluster colorcluster = new VLVCluster(layer1.size(), layer1.size() / 2);
-        cproc.add(new VLVProcessor.Entry(colorcluster, 0, VLVProcessor.SYNC_INDEX, 0, 0));
+            PROCESSORS.add(colorproc);
+            PROCESSORS.add(yproc);
 
-        for(int i2 = 0; i2 < layer1.size(); i2++){
-            instance = layer1.get(i2);
-            modelcluster = instance.modelCluster();
-            yv = modelcluster.getY(0, 0).get();
-            schematics = instance.schematics();
+            for(int i2 = 0; i2 < layer.size(); i2++){
+                instance = layer.get(i2);
+                modelcluster = instance.modelCluster();
+                schematics = instance.schematics();
+                yv = modelcluster.getY(0, 0).get();
 
-            modelcluster.setY(0, 0, new VLVInterpolated(yv, yv + schematics.modelHeight() * 0.75F, 120 + RANDOM.nextInt(60),
-                    VLV.LOOP_FORWARD_BACKWARD, VLV.INTERP_ACCELERATE_DECELERATE_CUBIC));
+                modelcluster.addSet(0,1, 0);
+                modelcluster.addSet(0,1, 0);
+                modelcluster.addRowRotate(0, new VLVConst(-90), VLVConst.ZERO, VLVConst.ZERO, VLVConst.ONE);
+                modelcluster.addRowRotate(1, new VLVInterpolated(0, -90, CYCLES_ROTATE, VLV.LOOP_NONE, VLV.INTERP_DECELERATE_SINE_SQRT), VLVConst.ZERO, VLVConst.ZERO, VLVConst.ONE);
+                modelcluster.setY(2, 0, new VLVInterpolated(yv, yv + schematics.modelHeight() * 0.75F, 120 + RANDOM.nextInt(60), VLV.LOOP_FORWARD_BACKWARD, VLV.INTERP_ACCELERATE_DECELERATE_CUBIC));
+                modelcluster.sync();
 
-            modelcluster.addSet(0,1, 0);
-            modelcluster.addRowRotate(0, new VLVConst(-90), VLVConst.ZERO, VLVConst.ZERO, VLVConst.ONE);
-            modelcluster.sync();
+                colorcluster = new VLVCluster(2, 0);
+                colorcluster.addSet(1, 0);
+                colorcluster.addSet(1, 0);
 
-            schematics.inputBounds().add(new FSBoundsCuboid(schematics,
-                    50, 50f, 50f, FSBounds.MODE_X_OFFSET_VOLUMETRIC, FSBounds.MODE_Y_OFFSET_VOLUMETRIC, FSBounds.MODE_Z_OFFSET_VOLUMETRIC,
-                    40f, 40f, 40f, FSBounds.MODE_X_VOLUMETRIC, FSBounds.MODE_Y_VOLUMETRIC, FSBounds.MODE_Z_VOLUMETRIC));
+                colorcluster.addRow(0, 4, 0);
+                colorcluster.addColumn(0, 0, new VLVInterpolated(COLOR_PIECES[0], COLOR_INPUT[0], CYCLES_INPUT, VLV.LOOP_FORWARD_BACKWARD, VLV.INTERP_ACCELERATE_DECELERATE_COS));
+                colorcluster.addColumn(0, 0, new VLVInterpolated(COLOR_PIECES[0], COLOR_INPUT[1], CYCLES_INPUT, VLV.LOOP_FORWARD_BACKWARD, VLV.INTERP_ACCELERATE_DECELERATE_COS));
+                colorcluster.addColumn(0, 0, new VLVInterpolated(COLOR_PIECES[0], COLOR_INPUT[2], CYCLES_INPUT, VLV.LOOP_FORWARD_BACKWARD, VLV.INTERP_ACCELERATE_DECELERATE_COS));
+                colorcluster.addColumn(0, 0, new VLVInterpolated(COLOR_PIECES[0], COLOR_INPUT[3], CYCLES_INPUT, VLV.LOOP_FORWARD_BACKWARD, VLV.INTERP_ACCELERATE_DECELERATE_COS));
 
-            yproc.add(new VLVProcessor.Entry(modelcluster, 1, RANDOM.nextInt(300)));
-            yproc.activateLatest();
+                colorcluster.addRow(1, 4, 0);
+                colorcluster.addColumn(1, 0, new VLVInterpolated(COLOR_PIECES[0], COLOR_ACTIVE[0], CYCLES_ACTIVATE, VLV.LOOP_NONE, VLV.INTERP_ACCELERATE_DECELERATE_COS));
+                colorcluster.addColumn(1, 0, new VLVInterpolated(COLOR_PIECES[0], COLOR_ACTIVE[1], CYCLES_ACTIVATE, VLV.LOOP_NONE, VLV.INTERP_ACCELERATE_DECELERATE_COS));
+                colorcluster.addColumn(1, 0, new VLVInterpolated(COLOR_PIECES[0], COLOR_ACTIVE[2], CYCLES_ACTIVATE, VLV.LOOP_NONE, VLV.INTERP_ACCELERATE_DECELERATE_COS));
+                colorcluster.addColumn(1, 0, new VLVInterpolated(COLOR_PIECES[0], COLOR_ACTIVE[3], CYCLES_ACTIVATE, VLV.LOOP_NONE, VLV.INTERP_ACCELERATE_DECELERATE_COS));
 
-            colorcluster.addSet(1, 0);
-            colorcluster.addRow(i2, 3, 0);
-            colorcluster.addColumn(i2, 0, new VLVInterpolated(COLOR_PIECES[0], COLOR_SELECTED[0], SELECTION_CYCLES, VLV.LOOP_RETURN_ONCE, VLV.INTERP_LINEAR));
-            colorcluster.addColumn(i2, 0, new VLVInterpolated(COLOR_PIECES[1], COLOR_SELECTED[1], SELECTION_CYCLES, VLV.LOOP_RETURN_ONCE, VLV.INTERP_LINEAR));
-            colorcluster.addColumn(i2, 0, new VLVInterpolated(COLOR_PIECES[2], COLOR_SELECTED[2], SELECTION_CYCLES, VLV.LOOP_RETURN_ONCE, VLV.INTERP_LINEAR));
-            colorcluster.SYNCER.add(new VLArray.DefinitionCluster(instance.colors(), i2, 0, 0));
-            colorcluster.sync();
+                schematics.inputBounds().add(new FSBoundsCuboid(schematics,
+                        50, 50f, 50f, FSBounds.MODE_X_OFFSET_VOLUMETRIC, FSBounds.MODE_Y_OFFSET_VOLUMETRIC, FSBounds.MODE_Z_OFFSET_VOLUMETRIC,
+                        40f, 40f, 40f, FSBounds.MODE_X_VOLUMETRIC, FSBounds.MODE_Y_VOLUMETRIC, FSBounds.MODE_Z_VOLUMETRIC));
 
-            FSInput.add(FSInput.TYPE_TOUCH, new FSInput.Entry(layer1, i2, new FSInput.CollisionListener(){
+                yproc.add(new VLVProcessor.Entry(modelcluster, 1, RANDOM.nextInt(300)));
+                colorproc.add(new VLVProcessor.Entry(colorcluster, 0, VLVProcessor.SYNC_INDEX, 0, 0));
 
-                @Override
-                public int activated(FSBounds.Collision results, FSInput.Entry entry, int boundindex, MotionEvent e1, MotionEvent e2, float f1, float f2, float[] near, float[] far){
-                    if(e1.getAction() == MotionEvent.ACTION_UP){
-                        FSBoundsCuboid bounds = (FSBoundsCuboid)entry.mesh.get(entry.instanceindex).schematics().inputBounds().get(boundindex);
+                FSInput.add(FSInput.TYPE_TOUCH, new FSInput.Entry(layer1, i2, new FSInput.CollisionListener(){
 
-                        float[] coords = bounds.offset().coordinates();
+                    @Override
+                    public int activated(FSBounds.Collision results, FSInput.Entry entry, int boundindex, MotionEvent e1, MotionEvent e2, float f1, float f2, float[] near, float[] far){
+                        if(e1.getAction() == MotionEvent.ACTION_UP){
+                            FSBoundsCuboid bounds = (FSBoundsCuboid)entry.mesh.get(entry.instanceindex).schematics().inputBounds().get(boundindex);
 
-                        CLAMPEDPOINTCACHE[0] = coords[0] + VLMath.clamp(near[0], -bounds.getHalfWidth(), bounds.getHalfWidth());
-                        CLAMPEDPOINTCACHE[1] = coords[1] + VLMath.clamp(near[1], -bounds.getHalfHeight(), bounds.getHalfHeight());
-                        CLAMPEDPOINTCACHE[2] = coords[2] + VLMath.clamp(near[2], -bounds.getHalfDepth(), bounds.getHalfDepth());
+                            float[] coords = bounds.offset().coordinates();
 
-                        float distance = VLMath.euclideanDistance(CLAMPEDPOINTCACHE, 0, near, 0, 3);
+                            CLAMPEDPOINTCACHE[0] = coords[0] + VLMath.clamp(near[0], -bounds.getHalfWidth(), bounds.getHalfWidth());
+                            CLAMPEDPOINTCACHE[1] = coords[1] + VLMath.clamp(near[1], -bounds.getHalfHeight(), bounds.getHalfHeight());
+                            CLAMPEDPOINTCACHE[2] = coords[2] + VLMath.clamp(near[2], -bounds.getHalfDepth(), bounds.getHalfDepth());
 
-                        if(COLLISION_MIN_DISTANCE > distance){
-                            COLLISION_MIN_DISTANCE = distance;
-                            COLLISION_CLOSEST = entry;
+                            float distance = VLMath.euclideanDistance(CLAMPEDPOINTCACHE, 0, near, 0, 3);
+
+                            if(COLLISION_MIN_DISTANCE > distance){
+                                COLLISION_MIN_DISTANCE = distance;
+                                COLLISION_CLOSEST = entry;
+                            }
                         }
-                    }
 
-                    return FSInput.INPUT_CHECK_CONTINUE;
-                }
-            }));
+                        return FSInput.INPUT_CHECK_CONTINUE;
+                    }
+                }));
+            }
         }
 
         FSInput.setMainListener(new FSInput.Listener(){
@@ -603,28 +585,25 @@ public final class Loader extends FSLoader {
             @Override
             public void postProcess(){
                 if(COLLISION_CLOSEST != null){
-                    cproc.pause();
-                    cproc.reset();
-                    cproc.sync();
-
-                    cproc.deactivateAll();
-                    cproc.activate(0);
-
-                    VLVProcessor.Entry e = cproc.get(0);
-                    e.setindex = COLLISION_CLOSEST.instanceindex;
-                    e.syncindex = COLLISION_CLOSEST.instanceindex;
-
-                    cproc.start();
+                    
                 }
             }
         });
+    }
 
-        yproc.start();
+    private void moveLayer1Vertical(){
 
         FSControl.setRenderContinuously(true);
+    }
 
-        PROCESSORS.add(yproc);
-        PROCESSORS.add(cproc);
+    private void animateLayer1Vertical(int index){
+        PROC_Y_LAYER1.activate(index);
+        PROC_Y_LAYER1.start();
+        FSControl.setRenderContinuously(true);
+    }
+
+    private void changeLayerColor(){
+
     }
 
     private void changePieceTexture(final FSInstance instance, final int subimageindex, final String text){

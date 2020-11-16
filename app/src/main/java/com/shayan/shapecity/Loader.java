@@ -159,7 +159,7 @@ public final class Loader extends FSLoader {
     private int BUFFER_ELEMENT_SHORT_DEFAULT;
     private int BUFFER_ARRAY_FLOAT_DEFAULT;
 
-    protected Loader(){
+    public Loader(){
         super(2);
     }
 

@@ -2,9 +2,11 @@
 package com.shayan.shapecity;
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.opengl.GLES32;
 import android.opengl.Matrix;
+import android.util.Log;
 import android.view.MotionEvent;
 
 import com.nurverek.firestorm.FSActivity;
@@ -46,7 +48,7 @@ import com.nurverek.vanguard.VLVProcessor;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.security.SecureRandom;
-
+ 
 public final class Loader extends FSLoader {
 
     private static final float[] COLOR_WHITE = new float[]{
@@ -157,7 +159,7 @@ public final class Loader extends FSLoader {
     private int BUFFER_ELEMENT_SHORT_DEFAULT;
     private int BUFFER_ARRAY_FLOAT_DEFAULT;
 
-    private Loader(){
+    protected Loader(){
         super(2);
     }
 
@@ -177,6 +179,7 @@ public final class Loader extends FSLoader {
 
         AUTOMATOR.execute(DEBUG_DISABLED);
 
+        rotateLightSource();
         setupProcessors();
     }
 
@@ -186,7 +189,7 @@ public final class Loader extends FSLoader {
     }
 
     private void prepare(final FSActivity act){
-        //        7 	1.0 	0.7 	1.8
+//        7 	1.0 	0.7 	1.8
 //        13 	1.0 	0.35 	0.44
 //        20 	1.0 	0.22 	0.20
 //        32 	1.0 	0.14 	0.07
@@ -257,8 +260,8 @@ public final class Loader extends FSLoader {
         TEX_ARRAY = new FSTexture(new VLInt(GLES32.GL_TEXTURE_2D_ARRAY), new VLInt(TEXUNIT));
         TEX_ARRAY.bind();
         TEX_ARRAY.storage3D(1, GLES32.GL_RGBA8, PIECE_TEXTURE_DIMENSION, PIECE_TEXTURE_DIMENSION, LAYER_INSTANCE_COUNT);
-        TEX_ARRAY.minFilter(GLES32.GL_NEAREST);
-        TEX_ARRAY.magFilter(GLES32.GL_NEAREST);
+        TEX_ARRAY.minFilter(GLES32.GL_LINEAR);
+        TEX_ARRAY.magFilter(GLES32.GL_LINEAR);
         TEX_ARRAY.wrapS(GLES32.GL_CLAMP_TO_EDGE);
         TEX_ARRAY.wrapT(GLES32.GL_CLAMP_TO_EDGE);
         TEX_ARRAY.baseLevel(0);
@@ -268,9 +271,28 @@ public final class Loader extends FSLoader {
 
         Bitmap b = null;
 
+        int[] resources = new int[]{
+                R.drawable.circle,
+                R.drawable.hex,
+                R.drawable.square,
+                R.drawable.triangle,
+                R.drawable.circlecone,
+                R.drawable.squarestar,
+                R.drawable.bladecircle,
+                R.drawable.pointedsquare,
+                R.drawable.rsquare,
+                R.drawable.rhombus,
+                R.drawable.rectangle,
+                R.drawable.trapezoid
+        };
+
         for(int i = 0; i < LAYER_INSTANCE_COUNT; i++){
-            b = FSTools.generateTextedBitmap(act, String.valueOf(i), 30, COLOR_PIECE_TEXTURE_BG, COLOR_PIECE_TEXTURE_TEXT, true,
-                    PIECE_TEXTURE_DIMENSION, PIECE_TEXTURE_DIMENSION, FSTools.LOCATION_MID_CENTER, Bitmap.Config.ARGB_8888);
+            BitmapFactory.Options opts = new BitmapFactory.Options();
+            opts.inPreferredConfig = Bitmap.Config.ARGB_8888;
+            opts.outConfig = Bitmap.Config.ARGB_8888;
+            opts.inScaled = true;
+
+            b = BitmapFactory.decodeResource(act.getResources(), resources[i % resources.length], opts);
 
             if(PIXEL_BUFFER == null){
                 PIXEL_BUFFER = ByteBuffer.allocate(b.getAllocationByteCount());
@@ -511,16 +533,16 @@ public final class Loader extends FSLoader {
                 layer1, layer2, layer3
         };
         VLVProcessor[] rprocs = new VLVProcessor[]{
-                PROC_R_LAYER1, PROC_R_LAYER1, PROC_R_LAYER1
+                PROC_R_LAYER1, PROC_R_LAYER2, PROC_R_LAYER3
         };
         VLVProcessor[] yprocs = new VLVProcessor[]{
                 PROC_Y_LAYER1, PROC_Y_LAYER2, PROC_Y_LAYER3
         };
         VLVProcessor[] ciprocs = new VLVProcessor[]{
-                PROC_C_I_LAYER2, PROC_C_I_LAYER2, PROC_C_I_LAYER2
+                PROC_C_I_LAYER1, PROC_C_I_LAYER2, PROC_C_I_LAYER3
         };
         VLVProcessor[] caprocs = new VLVProcessor[]{
-                PROC_C_A_LAYER1, PROC_C_A_LAYER1, PROC_C_A_LAYER1
+                PROC_C_A_LAYER1, PROC_C_A_LAYER2, PROC_C_A_LAYER3
         };
 
         FSMesh layer;
@@ -595,7 +617,7 @@ public final class Loader extends FSLoader {
                             CLAMPEDPOINTCACHE[0] = coords[0] + VLMath.clamp(near[0], -bounds.getHalfWidth(), bounds.getHalfWidth());
                             CLAMPEDPOINTCACHE[1] = coords[1] + VLMath.clamp(near[1], -bounds.getHalfHeight(), bounds.getHalfHeight());
                             CLAMPEDPOINTCACHE[2] = coords[2] + VLMath.clamp(near[2], -bounds.getHalfDepth(), bounds.getHalfDepth());
-
+                            
                             float distance = VLMath.euclideanDistance(CLAMPEDPOINTCACHE, 0, near, 0, 3);
 
                             if(COLLISION_MIN_DISTANCE > distance){

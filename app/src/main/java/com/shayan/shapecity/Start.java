@@ -1,24 +1,22 @@
  package com.shayan.shapecity;
 
-import android.content.Intent;
-import android.content.pm.ActivityInfo;
-import android.graphics.Color;
-import android.opengl.GLES32;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
-import android.widget.RelativeLayout;
+ import android.content.Intent;
+ import android.content.pm.ActivityInfo;
+ import android.graphics.Color;
+ import android.opengl.GLES32;
+ import android.view.View;
+ import android.view.ViewGroup;
+ import android.view.Window;
+ import android.view.WindowManager;
+ import android.widget.RelativeLayout;
 
-import com.nurverek.firestorm.FSActivity;
-import com.nurverek.firestorm.FSControl;
-import com.nurverek.firestorm.FSRenderPass;
-import com.nurverek.firestorm.FSRenderer;
-import com.nurverek.firestorm.FSViewConfig;
+ import com.nurverek.firestorm.FSActivity;
+ import com.nurverek.firestorm.FSControl;
+ import com.nurverek.firestorm.FSRenderPass;
+ import com.nurverek.firestorm.FSRenderer;
+ import com.nurverek.firestorm.FSViewConfig;
 
-import javax.security.auth.DestroyFailedException;
-
-public class Start extends FSActivity {
+ public class Start extends FSActivity {
 
     protected static final float[] BG_COLOR = new float[]{ 0.1f, 0.1f, 0.1f, 1f }; //grey
 
@@ -107,12 +105,12 @@ public class Start extends FSActivity {
 
 //        VLVInterpolated v = new VLVInterpolated(0, 360, 1500, VLV.LOOP_FORWARD, VLV.INTERP_LINEAR);
 //
-//        v.setTask(new VLTaskContinous(new VLTask.Task(){
+//        v.setTask(new VLTaskContinous(new VLTask.Task<VLVInterpolated>(){
 //
 //            private float[] cache = new float[16];
 //
 //            @Override
-//            public void run(VLTask t, VLVConst v){
+//            public void run(VLTask t, VLVInterpolated v){
 //                FSViewConfig c = FSControl.getViewConfig();
 //                c.eyePosition(0, 10, 0.01F);
 //

@@ -6,7 +6,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.opengl.GLES32;
 import android.opengl.Matrix;
-import android.util.Log;
 import android.view.MotionEvent;
 
 import com.nurverek.firestorm.FSActivity;
@@ -87,7 +86,6 @@ public final class Loader extends FSLoader {
     private static final int CLUSTER_MODEL_ROTATE_Z = 0;
     private static final int CLUSTER_MODEL_ROTATE_Y = 1;
     private static final int CLUSTER_MODEL_NAVIGATION = 2;
-    
 
     private static final int CYCLES_INPUT = 20;
     private static final int CYCLES_ACTIVATE = 60;
@@ -137,6 +135,8 @@ public final class Loader extends FSLoader {
     private FSMesh layer2;
     private FSMesh layer3;
     private FSMesh city;
+
+    private FSMesh[] layers;
 
     private VLVProcessor PROC_Y_LAYER1;
     private VLVProcessor PROC_Y_LAYER2;
@@ -513,6 +513,10 @@ public final class Loader extends FSLoader {
     }
 
     private void setupProcessors(){
+        layers = new FSMesh[]{
+                layer1, layer2, layer3
+        };
+
         PROC_Y_LAYER1 = new VLVProcessor(LAYER_INSTANCE_COUNT, 0);
         PROC_Y_LAYER2 = new VLVProcessor(LAYER_INSTANCE_COUNT, 0);
         PROC_Y_LAYER3 = new VLVProcessor(LAYER_INSTANCE_COUNT, 0);
@@ -528,10 +532,7 @@ public final class Loader extends FSLoader {
         PROC_C_A_LAYER1 = new VLVProcessor(LAYER_INSTANCE_COUNT, 0);
         PROC_C_A_LAYER2 = new VLVProcessor(LAYER_INSTANCE_COUNT, 0);
         PROC_C_A_LAYER3 = new VLVProcessor(LAYER_INSTANCE_COUNT, 0);
-        
-        FSMesh[] layers = new FSMesh[]{
-                layer1, layer2, layer3
-        };
+
         VLVProcessor[] rprocs = new VLVProcessor[]{
                 PROC_R_LAYER1, PROC_R_LAYER2, PROC_R_LAYER3
         };
@@ -604,32 +605,39 @@ public final class Loader extends FSLoader {
                 schematics.inputBounds().add(new FSBoundsCuboid(schematics,
                         50, 50f, 50f, FSBounds.MODE_X_OFFSET_VOLUMETRIC, FSBounds.MODE_Y_OFFSET_VOLUMETRIC, FSBounds.MODE_Z_OFFSET_VOLUMETRIC,
                         40f, 40f, 40f, FSBounds.MODE_X_VOLUMETRIC, FSBounds.MODE_Y_VOLUMETRIC, FSBounds.MODE_Z_VOLUMETRIC));
-                
-                FSInput.add(FSInput.TYPE_TOUCH, new FSInput.Entry(layer1, i2, new FSInput.CollisionListener(){
-
-                    @Override
-                    public int activated(FSBounds.Collision results, FSInput.Entry entry, int boundindex, MotionEvent e1, MotionEvent e2, float f1, float f2, float[] near, float[] far){
-                        if(e1.getAction() == MotionEvent.ACTION_UP){
-                            FSBoundsCuboid bounds = (FSBoundsCuboid)entry.mesh.get(entry.instanceindex).schematics().inputBounds().get(boundindex);
-
-                            float[] coords = bounds.offset().coordinates();
-
-                            CLAMPEDPOINTCACHE[0] = coords[0] + VLMath.clamp(near[0], -bounds.getHalfWidth(), bounds.getHalfWidth());
-                            CLAMPEDPOINTCACHE[1] = coords[1] + VLMath.clamp(near[1], -bounds.getHalfHeight(), bounds.getHalfHeight());
-                            CLAMPEDPOINTCACHE[2] = coords[2] + VLMath.clamp(near[2], -bounds.getHalfDepth(), bounds.getHalfDepth());
-                            
-                            float distance = VLMath.euclideanDistance(CLAMPEDPOINTCACHE, 0, near, 0, 3);
-
-                            if(COLLISION_MIN_DISTANCE > distance){
-                                COLLISION_MIN_DISTANCE = distance;
-                                COLLISION_CLOSEST = entry;
-                            }
-                        }
-
-                        return FSInput.INPUT_CHECK_CONTINUE;
-                    }
-                }));
             }
+        }
+    }
+
+    private void activateInputListeners(FSMesh targetlayer, Runnable onactivated){
+        int size = targetlayer.size();
+        FSInput.clear(FSInput.TYPE_TOUCH);
+
+        for(int i = 0; i < size; i++){
+            FSInput.add(FSInput.TYPE_TOUCH, new FSInput.Entry(targetlayer, i, new FSInput.CollisionListener(){
+
+                @Override
+                public int activated(FSBounds.Collision results, FSInput.Entry entry, int boundindex, MotionEvent e1, MotionEvent e2, float f1, float f2, float[] near, float[] far){
+                    if(e1.getAction() == MotionEvent.ACTION_UP){
+                        FSBoundsCuboid bounds = (FSBoundsCuboid)entry.mesh.get(entry.instanceindex).schematics().inputBounds().get(boundindex);
+
+                        float[] coords = bounds.offset().coordinates();
+
+                        CLAMPEDPOINTCACHE[0] = coords[0] + VLMath.clamp(near[0], -bounds.getHalfWidth(), bounds.getHalfWidth());
+                        CLAMPEDPOINTCACHE[1] = coords[1] + VLMath.clamp(near[1], -bounds.getHalfHeight(), bounds.getHalfHeight());
+                        CLAMPEDPOINTCACHE[2] = coords[2] + VLMath.clamp(near[2], -bounds.getHalfDepth(), bounds.getHalfDepth());
+
+                        float distance = VLMath.euclideanDistance(CLAMPEDPOINTCACHE, 0, near, 0, 3);
+
+                        if(COLLISION_MIN_DISTANCE > distance){
+                            COLLISION_MIN_DISTANCE = distance;
+                            COLLISION_CLOSEST = entry;
+                        }
+                    }
+
+                    return FSInput.INPUT_CHECK_CONTINUE;
+                }
+            }));
         }
 
         FSInput.setMainListener(new FSInput.Listener(){
@@ -643,7 +651,7 @@ public final class Loader extends FSLoader {
             @Override
             public void postProcess(){
                 if(COLLISION_CLOSEST != null){
-                    
+                    onactivated.run();
                 }
             }
         });

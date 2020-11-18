@@ -7,7 +7,7 @@ import com.nurverek.firestorm.FSConfigDynamicSelective;
 import com.nurverek.firestorm.FSConfigSelective;
 import com.nurverek.firestorm.FSControl;
 import com.nurverek.firestorm.FSFrameBuffer;
-import com.nurverek.firestorm.FSLoader;
+import com.nurverek.firestorm.FSGenerator;
 import com.nurverek.firestorm.FSMesh;
 import com.nurverek.firestorm.FSP;
 import com.nurverek.firestorm.FSRenderer;
@@ -82,7 +82,7 @@ public final class ModDepthMap{
         protected void modify(FSP program, FSConfig.Policy policy){
             FSShader vertex = program.vertexShader();
 
-            FSConfig position = new FSP.AttribPointer(policy, FSLoader.ELEMENT_POSITION, 0);
+            FSConfig position = new FSP.AttribPointer(policy, FSGenerator.ELEMENT_POSITION, 0);
             FSConfig lighttransform = new FSP.UniformMatrix4fvd(policy, lightViewProjection, 0, 1);
             
             program.registerAttributeLocation(vertex, position);
@@ -125,7 +125,7 @@ public final class ModDepthMap{
             FSShader geomtry = program.initializeGeometryShader();
 
             FSConfig transforms = new FSConfigDynamicSelective(transformsrc, selection);
-            FSConfig position = new FSP.AttribPointer(policy, FSLoader.ELEMENT_POSITION, 0);
+            FSConfig position = new FSP.AttribPointer(policy, FSGenerator.ELEMENT_POSITION, 0);
             FSConfig far = new FSP.Uniform1f(policy, zfar);
             FSConfig cubepos = new FSP.Uniform3fvd(policy, cubeposition, 0, 1);
 

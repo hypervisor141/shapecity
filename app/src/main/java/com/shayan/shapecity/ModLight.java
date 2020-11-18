@@ -9,7 +9,7 @@ import com.nurverek.firestorm.FSGamma;
 import com.nurverek.firestorm.FSLightDirect;
 import com.nurverek.firestorm.FSLightMaterial;
 import com.nurverek.firestorm.FSLightPoint;
-import com.nurverek.firestorm.FSLoader;
+import com.nurverek.firestorm.FSGenerator;
 import com.nurverek.firestorm.FSP;
 import com.nurverek.firestorm.FSShader;
 import com.nurverek.firestorm.FSShadowDirect;
@@ -39,8 +39,8 @@ public final class ModLight{
             FSShader vertex = program.vertexShader();
             FSShader fragment = program.fragmentShader();
 
-            FSConfig positions = new FSP.AttribPointer(policy, FSLoader.ELEMENT_POSITION, 0);
-            FSConfig normals = new FSP.AttribPointer(policy, FSLoader.ELEMENT_NORMAL, 0);
+            FSConfig positions = new FSP.AttribPointer(policy, FSGenerator.ELEMENT_POSITION, 0);
+            FSConfig normals = new FSP.AttribPointer(policy, FSGenerator.ELEMENT_NORMAL, 0);
             FSConfig vp = new FSP.UniformMatrix4fvd(policy, FSControl.getViewConfig().viewProjectionMatrix(), 0, 1);
             FSConfig material = new FSP.MaterialDynamic(policy, materialglslsize);
             FSConfig cameraPos = new FSP.Uniform3fvd(policy, FSControl.getViewConfig().eyePosition(),0, 1);
@@ -163,9 +163,9 @@ public final class ModLight{
             FSShader vertex = program.vertexShader();
             FSShader fragment = program.fragmentShader();
 
-            FSConfig positions = new FSP.AttribPointer(policy, FSLoader.ELEMENT_POSITION, 0);
+            FSConfig positions = new FSP.AttribPointer(policy, FSGenerator.ELEMENT_POSITION, 0);
             FSConfig vp = new FSP.UniformMatrix4fvd(policy, FSControl.getViewConfig().viewProjectionMatrix(), 0, 1);
-            FSConfig normals = new FSP.AttribPointer(policy, FSLoader.ELEMENT_NORMAL, 0);
+            FSConfig normals = new FSP.AttribPointer(policy, FSGenerator.ELEMENT_NORMAL, 0);
             FSConfig material = new FSP.MaterialDynamic(policy, materialglslsize);
             FSConfig cameraPos = new FSP.Uniform3fvd(policy, FSControl.getViewConfig().eyePosition(),0, 1);
             FSConfig shadowbind = new FSP.TextureBind(policy, pointshadow.texture());

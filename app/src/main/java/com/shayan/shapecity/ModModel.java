@@ -1,7 +1,7 @@
 package com.shayan.shapecity;
 
 import com.nurverek.firestorm.FSConfig;
-import com.nurverek.firestorm.FSLoader;
+import com.nurverek.firestorm.FSGenerator;
 import com.nurverek.firestorm.FSP;
 import com.nurverek.firestorm.FSShader;
 
@@ -17,7 +17,7 @@ public final class ModModel{
         protected void modify(FSP program, FSConfig.Policy policy){
             FSShader vertex = program.vertexShader();
 
-            FSConfig model = new FSP.UniformMatrix4fve(policy,0, FSLoader.ELEMENT_MODEL, 0, 1);
+            FSConfig model = new FSP.UniformMatrix4fve(policy,0, FSGenerator.ELEMENT_MODEL, 0, 1);
             
             program.registerUniformLocation(vertex, model);
             program.addMeshConfig(model);
@@ -42,14 +42,14 @@ public final class ModModel{
             FSShader vertex = program.vertexShader();
 
             if(segments == 1){
-                program.addMeshConfig(new FSP.UniformBlockElement(policy,FSLoader.ELEMENT_MODEL, "MODEL", 0));
+                program.addMeshConfig(new FSP.UniformBlockElement(policy,FSGenerator.ELEMENT_MODEL, "MODEL", 0));
 
                 vertex.addUniformBlock("std140", "MODEL", "mat4 models[" + instancecount + "]");
                 vertex.addMainCode("mat4 model = models[gl_InstanceID];");
 
             }else if(segments == 2){
-                program.addMeshConfig(new FSP.UniformBlockElement(policy,FSLoader.ELEMENT_MODEL, "MODEL1", 0));
-                program.addMeshConfig(new FSP.UniformBlockElement(policy,FSLoader.ELEMENT_MODEL, "MODEL2", 1));
+                program.addMeshConfig(new FSP.UniformBlockElement(policy,FSGenerator.ELEMENT_MODEL, "MODEL1", 0));
+                program.addMeshConfig(new FSP.UniformBlockElement(policy,FSGenerator.ELEMENT_MODEL, "MODEL2", 1));
 
                 instancecount = instancecount / 2 + (instancecount % 2 == 0 ? 0 : 1);
 
@@ -60,10 +60,10 @@ public final class ModModel{
                 vertex.addMainCode("mat4 model = mat4(models1[index], models1[index], models2[index], models3[index]);");
 
             }else if(segments == 4){
-                program.addMeshConfig(new FSP.UniformBlockElement(policy,FSLoader.ELEMENT_MODEL, "MODEL1", 0));
-                program.addMeshConfig(new FSP.UniformBlockElement(policy,FSLoader.ELEMENT_MODEL, "MODEL2", 1));
-                program.addMeshConfig(new FSP.UniformBlockElement(policy,FSLoader.ELEMENT_MODEL, "MODEL3", 2));
-                program.addMeshConfig(new FSP.UniformBlockElement(policy,FSLoader.ELEMENT_MODEL, "MODEL4", 3));
+                program.addMeshConfig(new FSP.UniformBlockElement(policy,FSGenerator.ELEMENT_MODEL, "MODEL1", 0));
+                program.addMeshConfig(new FSP.UniformBlockElement(policy,FSGenerator.ELEMENT_MODEL, "MODEL2", 1));
+                program.addMeshConfig(new FSP.UniformBlockElement(policy,FSGenerator.ELEMENT_MODEL, "MODEL3", 2));
+                program.addMeshConfig(new FSP.UniformBlockElement(policy,FSGenerator.ELEMENT_MODEL, "MODEL4", 3));
 
                 vertex.addUniformBlock("std140", "MODEL1", "vec4 models1[" + instancecount + "]");
                 vertex.addUniformBlock("std140", "MODEL2", "vec4 models2[" + instancecount + "]");

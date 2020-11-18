@@ -3,7 +3,7 @@ package com.shayan.shapecity;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
+import android.graphics.Paint;
 import android.opengl.GLES32;
 import android.opengl.Matrix;
 import android.view.MotionEvent;
@@ -17,11 +17,11 @@ import com.nurverek.firestorm.FSBufferLayout;
 import com.nurverek.firestorm.FSConfig;
 import com.nurverek.firestorm.FSControl;
 import com.nurverek.firestorm.FSGamma;
+import com.nurverek.firestorm.FSGenerator;
 import com.nurverek.firestorm.FSInput;
 import com.nurverek.firestorm.FSInstance;
 import com.nurverek.firestorm.FSLightMaterial;
 import com.nurverek.firestorm.FSLightPoint;
-import com.nurverek.firestorm.FSLoader;
 import com.nurverek.firestorm.FSMesh;
 import com.nurverek.firestorm.FSModelCluster;
 import com.nurverek.firestorm.FSP;
@@ -48,7 +48,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.security.SecureRandom;
  
-public final class Loader extends FSLoader {
+public final class Loader extends FSGenerator{
 
     private static final float[] COLOR_WHITE = new float[]{
             1F, 1F, 1F, 1F
@@ -63,10 +63,13 @@ public final class Loader extends FSLoader {
             1.0F, 0.7F, 0F, 1F
     };
     private static final float[] COLOR_OBSIDIAN = new float[]{
+            0.4F, 0.4F, 0.4F, 1F
+    };
+    private static final float[] COLOR_OBSIDIAN_LESS = new float[]{
             0.3F, 0.3F, 0.3F, 1F
     };
-    private static final float[] COLOR_OBSIDIAN2 = new float[]{
-            0.4F, 0.4F, 0.4F, 1F
+    private static final float[] COLOR_OBSIDIAN_LESS2 = new float[]{
+            0.1F, 0.1F, 0.1F, 1F
     };
     private static final float[] COLOR_GOLD = new float[]{
             0.83F, 0.68F, 0.21F, 1F
@@ -75,11 +78,9 @@ public final class Loader extends FSLoader {
             1.0F, 0.4F, 0F, 1F
     };
 
-    private static final float[] COLOR_PIECES = COLOR_WHITE;
+    private static final float[] COLOR_PIECES = COLOR_OBSIDIAN_LESS;
     private static final float[] COLOR_INPUT = COLOR_WHITE_EXTRA_2;
     private static final float[] COLOR_ACTIVE = COLOR_DARK_ORANGE;
-    private static final int COLOR_PIECE_TEXTURE_BG = Color.argb(255,20,20,20);
-    private static final int COLOR_PIECE_TEXTURE_TEXT = Color.WHITE;
     
     private static final int CLUSTER_COLOR_INPUT = 0;
     private static final int CLUSTER_COLOR_ACTIVATE = 1;
@@ -103,6 +104,8 @@ public final class Loader extends FSLoader {
     private static final int LIGHT_SPIN_CYCLES = 3600;
     private static int UBOBINDPOINT = 0;
     private static int TEXUNIT = 0;
+
+    private static final float Y_REDUCTION = 0.5f;
 
     private FSInput.Entry COLLISION_CLOSEST;
     private float COLLISION_MIN_DISTANCE;
@@ -160,7 +163,7 @@ public final class Loader extends FSLoader {
     private int BUFFER_ARRAY_FLOAT_DEFAULT;
 
     public Loader(){
-        super(2);
+        super(2, 50, 10);
     }
 
     @Override
@@ -179,8 +182,10 @@ public final class Loader extends FSLoader {
 
         AUTOMATOR.execute(DEBUG_DISABLED);
 
+        customizeInstanceData();
         rotateLightSource();
         setupProcessors();
+        startGame();
     }
 
     @Override
@@ -286,11 +291,16 @@ public final class Loader extends FSLoader {
                 R.drawable.trapezoid
         };
 
+        Paint paint = new Paint();
+        paint.setAntiAlias(true);
+        paint.setDither(true);
+
         for(int i = 0; i < LAYER_INSTANCE_COUNT; i++){
             BitmapFactory.Options opts = new BitmapFactory.Options();
             opts.inPreferredConfig = Bitmap.Config.ARGB_8888;
             opts.outConfig = Bitmap.Config.ARGB_8888;
             opts.inScaled = true;
+            opts.inMutable = true;
 
             b = BitmapFactory.decodeResource(act.getResources(), resources[i % resources.length], opts);
 
@@ -482,6 +492,12 @@ public final class Loader extends FSLoader {
         programSet(MAIN_PROGRAMSET).add(program2);
     }
 
+    private void customizeInstanceData(){
+        layers = new FSMesh[]{
+                layer1, layer2, layer3
+        };
+    }
+
     private void rotateLightSource(){
         final float[] orgpos = LIGHT_POINT.position().provider().clone();
 
@@ -513,10 +529,6 @@ public final class Loader extends FSLoader {
     }
 
     private void setupProcessors(){
-        layers = new FSMesh[]{
-                layer1, layer2, layer3
-        };
-
         PROC_Y_LAYER1 = new VLVProcessor(LAYER_INSTANCE_COUNT, 0);
         PROC_Y_LAYER2 = new VLVProcessor(LAYER_INSTANCE_COUNT, 0);
         PROC_Y_LAYER3 = new VLVProcessor(LAYER_INSTANCE_COUNT, 0);
@@ -571,7 +583,7 @@ public final class Loader extends FSLoader {
                 instance = layer.get(i2);
                 modelcluster = instance.modelCluster();
                 schematics = instance.schematics();
-                yv = modelcluster.getY(0, 0).get();
+                yv = modelcluster.getY(0, 0).get() - Y_REDUCTION;
 
                 modelcluster.addSet(0,1, 0);
                 modelcluster.addSet(0,1, 0);
@@ -607,6 +619,16 @@ public final class Loader extends FSLoader {
                         40f, 40f, 40f, FSBounds.MODE_X_VOLUMETRIC, FSBounds.MODE_Y_VOLUMETRIC, FSBounds.MODE_Z_VOLUMETRIC));
             }
         }
+    }
+
+    private void activateProc(VLVProcessor proc, int index){
+        proc.pause();
+        proc.reset();
+        proc.deactivateAll();
+        proc.activate(index);
+        proc.start();
+
+        FSControl.setRenderContinuously(true);
     }
 
     private void activateInputListeners(FSMesh targetlayer, Runnable onactivated){
@@ -657,23 +679,18 @@ public final class Loader extends FSLoader {
         });
     }
 
-    private void activateProc(VLVProcessor proc, int index){
-        proc.pause();
-        proc.reset();
-        proc.deactivateAll();
-        proc.activate(index);
-        proc.start();
-
-        FSControl.setRenderContinuously(true);
-    }
-
-    private void changePieceTexture(final FSInstance instance, final int subimageindex, final String text){
+    private void changePieceTexture(final FSInstance instance, final int subimageindex, final int resource){
         FSRenderer.addTask(new Runnable(){
 
             @Override
             public void run(){
-                Bitmap b = FSTools.generateTextedBitmap(FSControl.getContext(), text, 30, COLOR_PIECE_TEXTURE_BG, COLOR_PIECE_TEXTURE_TEXT, true,
-                        PIECE_TEXTURE_DIMENSION, PIECE_TEXTURE_DIMENSION, FSTools.LOCATION_MID_CENTER, Bitmap.Config.ARGB_8888);
+                BitmapFactory.Options opts = new BitmapFactory.Options();
+                opts.inPreferredConfig = Bitmap.Config.ARGB_8888;
+                opts.outConfig = Bitmap.Config.ARGB_8888;
+                opts.inScaled = true;
+                opts.inMutable = true;
+
+                Bitmap b = BitmapFactory.decodeResource(FSControl.getContext().getResources(), resource, opts);
 
                 PIXEL_BUFFER.position(0);
 
@@ -690,6 +707,10 @@ public final class Loader extends FSLoader {
                 FSTools.checkGLError();
             }
         });
+    }
+
+    private void startGame(){
+
     }
 
     @Override

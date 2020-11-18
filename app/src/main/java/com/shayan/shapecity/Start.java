@@ -1,22 +1,22 @@
- package com.shayan.shapecity;
+package com.shayan.shapecity;
 
- import android.content.Intent;
- import android.content.pm.ActivityInfo;
- import android.graphics.Color;
- import android.opengl.GLES32;
- import android.view.View;
- import android.view.ViewGroup;
- import android.view.Window;
- import android.view.WindowManager;
- import android.widget.RelativeLayout;
+import android.content.Intent;
+import android.content.pm.ActivityInfo;
+import android.graphics.Color;
+import android.opengl.GLES32;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
+import android.widget.RelativeLayout;
 
- import com.nurverek.firestorm.FSActivity;
- import com.nurverek.firestorm.FSControl;
- import com.nurverek.firestorm.FSRenderPass;
- import com.nurverek.firestorm.FSRenderer;
- import com.nurverek.firestorm.FSViewConfig;
+import com.nurverek.firestorm.FSActivity;
+import com.nurverek.firestorm.FSControl;
+import com.nurverek.firestorm.FSRenderPass;
+import com.nurverek.firestorm.FSRenderer;
+import com.nurverek.firestorm.FSViewConfig;
 
- public class Start extends FSActivity {
+public class Start extends FSActivity {
 
     protected static final float[] BG_COLOR = new float[]{ 0.1f, 0.1f, 0.1f, 1f }; //grey
 
@@ -96,10 +96,10 @@
         FSViewConfig scene = FSControl.getViewConfig();
         scene.setPerspectiveMode();
         scene.viewPort(0, 0, width, height);
-        scene.perspective(10f, (float)width / height, 1F, 1500F);
+        scene.perspective(1f, (float)width / height, 1F, 1500F);
         scene.updateViewPort();
 
-        scene.eyePosition(0f, 40f, -0.01f);
+        scene.eyePosition(0f, 200f, -0.01f);
         scene.lookAt(0f, 0f, 0f, 0f, 1f, 0f);
         scene.updateViewProjection();
 
@@ -112,7 +112,7 @@
 //            @Override
 //            public void run(VLTask t, VLVInterpolated v){
 //                FSViewConfig c = FSControl.getViewConfig();
-//                c.eyePosition(0, 10, 0.01F);
+//                c.eyePosition(0, 10F, 10F);
 //
 //                float[] eyepos = c.eyePosition().provider();
 //
@@ -121,7 +121,7 @@
 //                Matrix.multiplyMV(eyepos, 0, cache, 0, eyepos, 0);
 //
 //                c.eyePositionDivideByW();
-//                c.lookAt(0f, 0, 0f, 0f, 1f, 0f);
+//                c.lookAt(0f, 0f, 0f, 0f, 1f, 0f);
 //                c.updateViewProjection();
 //            }
 //        }));

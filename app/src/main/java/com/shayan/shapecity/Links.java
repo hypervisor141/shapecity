@@ -35,5 +35,10 @@ public final class Links{
         public void buffer(FSBufferManager buffer, int bufferindex, int arrayoffset, int arraycount, int unitoffset, int unitsize, int unitsubcount, int stride){
             address = buffer.buffer(bufferindex, link, arrayoffset, arraycount, unitoffset, unitsize, unitsubcount, stride);
         }
+
+        @Override
+        public int size(){
+            return link.size();
+        }
     }
 }

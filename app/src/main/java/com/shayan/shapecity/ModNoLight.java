@@ -4,8 +4,8 @@ import com.nurverek.firestorm.FSBrightness;
 import com.nurverek.firestorm.FSConfig;
 import com.nurverek.firestorm.FSConfigDynamic;
 import com.nurverek.firestorm.FSControl;
+import com.nurverek.firestorm.FSG;
 import com.nurverek.firestorm.FSGamma;
-import com.nurverek.firestorm.FSGenerator;
 import com.nurverek.firestorm.FSP;
 import com.nurverek.firestorm.FSShader;
 
@@ -24,9 +24,9 @@ public class ModNoLight extends FSP.Modifier{
         FSShader vertex = program.vertexShader();
         FSShader fragment = program.fragmentShader();
 
-        FSConfig model = new FSP.UniformMatrix4fve(policy,0, FSGenerator.ELEMENT_MODEL, 0, 1);
-        FSConfig position = new FSP.AttribPointer(policy, FSGenerator.ELEMENT_POSITION, 0);
-        FSConfig color = new FSP.Uniform4fve(policy, 0, FSGenerator.ELEMENT_COLOR, 0, 1);
+        FSConfig model = new FSP.UniformMatrix4fve(policy,0, FSG.ELEMENT_MODEL, 0, 1);
+        FSConfig position = new FSP.AttribPointer(policy, FSG.ELEMENT_POSITION, 0);
+        FSConfig color = new FSP.Uniform4fve(policy, 0, FSG.ELEMENT_COLOR, 0, 1);
         FSConfig vp = new FSP.UniformMatrix4fvd(policy, FSControl.getViewConfig().viewProjectionMatrix(), 0, 1);
         FSConfig bright = new FSConfigDynamic<>(brightness);
         FSConfig gam = new FSConfigDynamic<>(gamma);

@@ -1,5 +1,5 @@
 
-package com.shayan.shapecity;
+package com.nurverek.firestorm;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -8,29 +8,9 @@ import android.opengl.GLES32;
 import android.opengl.Matrix;
 import android.view.MotionEvent;
 
-import com.nurverek.firestorm.FSActivity;
-import com.nurverek.firestorm.FSAttenuation;
-import com.nurverek.firestorm.FSBounds;
-import com.nurverek.firestorm.FSBoundsCuboid;
-import com.nurverek.firestorm.FSBrightness;
-import com.nurverek.firestorm.FSBufferLayout;
-import com.nurverek.firestorm.FSConfig;
-import com.nurverek.firestorm.FSControl;
-import com.nurverek.firestorm.FSGamma;
-import com.nurverek.firestorm.FSGenerator;
-import com.nurverek.firestorm.FSInput;
-import com.nurverek.firestorm.FSInstance;
-import com.nurverek.firestorm.FSLightMaterial;
-import com.nurverek.firestorm.FSLightPoint;
-import com.nurverek.firestorm.FSMesh;
-import com.nurverek.firestorm.FSModelCluster;
-import com.nurverek.firestorm.FSP;
-import com.nurverek.firestorm.FSRenderer;
-import com.nurverek.firestorm.FSSchematics;
-import com.nurverek.firestorm.FSShadowPoint;
-import com.nurverek.firestorm.FSTexture;
-import com.nurverek.firestorm.FSTools;
 import com.nurverek.vanguard.VLArrayFloat;
+import com.nurverek.vanguard.VLBufferFloat;
+import com.nurverek.vanguard.VLBufferShort;
 import com.nurverek.vanguard.VLFloat;
 import com.nurverek.vanguard.VLInt;
 import com.nurverek.vanguard.VLListType;
@@ -43,12 +23,18 @@ import com.nurverek.vanguard.VLVConst;
 import com.nurverek.vanguard.VLVInterpolated;
 import com.nurverek.vanguard.VLVLinear;
 import com.nurverek.vanguard.VLVProcessor;
+import com.shayan.shapecity.ModColor;
+import com.shayan.shapecity.ModDepthMap;
+import com.shayan.shapecity.ModLight;
+import com.shayan.shapecity.ModModel;
+import com.shayan.shapecity.ModNoLight;
+import com.shayan.shapecity.R;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.security.SecureRandom;
- 
-public final class Loader extends FSGenerator{
+
+public final class Loader extends FSG{
 
     private static final float[] COLOR_WHITE = new float[]{
             1F, 1F, 1F, 1F
@@ -81,7 +67,7 @@ public final class Loader extends FSGenerator{
     private static final float[] COLOR_PIECES = COLOR_OBSIDIAN_LESS;
     private static final float[] COLOR_INPUT = COLOR_WHITE_EXTRA_2;
     private static final float[] COLOR_ACTIVE = COLOR_DARK_ORANGE;
-    
+
     private static final int CLUSTER_COLOR_INPUT = 0;
     private static final int CLUSTER_COLOR_ACTIVATE = 1;
     private static final int CLUSTER_MODEL_ROTATE_Z = 0;
@@ -178,7 +164,7 @@ public final class Loader extends FSGenerator{
         prepare(act);
 
         addLayers();
-        addSingularParts();
+        addSingularMeshes();
 
         AUTOMATOR.execute(DEBUG_DISABLED);
 
@@ -194,18 +180,18 @@ public final class Loader extends FSGenerator{
     }
 
     private void prepare(final FSActivity act){
-//        7 	1.0 	0.7 	1.8
-//        13 	1.0 	0.35 	0.44
-//        20 	1.0 	0.22 	0.20
-//        32 	1.0 	0.14 	0.07
-//        50 	1.0 	0.09 	0.032
-//        65 	1.0 	0.07 	0.017
-//        100 	1.0 	0.045 	0.0075
-//        160 	1.0 	0.027 	0.0028
-//        200 	1.0 	0.022 	0.0019
-//        325 	1.0 	0.014 	0.0007
-//        600 	1.0 	0.007 	0.0002
-//        3250 	1.0 	0.0014 	0.000007
+        //        7 	1.0 	0.7 	1.8
+        //        13 	1.0 	0.35 	0.44
+        //        20 	1.0 	0.22 	0.20
+        //        32 	1.0 	0.14 	0.07
+        //        50 	1.0 	0.09 	0.032
+        //        65 	1.0 	0.07 	0.017
+        //        100 	1.0 	0.045 	0.0075
+        //        160 	1.0 	0.027 	0.0028
+        //        200 	1.0 	0.022 	0.0019
+        //        325 	1.0 	0.014 	0.0007
+        //        600 	1.0 	0.007 	0.0002
+        //        3250 	1.0 	0.0014 	0.000007
 
         BRIGHTNESS = new FSBrightness(new VLFloat(2f));
         GAMMA = new FSGamma(new VLFloat(1.5f));
@@ -221,7 +207,7 @@ public final class Loader extends FSGenerator{
                 new VLFloat(1f),
                 new VLFloat(1300));
 
-        SHADOW_POINT.initialize(new VLInt(Loader.TEXUNIT++));
+        SHADOW_POINT.initialize(new VLInt(TEXUNIT++));
 
         MATERIAL_DEFAULT = new FSLightMaterial(new VLArrayFloat(
                 new float[]{ 0.2f, 0.2f, 0.2f }),
@@ -326,8 +312,8 @@ public final class Loader extends FSGenerator{
     }
 
     private void addBuffers(){
-        BUFFER_ELEMENT_SHORT_DEFAULT = BUFFERMANAGER.addShortBuffer(GLES32.GL_ELEMENT_ARRAY_BUFFER, GLES32.GL_STATIC_DRAW, -1);
-        BUFFER_ARRAY_FLOAT_DEFAULT = BUFFERMANAGER.addFloatBuffer(GLES32.GL_ARRAY_BUFFER, GLES32.GL_STATIC_DRAW, -1);
+        BUFFER_ELEMENT_SHORT_DEFAULT = BUFFERMANAGER.add(new FSBufferManager.EntryShort(new FSVertexBuffer(GLES32.GL_ELEMENT_ARRAY_BUFFER, GLES32.GL_STATIC_DRAW), new VLBufferShort()));
+        BUFFER_ARRAY_FLOAT_DEFAULT = BUFFERMANAGER.add(new FSBufferManager.EntryFloat(new FSVertexBuffer(GLES32.GL_ARRAY_BUFFER, GLES32.GL_STATIC_DRAW), new VLBufferFloat()));
     }
 
     private void addLayers(){
@@ -385,9 +371,11 @@ public final class Loader extends FSGenerator{
             packs.add(pack);
         }
 
-        Registration reg1 = AUTOMATOR.addScannerInstanced(assembler, new DataGroup(packs), "layer1.", GLES32.GL_TRIANGLES, LAYER_INSTANCE_COUNT);
-        Registration reg2 = AUTOMATOR.addScannerInstanced(assembler, new DataGroup(packs), "layer2.", GLES32.GL_TRIANGLES, LAYER_INSTANCE_COUNT);
-        Registration reg3 = AUTOMATOR.addScannerInstanced(assembler, new DataGroup(packs), "layer3.", GLES32.GL_TRIANGLES, LAYER_INSTANCE_COUNT);
+        Links links = new Links(new VLListType<>(0,0));
+
+        Registration reg1 = AUTOMATOR.addScannerInstanced(assembler, new DataGroup(packs), links, "layer1.", GLES32.GL_TRIANGLES, LAYER_INSTANCE_COUNT);
+        Registration reg2 = AUTOMATOR.addScannerInstanced(assembler, new DataGroup(packs), links, "layer2.", GLES32.GL_TRIANGLES, LAYER_INSTANCE_COUNT);
+        Registration reg3 = AUTOMATOR.addScannerInstanced(assembler, new DataGroup(packs), links, "layer3.", GLES32.GL_TRIANGLES, LAYER_INSTANCE_COUNT);
 
         reg1.addProgram(program1);
         reg2.addProgram(program1);
@@ -412,20 +400,32 @@ public final class Loader extends FSGenerator{
         for(int i = 0; i < layouts.length; i++){
             layout = layouts[i];
 
-            int modelbuffer = BUFFERMANAGER.addFloatBuffer(GLES32.GL_UNIFORM_BUFFER, GLES32.GL_DYNAMIC_DRAW, UBOBINDPOINT++);
-            int colorbuffer = BUFFERMANAGER.addFloatBuffer(GLES32.GL_UNIFORM_BUFFER, GLES32.GL_DYNAMIC_DRAW, UBOBINDPOINT++);
+            int modelbuffer = BUFFERMANAGER.add(new FSBufferManager.EntryFloat(new FSVertexBuffer(GLES32.GL_UNIFORM_BUFFER,
+                    GLES32.GL_DYNAMIC_DRAW, UBOBINDPOINT++), new VLBufferFloat()));
 
-            layout.add(BUFFERMANAGER, modelbuffer, FSBufferLayout.MECHANISM_SEQUENTIAL_INSTANCED).add(ELEMENT_MODEL);
-            layout.add(BUFFERMANAGER, colorbuffer, FSBufferLayout.MECHANISM_SEQUENTIAL_INSTANCED).add(ELEMENT_COLOR);
-            layout.add(BUFFERMANAGER, BUFFER_ARRAY_FLOAT_DEFAULT, FSBufferLayout.MECHANISM_COMPLEX_SINGULAR).add(ELEMENT_POSITION).add(ELEMENT_TEXCOORD).add(ELEMENT_NORMAL);
-            layout.add(BUFFERMANAGER, BUFFER_ELEMENT_SHORT_DEFAULT, FSBufferLayout.MECHANISM_INDICES_SINGULAR).add(ELEMENT_INDEX);
+            int colorbuffer = BUFFERMANAGER.add(new FSBufferManager.EntryFloat(new FSVertexBuffer(GLES32.GL_UNIFORM_BUFFER,
+                    GLES32.GL_DYNAMIC_DRAW, UBOBINDPOINT++), new VLBufferFloat()));
+
+            layout.add(BUFFERMANAGER, modelbuffer, 1)
+                    .add(new FSBufferLayout.EntryBasic(FSBufferLayout.ELEMENT_SEQUENTIAL_INSTANCED, ELEMENT_MODEL));
+
+            layout.add(BUFFERMANAGER, colorbuffer, 1)
+                    .add(new FSBufferLayout.EntryBasic(FSBufferLayout.ELEMENT_SEQUENTIAL_INSTANCED, ELEMENT_COLOR));
+
+            layout.add(BUFFERMANAGER, BUFFER_ARRAY_FLOAT_DEFAULT, 3)
+                    .add(new FSBufferLayout.EntryBasic(FSBufferLayout.ELEMENT_INTERLEAVED_SINGULAR, ELEMENT_POSITION))
+                    .add(new FSBufferLayout.EntryBasic(FSBufferLayout.ELEMENT_INTERLEAVED_SINGULAR, ELEMENT_TEXCOORD))
+                    .add(new FSBufferLayout.EntryBasic(FSBufferLayout.ELEMENT_INTERLEAVED_SINGULAR, ELEMENT_NORMAL));
+
+            layout.add(BUFFERMANAGER, BUFFER_ELEMENT_SHORT_DEFAULT, 1)
+                    .add(new FSBufferLayout.EntryBasic(FSBufferLayout.ELEMENT_SEQUENTIAL_INDICES, ELEMENT_INDEX));
         }
 
         programSet(SHADOW_PROGRAMSET).add(program1);
         programSet(MAIN_PROGRAMSET).add(program2);
     }
 
-    private void addSingularParts(){
+    private void addSingularMeshes(){
         FSConfig draw = new FSP.DrawElements(FSConfig.POLICY_ALWAYS, 0);
 
         FSP program1 = new FSP(DEBUG_DISABLED);
@@ -473,8 +473,9 @@ public final class Loader extends FSGenerator{
         assembler.DRAW_MODE_INDEXED = true;
         assembler.configure();
 
+        Links emptylinks = new Links(new VLListType<>(0,0));
         DataPack defaultpack = new DataPack(new VLArrayFloat(COLOR_WHITE), null, MATERIAL_WHITE_RUBBER, null);
-        Registration reg = AUTOMATOR.addScannerSingle(assembler, defaultpack, "city_cylinder", GLES32.GL_TRIANGLES);
+        Registration reg = AUTOMATOR.addScannerSingle(assembler, defaultpack, emptylinks, "city_cylinder", GLES32.GL_TRIANGLES);
 
         reg.addProgram(program1);
         reg.addProgram(program2);
@@ -482,11 +483,19 @@ public final class Loader extends FSGenerator{
         city = reg.mesh();
 
         FSBufferLayout layout = reg.bufferLayout();
-        int modelbuffer = BUFFERMANAGER.addFloatBuffer(GLES32.GL_ARRAY_BUFFER, GLES32.GL_DYNAMIC_DRAW, -1);
 
-        layout.add(BUFFERMANAGER, modelbuffer, FSBufferLayout.MECHANISM_SEQUENTIAL_SINGULAR).add(ELEMENT_MODEL);
-        layout.add(BUFFERMANAGER, BUFFER_ARRAY_FLOAT_DEFAULT, FSBufferLayout.MECHANISM_COMPLEX_SINGULAR).add(ELEMENT_POSITION).add(ELEMENT_NORMAL);
-        layout.add(BUFFERMANAGER, BUFFER_ELEMENT_SHORT_DEFAULT, FSBufferLayout.MECHANISM_INDICES_SINGULAR).add(ELEMENT_INDEX);
+        int modelbuffer = BUFFERMANAGER.add(new FSBufferManager.EntryFloat(new FSVertexBuffer(GLES32.GL_ARRAY_BUFFER,
+                GLES32.GL_DYNAMIC_DRAW), new VLBufferFloat()));
+
+        layout.add(BUFFERMANAGER, modelbuffer, 1)
+                .add(new FSBufferLayout.EntryBasic(FSBufferLayout.ELEMENT_SEQUENTIAL_SINGULAR, ELEMENT_MODEL));
+
+        layout.add(BUFFERMANAGER, BUFFER_ARRAY_FLOAT_DEFAULT, 2)
+                .add(new FSBufferLayout.EntryBasic(FSBufferLayout.ELEMENT_INTERLEAVED_SINGULAR, ELEMENT_POSITION))
+                .add(new FSBufferLayout.EntryBasic(FSBufferLayout.ELEMENT_INTERLEAVED_SINGULAR, ELEMENT_NORMAL));
+
+        layout.add(BUFFERMANAGER, BUFFER_ELEMENT_SHORT_DEFAULT, 1)
+                .add(new FSBufferLayout.EntryBasic(FSBufferLayout.ELEMENT_SEQUENTIAL_INDICES, ELEMENT_INDEX));
 
         programSet(SHADOW_PROGRAMSET).add(program1);
         programSet(MAIN_PROGRAMSET).add(program2);
@@ -540,7 +549,7 @@ public final class Loader extends FSGenerator{
         PROC_C_I_LAYER1 = new VLVProcessor(LAYER_INSTANCE_COUNT, 0);
         PROC_C_I_LAYER2 = new VLVProcessor(LAYER_INSTANCE_COUNT, 0);
         PROC_C_I_LAYER3 = new VLVProcessor(LAYER_INSTANCE_COUNT, 0);
-        
+
         PROC_C_A_LAYER1 = new VLVProcessor(LAYER_INSTANCE_COUNT, 0);
         PROC_C_A_LAYER2 = new VLVProcessor(LAYER_INSTANCE_COUNT, 0);
         PROC_C_A_LAYER3 = new VLVProcessor(LAYER_INSTANCE_COUNT, 0);
@@ -580,7 +589,7 @@ public final class Loader extends FSGenerator{
             PROCESSORS.add(yproc);
 
             for(int i2 = 0; i2 < layer.size(); i2++){
-                instance = layer.get(i2);
+                instance = layer.instance(i2);
                 modelcluster = instance.modelCluster();
                 schematics = instance.schematics();
                 yv = modelcluster.getY(0, 0).get() - Y_REDUCTION;
@@ -628,7 +637,7 @@ public final class Loader extends FSGenerator{
         proc.activate(index);
         proc.start();
 
-        FSControl.setRenderContinuously(true);
+        FSControl.signalFrameRender(true);
     }
 
     private void activateInputListeners(FSMesh targetlayer, Runnable onactivated){
@@ -641,7 +650,7 @@ public final class Loader extends FSGenerator{
                 @Override
                 public int activated(FSBounds.Collision results, FSInput.Entry entry, int boundindex, MotionEvent e1, MotionEvent e2, float f1, float f2, float[] near, float[] far){
                     if(e1.getAction() == MotionEvent.ACTION_UP){
-                        FSBoundsCuboid bounds = (FSBoundsCuboid)entry.mesh.get(entry.instanceindex).schematics().inputBounds().get(boundindex);
+                        FSBoundsCuboid bounds = (FSBoundsCuboid)entry.mesh.instance(entry.instanceindex).schematics().inputBounds().get(boundindex);
 
                         float[] coords = bounds.offset().coordinates();
 

@@ -4,8 +4,8 @@ import com.nurverek.firestorm.FSBrightness;
 import com.nurverek.firestorm.FSConfig;
 import com.nurverek.firestorm.FSConfigDynamic;
 import com.nurverek.firestorm.FSControl;
+import com.nurverek.firestorm.FSG;
 import com.nurverek.firestorm.FSGamma;
-import com.nurverek.firestorm.FSGenerator;
 import com.nurverek.firestorm.FSP;
 import com.nurverek.firestorm.FSShader;
 
@@ -24,7 +24,7 @@ public class ModSkyBox extends FSP.Modifier{
         FSShader vertex = program.vertexShader();
         FSShader fragment = program.fragmentShader();
 
-        FSConfig position = new FSP.AttribPointer(policy, FSGenerator.ELEMENT_POSITION, 0);
+        FSConfig position = new FSP.AttribPointer(policy, FSG.ELEMENT_POSITION, 0);
         FSConfig vp = new FSP.UniformMatrix4fvd(policy, FSControl.getViewConfig().viewProjectionMatrix(), 0, 1);
         FSConfig skyboxtexunit = new FSP.TextureColorUnit(policy);
         FSConfig skyboxtexbind = new FSP.TextureColorBind(policy);

@@ -1,7 +1,7 @@
 package com.shayan.shapecity;
 
 import com.nurverek.firestorm.FSConfig;
-import com.nurverek.firestorm.FSGenerator;
+import com.nurverek.firestorm.FSG;
 import com.nurverek.firestorm.FSP;
 import com.nurverek.firestorm.FSShader;
 
@@ -16,7 +16,7 @@ public final class ModColor{
         @Override
         protected void modify(FSP program, FSConfig.Policy policy){
             FSShader fragment = program.fragmentShader();
-            FSConfig color = new FSP.Uniform4fve(policy, 0, FSGenerator.ELEMENT_COLOR, 0, 1);
+            FSConfig color = new FSP.Uniform4fve(policy, 0, FSG.ELEMENT_COLOR, 0, 1);
 
             program.registerUniformLocation(fragment, color);
 
@@ -41,14 +41,14 @@ public final class ModColor{
             FSShader fragment = program.fragmentShader();
 
             if(segments == 1){
-                program.addMeshConfig(new FSP.UniformBlockElement(policy, FSGenerator.ELEMENT_COLOR, "COLORS", 0));
+                program.addMeshConfig(new FSP.UniformBlockElement(policy, FSG.ELEMENT_COLOR, "COLORS", 0));
 
                 vertex.addUniformBlock("std140", "COLORS", "vec4 colors[" + instancecount + "]");
                 vertex.addMainCode("colorubo = colors[gl_InstanceID];");
 
             }else if(segments == 2){
-                program.addMeshConfig(new FSP.UniformBlockElement(policy, FSGenerator.ELEMENT_COLOR, "COLORS1", 0));
-                program.addMeshConfig(new FSP.UniformBlockElement(policy, FSGenerator.ELEMENT_COLOR, "COLORS2", 1));
+                program.addMeshConfig(new FSP.UniformBlockElement(policy, FSG.ELEMENT_COLOR, "COLORS1", 0));
+                program.addMeshConfig(new FSP.UniformBlockElement(policy, FSG.ELEMENT_COLOR, "COLORS2", 1));
 
                 vertex.addUniformBlock("std140", "COLORS1", "vec2 colors1[" + instancecount + "]");
                 vertex.addUniformBlock("std140", "COLORS2", "vec2 colors2[" + instancecount + "]");
@@ -56,10 +56,10 @@ public final class ModColor{
                 vertex.addMainCode("colorubo = vec4(colors1[gl_InstanceID], colors2[gl_InstanceID]);");
 
             }else if(segments == 4){
-                program.addMeshConfig(new FSP.UniformBlockElement(policy, FSGenerator.ELEMENT_COLOR, "COLORS1", 0));
-                program.addMeshConfig(new FSP.UniformBlockElement(policy, FSGenerator.ELEMENT_COLOR, "COLORS2", 1));
-                program.addMeshConfig(new FSP.UniformBlockElement(policy, FSGenerator.ELEMENT_COLOR, "COLORS3", 2));
-                program.addMeshConfig(new FSP.UniformBlockElement(policy, FSGenerator.ELEMENT_COLOR, "COLORS4", 3));
+                program.addMeshConfig(new FSP.UniformBlockElement(policy, FSG.ELEMENT_COLOR, "COLORS1", 0));
+                program.addMeshConfig(new FSP.UniformBlockElement(policy, FSG.ELEMENT_COLOR, "COLORS2", 1));
+                program.addMeshConfig(new FSP.UniformBlockElement(policy, FSG.ELEMENT_COLOR, "COLORS3", 2));
+                program.addMeshConfig(new FSP.UniformBlockElement(policy, FSG.ELEMENT_COLOR, "COLORS4", 3));
 
                 vertex.addUniformBlock("std140", "COLORS1", "vec1 colors1[" + instancecount + "]");
                 vertex.addUniformBlock("std140", "COLORS2", "vec1 colors2[" + instancecount + "]");
@@ -97,10 +97,10 @@ public final class ModColor{
             FSConfig coords;
 
             if(instancedcoords && instanced){
-                coords = new FSP.UniformBlockElement(FSGenerator.ELEMENT_TEXCOORD, "TEXCOORDS", 0);
+                coords = new FSP.UniformBlockElement(FSG.ELEMENT_TEXCOORD, "TEXCOORDS", 0);
 
             }else{
-                coords = new FSP.AttribPointer(policy, FSGenerator.ELEMENT_TEXCOORD, 0);
+                coords = new FSP.AttribPointer(policy, FSG.ELEMENT_TEXCOORD, 0);
             }
 
             //            FSConfig multipliers = new FSP.UniformBlockData(texturemultipliers, );

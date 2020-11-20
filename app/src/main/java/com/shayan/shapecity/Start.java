@@ -15,6 +15,7 @@ import com.nurverek.firestorm.FSControl;
 import com.nurverek.firestorm.FSRenderPass;
 import com.nurverek.firestorm.FSRenderer;
 import com.nurverek.firestorm.FSViewConfig;
+import com.nurverek.firestorm.Loader;
 
 public class Start extends FSActivity {
 

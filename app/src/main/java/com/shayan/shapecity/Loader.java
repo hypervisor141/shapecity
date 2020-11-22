@@ -86,6 +86,9 @@ public final class Loader extends FSG{
             new VLArrayFloat(new float[]{ 0.7f, 0.7f, 0.7f }),
             new VLFloat(32));
 
+    private static final int DEBUG_AUTOMATOR = FSControl.DEBUG_FULL;
+    private static final int DEBUG_PROGRAMS = FSControl.DEBUG_DISABLED;
+
     private static final float[] COLOR_PIECES = COLOR_OBSIDIAN_LESS;
     private static final float[] COLOR_INPUT = COLOR_WHITE_EXTRA_2;
     private static final float[] COLOR_ACTIVE = COLOR_DARK_ORANGE;
@@ -182,8 +185,6 @@ public final class Loader extends FSG{
         }catch(Exception ex){
             throw new RuntimeException(ex.getMessage());
         }
-        
-        int debug = FSControl.DEBUG_FULL;
 
         ////////// SETUP
 
@@ -195,27 +196,27 @@ public final class Loader extends FSG{
         FSBufferLayout[] layerlayouts = registerLayers();
         FSBufferLayout citylayout = registerSingular();
 
-        AUTOMATOR.build(debug);
+        AUTOMATOR.build(DEBUG_AUTOMATOR);
 
         ////////// BUFFER
 
         createLinks();
         prepareBufferLayouts(layerlayouts, citylayout);
 
-        AUTOMATOR.buffer(debug);
+        AUTOMATOR.buffer(DEBUG_AUTOMATOR);
 
         ////////// PROGRAM
 
         setupPrograms();
 
-        AUTOMATOR.program(debug);
+        AUTOMATOR.program(DEBUG_AUTOMATOR);
 
         ////////// POST
 
-        postFullSetup();
-        rotateLightSource();
-        setupProcessors();
-        startGame();
+//        postFullSetup();
+//        rotateLightSource();
+//        setupProcessors();
+//        startGame();
     }
 
     @Override
@@ -237,10 +238,10 @@ public final class Loader extends FSG{
         //        600 	1.0 	0.007 	0.0002
         //        3250 	1.0 	0.0014 	0.000007
 
-        programDepthSingular = new FSP(FSControl.DEBUG_FULL);
-        programMainSingular = new FSP(FSControl.DEBUG_FULL);
-        programDepthLayers = new FSP(FSControl.DEBUG_FULL);
-        programMainLayers = new FSP(FSControl.DEBUG_FULL);
+        programDepthSingular = new FSP(DEBUG_PROGRAMS);
+        programMainSingular = new FSP(DEBUG_PROGRAMS);
+        programDepthLayers = new FSP(DEBUG_PROGRAMS);
+        programMainLayers = new FSP(DEBUG_PROGRAMS);
 
         lightPoint = new FSLightPoint(
                 new FSAttenuation(new VLFloat(1.0f), new VLFloat(0.014f), new VLFloat(0.0007f)),
@@ -336,9 +337,6 @@ public final class Loader extends FSG{
     }
 
     private FSBufferLayout[] registerLayers(){
-        FSP programdepthlayers = new FSP(FSControl.DEBUG_FULL);
-        FSP programmainlayers = new FSP(FSControl.DEBUG_FULL);
-
         Assembler assemblerlayers = new Assembler();
         assemblerlayers.ENABLE_DATA_PACK = true;
         assemblerlayers.SYNC_MODELCLUSTER_AND_MODELARRAY = true;
@@ -375,12 +373,13 @@ public final class Loader extends FSG{
         Registration reglayer2 = AUTOMATOR.addScannerInstanced(assemblerlayers, new DataGroup(layerpacks), "layer2.", GLES32.GL_TRIANGLES, LAYER_INSTANCE_COUNT);
         Registration reglayer3 = AUTOMATOR.addScannerInstanced(assemblerlayers, new DataGroup(layerpacks), "layer3.", GLES32.GL_TRIANGLES, LAYER_INSTANCE_COUNT);
 
-        reglayer1.addProgram(programdepthlayers);
-        reglayer1.addProgram(programmainlayers);
-        reglayer2.addProgram(programdepthlayers);
-        reglayer2.addProgram(programmainlayers);
-        reglayer3.addProgram(programdepthlayers);
-        reglayer3.addProgram(programmainlayers);
+        reglayer1.addProgram(programDepthLayers);
+        reglayer2.addProgram(programDepthLayers);
+        reglayer3.addProgram(programDepthLayers);
+
+        reglayer1.addProgram(programMainLayers);
+        reglayer2.addProgram(programMainLayers);
+        reglayer3.addProgram(programMainLayers);
 
         layer1 = reglayer1.mesh();
         layer2 = reglayer2.mesh();
@@ -396,9 +395,6 @@ public final class Loader extends FSG{
     }
 
     private FSBufferLayout registerSingular(){
-        FSP programdepthsingular = new FSP(FSControl.DEBUG_FULL);
-        FSP programmainsingular = new FSP(FSControl.DEBUG_FULL);
-
         Assembler assemblersingular = new Assembler();
         assemblersingular.ENABLE_DATA_PACK = true;
         assemblersingular.SYNC_MODELCLUSTER_AND_MODELARRAY = true;
@@ -427,8 +423,8 @@ public final class Loader extends FSG{
         DataPack citypack = new DataPack(new VLArrayFloat(COLOR_WHITE), null, MATERIAL_WHITE_RUBBER, null);
         Registration cityreg = AUTOMATOR.addScannerSingle(assemblersingular, citypack, "city_cylinder", GLES32.GL_TRIANGLES);
 
-        cityreg.addProgram(programdepthsingular);
-        cityreg.addProgram(programmainsingular);
+        cityreg.addProgram(programDepthSingular);
+        cityreg.addProgram(programMainSingular);
 
         city = cityreg.mesh();
 

@@ -6,7 +6,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Paint;
 import android.opengl.GLES32;
 import android.opengl.Matrix;
-import android.util.Log;
 import android.view.MotionEvent;
 
 import com.nurverek.vanguard.VLArrayFloat;
@@ -24,7 +23,6 @@ import com.nurverek.vanguard.VLVConst;
 import com.nurverek.vanguard.VLVInterpolated;
 import com.nurverek.vanguard.VLVLinear;
 import com.nurverek.vanguard.VLVProcessor;
-import com.shayan.shapecity.CustomLinks;
 import com.shayan.shapecity.ModColor;
 import com.shayan.shapecity.ModDepthMap;
 import com.shayan.shapecity.ModLight;
@@ -35,7 +33,6 @@ import com.shayan.shapecity.R;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.security.SecureRandom;
-import java.util.Arrays;
 
 public final class Loader extends FSG{
 
@@ -186,7 +183,7 @@ public final class Loader extends FSG{
             throw new RuntimeException(ex.getMessage());
         }
         
-        int debug = DEBUG_FULL;
+        int debug = FSControl.DEBUG_FULL;
 
         ////////// SETUP
 
@@ -240,10 +237,10 @@ public final class Loader extends FSG{
         //        600 	1.0 	0.007 	0.0002
         //        3250 	1.0 	0.0014 	0.000007
 
-        programDepthSingular = new FSP(DEBUG_FULL);
-        programMainSingular = new FSP(DEBUG_FULL);
-        programDepthLayers = new FSP(DEBUG_FULL);
-        programMainLayers = new FSP(DEBUG_FULL);
+        programDepthSingular = new FSP(FSControl.DEBUG_FULL);
+        programMainSingular = new FSP(FSControl.DEBUG_FULL);
+        programDepthLayers = new FSP(FSControl.DEBUG_FULL);
+        programMainLayers = new FSP(FSControl.DEBUG_FULL);
 
         lightPoint = new FSLightPoint(
                 new FSAttenuation(new VLFloat(1.0f), new VLFloat(0.014f), new VLFloat(0.0007f)),
@@ -339,8 +336,8 @@ public final class Loader extends FSG{
     }
 
     private FSBufferLayout[] registerLayers(){
-        FSP programdepthlayers = new FSP(DEBUG_FULL);
-        FSP programmainlayers = new FSP(DEBUG_FULL);
+        FSP programdepthlayers = new FSP(FSControl.DEBUG_FULL);
+        FSP programmainlayers = new FSP(FSControl.DEBUG_FULL);
 
         Assembler assemblerlayers = new Assembler();
         assemblerlayers.ENABLE_DATA_PACK = true;
@@ -399,8 +396,8 @@ public final class Loader extends FSG{
     }
 
     private FSBufferLayout registerSingular(){
-        FSP programdepthsingular = new FSP(DEBUG_FULL);
-        FSP programmainsingular = new FSP(DEBUG_FULL);
+        FSP programdepthsingular = new FSP(FSControl.DEBUG_FULL);
+        FSP programmainsingular = new FSP(FSControl.DEBUG_FULL);
 
         Assembler assemblersingular = new Assembler();
         assemblersingular.ENABLE_DATA_PACK = true;
@@ -471,8 +468,8 @@ public final class Loader extends FSG{
             int modelbuffer = BUFFERMANAGER.add(new FSBufferManager.EntryFloat(new FSVertexBuffer(GLES32.GL_UNIFORM_BUFFER,
                     GLES32.GL_DYNAMIC_DRAW, UBOBINDPOINT++), new VLBufferFloat()));
 
-            int texcontrolbuffer = BUFFERMANAGER.add(new FSBufferManager.EntryFloat(new FSVertexBuffer(GLES32.GL_UNIFORM_BUFFER,
-                    GLES32.GL_DYNAMIC_DRAW, UBOBINDPOINT++), new VLBufferFloat()));
+//            int texcontrolbuffer = BUFFERMANAGER.add(new FSBufferManager.EntryFloat(new FSVertexBuffer(GLES32.GL_UNIFORM_BUFFER,
+//                    GLES32.GL_DYNAMIC_DRAW, UBOBINDPOINT++), new VLBufferFloat()));
 
             int colorbuffer = BUFFERMANAGER.add(new FSBufferManager.EntryFloat(new FSVertexBuffer(GLES32.GL_UNIFORM_BUFFER,
                     GLES32.GL_DYNAMIC_DRAW, UBOBINDPOINT++), new VLBufferFloat()));

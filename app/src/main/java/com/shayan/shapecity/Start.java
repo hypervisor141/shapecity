@@ -81,8 +81,8 @@ public class Start extends FSActivity{
             Loader loader = new Loader();
             loader.assemble(this);
 
-            FSRenderPass mainpass = new FSRenderPass().build();
-            FSRenderPass shadowpass = new FSRenderPass().setClearDepth(false).setAdvanceProcessors(false).setRunTasks(false).build();
+            FSRenderPass mainpass = new FSRenderPass(FSControl.DEBUG_FULL).build();
+            FSRenderPass shadowpass = new FSRenderPass(FSControl.DEBUG_FULL).setClearDepth(false).setAdvanceProcessors(false).setRunTasks(false).build();
 
             shadowpass.add(new FSRenderPass.Entry(loader, 0));
             mainpass.add(new FSRenderPass.Entry(loader, 1));

@@ -17,7 +17,7 @@ import com.nurverek.firestorm.FSRenderer;
 import com.nurverek.firestorm.FSViewConfig;
 import com.nurverek.firestorm.Loader;
 
-public class Start extends FSActivity {
+public class Start extends FSActivity{
 
     protected static final float[] BG_COLOR = new float[]{ 0.1f, 0.1f, 0.1f, 1f }; //grey
 
@@ -79,7 +79,7 @@ public class Start extends FSActivity {
             FSRenderer.depthMask(true);
 
             Loader loader = new Loader();
-            loader.initialize(this);
+            loader.assemble(this);
 
             FSRenderPass mainpass = new FSRenderPass().build();
             FSRenderPass shadowpass = new FSRenderPass().setClearDepth(false).setAdvanceProcessors(false).setRunTasks(false).build();

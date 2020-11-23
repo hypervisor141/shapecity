@@ -1,9 +1,17 @@
 package com.shayan.shapecity;
 
+import com.nurverek.firestorm.FSBufferAddress;
+import com.nurverek.firestorm.FSBufferManager;
 import com.nurverek.firestorm.FSConfig;
+import com.nurverek.firestorm.FSConfigLocated;
 import com.nurverek.firestorm.FSG;
+import com.nurverek.firestorm.FSLinkBufferedType;
+import com.nurverek.firestorm.FSMesh;
 import com.nurverek.firestorm.FSP;
 import com.nurverek.firestorm.FSShader;
+import com.nurverek.firestorm.FSVertexBuffer;
+import com.nurverek.vanguard.VLArrayFloat;
+import com.nurverek.vanguard.VLDebug;
 
 public final class ModColor{
 
@@ -96,7 +104,7 @@ public final class ModColor{
 
             FSConfig unit = new FSP.TextureColorUnit(policy);
             FSConfig bind = new FSP.TextureColorBind(policy);
-            FSConfig texcontrol = new CustomConfigs.TexControlConfig();
+            FSConfig texcontrol = new TexControlConfig("TEXCONTROL");
             FSConfig coords;
 
             if(instancedcoords && instanced){
@@ -143,13 +151,12 @@ public final class ModColor{
                 fragment.addPipedInputField("vec2", "vcolortexcoord");
             }
 
-            vertex.addPipedOutputField("float", "vtexcontrol");
             vertex.addUniformBlock("std140", "TEXCONTROL", new String[]{ "float texcontrol[" + instancecount + "]" });
+            vertex.addPipedOutputField("float", "vtexcontrol");
             vertex.addMainCode("vtexcontrol = texcontrol[gl_InstanceID];");
 
             fragment.addPipedInputField("float", "vtexcontrol");
-//            fragment.addMainCode("vec4 colortex = texture(colortexture, vcolortexcoord) * vtexcontrol;");
-            fragment.addMainCode("vec4 colortex = texture(colortexture, vcolortexcoord);");
+            fragment.addMainCode("vec4 colortex = texture(colortexture, vcolortexcoord) * vtexcontrol;");
         }
     }
 
@@ -276,6 +283,64 @@ public final class ModColor{
             program.modify(setuptexture, policy);
 
             program.fragmentShader().addMainCode("vec4 vcolor = coloruni * colorubo * colortex;");
+        }
+    }
+
+    public static final class TexControlConfig extends FSConfigLocated{
+
+        private String name;
+
+        public TexControlConfig(String name){
+            this.name = name;
+        }
+
+        @Override
+        protected void programBuilt(FSP program){
+            location(program.getUniformBlockIndex(name));
+        }
+
+        @Override
+        public void configure(FSP program, FSMesh mesh, int meshindex, int passindex){
+            FSVertexBuffer target = mesh.link(0).address().target().vertexBuffer();
+
+            program.uniformBlockBinding(location, target.bindPoint());
+            target.bindBufferBase();
+        }
+
+        @Override
+        public int getGLSLSize(){
+            return 0;
+        }
+
+        @Override
+        public void debugInfo(FSP program, FSMesh mesh, int debug){
+            super.debugInfo(program, mesh, debug);
+
+            VLDebug.append(" name[");
+            VLDebug.append(name);
+            VLDebug.append("]");
+        }
+    }
+
+    public static final class TextureControlLink extends FSLinkBufferedType<VLArrayFloat, FSBufferManager, FSBufferAddress>{
+
+        public TextureControlLink(VLArrayFloat array){
+            super(array);
+        }
+
+        @Override
+        public void buffer(FSBufferManager buffer, int bufferindex){
+            buffer.buffer(address, bufferindex, data);
+        }
+
+        @Override
+        public void buffer(FSBufferManager buffer, int bufferindex, int arrayoffset, int arraycount, int unitoffset, int unitsize, int unitsubcount, int stride){
+            buffer.buffer(address, bufferindex, data, arrayoffset, arraycount, unitoffset, unitsize, unitsubcount, stride);
+        }
+
+        @Override
+        public int size(){
+            return data.size();
         }
     }
 }

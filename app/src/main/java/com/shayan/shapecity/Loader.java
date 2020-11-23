@@ -33,6 +33,7 @@ import com.shayan.shapecity.R;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.security.SecureRandom;
+import java.util.Arrays;
 
 public final class Loader extends FSG{
 
@@ -86,7 +87,7 @@ public final class Loader extends FSG{
             new VLArrayFloat(new float[]{ 0.7f, 0.7f, 0.7f }),
             new VLFloat(32));
 
-    private static final int DEBUG_AUTOMATOR = FSControl.DEBUG_FULL;
+    private static final int DEBUG_AUTOMATOR = FSControl.DEBUG_DISABLED;
     private static final int DEBUG_PROGRAMS = FSControl.DEBUG_DISABLED;
 
     private static final float[] COLOR_PIECES = COLOR_OBSIDIAN_LESS;
@@ -213,10 +214,10 @@ public final class Loader extends FSG{
 
         ////////// POST
 
-//        postFullSetup();
-//        rotateLightSource();
-//        setupProcessors();
-//        startGame();
+        postFullSetup();
+        rotateLightSource();
+        setupProcessors();
+        startGame();
     }
 
     @Override
@@ -432,27 +433,27 @@ public final class Loader extends FSG{
     }
 
     private void createLinks(){
-//        VLListType<FSLinkType> links1 = new VLListType<>(1, 0);
-//        VLListType<FSLinkType> links2 = new VLListType<>(1, 0);
-//        VLListType<FSLinkType> links3 = new VLListType<>(1, 0);
-//
-//        float[] array1 = new float[LAYER_INSTANCE_COUNT];
-//        float[] array2 = new float[LAYER_INSTANCE_COUNT];
-//        float[] array3 = new float[LAYER_INSTANCE_COUNT];
-//
-//        Arrays.fill(array1, 1);
-//        Arrays.fill(array2, 1);
-//        Arrays.fill(array3, 1);
-//
-//        links1.add(new CustomLinks.TextureControlLink(new VLArrayFloat(array1)));
-//        links2.add(new CustomLinks.TextureControlLink(new VLArrayFloat(array2)));
-//        links3.add(new CustomLinks.TextureControlLink(new VLArrayFloat(array3)));
-//
-//        layer1.initLinks(links1);
-//        layer2.initLinks(links2);
-//        layer3.initLinks(links3);
-//
-//        city.initLinks(new VLListType<>(0, 0));
+        VLListType<FSLinkType> links1 = new VLListType<>(1, 0);
+        VLListType<FSLinkType> links2 = new VLListType<>(1, 0);
+        VLListType<FSLinkType> links3 = new VLListType<>(1, 0);
+
+        float[] array1 = new float[LAYER_INSTANCE_COUNT];
+        float[] array2 = new float[LAYER_INSTANCE_COUNT];
+        float[] array3 = new float[LAYER_INSTANCE_COUNT];
+
+        Arrays.fill(array1, 1f);
+        Arrays.fill(array2, 1f);
+        Arrays.fill(array3, 1f);
+
+        links1.add(new ModColor.TextureControlLink(new VLArrayFloat(array1)));
+        links2.add(new ModColor.TextureControlLink(new VLArrayFloat(array2)));
+        links3.add(new ModColor.TextureControlLink(new VLArrayFloat(array3)));
+
+        layer1.initLinks(links1);
+        layer2.initLinks(links2);
+        layer3.initLinks(links3);
+
+        city.initLinks(new VLListType<>(0, 0));
     }
 
     private void prepareBufferLayouts(FSBufferLayout[] layerlayouts, FSBufferLayout citylayout){
@@ -464,8 +465,8 @@ public final class Loader extends FSG{
             int modelbuffer = BUFFERMANAGER.add(new FSBufferManager.EntryFloat(new FSVertexBuffer(GLES32.GL_UNIFORM_BUFFER,
                     GLES32.GL_DYNAMIC_DRAW, UBOBINDPOINT++), new VLBufferFloat()));
 
-//            int texcontrolbuffer = BUFFERMANAGER.add(new FSBufferManager.EntryFloat(new FSVertexBuffer(GLES32.GL_UNIFORM_BUFFER,
-//                    GLES32.GL_DYNAMIC_DRAW, UBOBINDPOINT++), new VLBufferFloat()));
+            int texcontrolbuffer = BUFFERMANAGER.add(new FSBufferManager.EntryFloat(new FSVertexBuffer(GLES32.GL_UNIFORM_BUFFER,
+                    GLES32.GL_DYNAMIC_DRAW, UBOBINDPOINT++), new VLBufferFloat()));
 
             int colorbuffer = BUFFERMANAGER.add(new FSBufferManager.EntryFloat(new FSVertexBuffer(GLES32.GL_UNIFORM_BUFFER,
                     GLES32.GL_DYNAMIC_DRAW, UBOBINDPOINT++), new VLBufferFloat()));
@@ -484,8 +485,8 @@ public final class Loader extends FSG{
             layout.add(BUFFERMANAGER, BUFFER_ELEMENT_SHORT_DEFAULT, 1)
                     .addElement(new FSBufferLayout.EntryElement(FSBufferLayout.ELEMENT_SEQUENTIAL_INDICES, ELEMENT_INDEX));
 
-//            layout.add(BUFFERMANAGER, texcontrolbuffer, 1)
-//                    .addLink(new FSBufferLayout.EntryLink(FSBufferLayout.LINK_SEQUENTIAL_SINGULAR, 0, 0, 1, 1));
+            layout.add(BUFFERMANAGER, texcontrolbuffer, 1)
+                    .addLink(new FSBufferLayout.EntryLink(FSBufferLayout.LINK_SEQUENTIAL_SINGULAR, 0, 0, 1, 1, 4));
         }
 
         int modelbuffer = BUFFERMANAGER.add(new FSBufferManager.EntryFloat(new FSVertexBuffer(GLES32.GL_ARRAY_BUFFER,
@@ -591,13 +592,17 @@ public final class Loader extends FSG{
         procLayer2CA = new VLVProcessor(LAYER_INSTANCE_COUNT, 0);
         procLayer3CA = new VLVProcessor(LAYER_INSTANCE_COUNT, 0);
 
-        VLVProcessor[] rprocs = new VLVProcessor[]{ procLayer1R, procLayer2R, procLayer3R
+        VLVProcessor[] rprocs = new VLVProcessor[]{
+                procLayer1R, procLayer2R, procLayer3R
         };
-        VLVProcessor[] yprocs = new VLVProcessor[]{ procLayer1Y, procLayer2Y, procLayer3Y
+        VLVProcessor[] yprocs = new VLVProcessor[]{
+                procLayer1Y, procLayer2Y, procLayer3Y
         };
-        VLVProcessor[] ciprocs = new VLVProcessor[]{ procLayer1CI, procLayer2CI, procLayer3CI
+        VLVProcessor[] ciprocs = new VLVProcessor[]{
+                procLayer1CI, procLayer2CI, procLayer3CI
         };
-        VLVProcessor[] caprocs = new VLVProcessor[]{ procLayer1CA, procLayer2CA, procLayer3CA
+        VLVProcessor[] caprocs = new VLVProcessor[]{
+                procLayer1CA, procLayer2CA, procLayer3CA
         };
 
         FSMesh layer;

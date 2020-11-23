@@ -9,7 +9,7 @@ android{
         applicationId "com.shayan.shapecity"
         minSdkVersion 24
         targetSdkVersion 30
-        versionCode 1
+        versionCode 32908
         versionName "1.3"
     }
 

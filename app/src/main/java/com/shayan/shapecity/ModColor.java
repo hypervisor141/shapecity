@@ -335,7 +335,7 @@ public final class ModColor{
 
         @Override
         public void buffer(FSBufferManager buffer, int bufferindex, int arrayoffset, int arraycount, int unitoffset, int unitsize, int unitsubcount, int stride){
-            buffer.buffer(address, bufferindex, data, arrayoffset, arraycount, unitoffset, unitsize, unitsubcount, stride);
+            buffer.bufferSync(address, bufferindex, data, arrayoffset, arraycount, unitoffset, unitsize, unitsubcount, stride);
         }
 
         @Override

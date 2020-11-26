@@ -1,6 +1,7 @@
 
 package com.nurverek.firestorm;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Paint;
@@ -18,10 +19,10 @@ import com.nurverek.vanguard.VLMath;
 import com.nurverek.vanguard.VLTask;
 import com.nurverek.vanguard.VLTaskContinous;
 import com.nurverek.vanguard.VLV;
-import com.nurverek.vanguard.VLVCluster;
 import com.nurverek.vanguard.VLVConst;
 import com.nurverek.vanguard.VLVInterpolated;
 import com.nurverek.vanguard.VLVLinear;
+import com.nurverek.vanguard.VLVMatrix;
 import com.nurverek.vanguard.VLVProcessor;
 import com.shayan.shapecity.ModColor;
 import com.shayan.shapecity.ModDepthMap;
@@ -65,7 +66,12 @@ public final class Loader extends FSG{
             1.0F, 0.4F, 0F, 1F
     };
 
-    private final static FSLightMaterial MATERIAL_DEFAULT = new FSLightMaterial(new VLArrayFloat(
+    private static final int GAME_MATCH_SYMBOLS = 124;
+    private static final int GAME_MATCH_COLORS = 125;
+    private static final int GAME_MATCH_ROTATION = 126;
+    private static final int SAME_SYMBOL_PICK_LIMIT = 3;
+
+    private static final FSLightMaterial MATERIAL_DEFAULT = new FSLightMaterial(new VLArrayFloat(
             new float[]{ 0.2f, 0.2f, 0.2f }),
             new VLFloat(32));
 
@@ -87,23 +93,25 @@ public final class Loader extends FSG{
             new VLArrayFloat(new float[]{ 0.7f, 0.7f, 0.7f }),
             new VLFloat(32));
 
-    private static final int DEBUG_AUTOMATOR = FSControl.DEBUG_DISABLED;
-    private static final int DEBUG_PROGRAMS = FSControl.DEBUG_DISABLED;
+    private static final int DEBUG_AUTOMATOR = FSControl.DEBUG_FULL;
+    private static final int DEBUG_PROGRAMS = FSControl.DEBUG_NORMAL;
 
     private static final float[] COLOR_PIECES = COLOR_OBSIDIAN_LESS;
-    private static final float[] COLOR_INPUT = COLOR_WHITE_EXTRA_2;
-    private static final float[] COLOR_ACTIVE = COLOR_DARK_ORANGE;
+    private static final float[] COLOR_BLINK = COLOR_WHITE_EXTRA_2;
+    private static final float[] COLOR_SELECTED = COLOR_DARK_ORANGE;
 
-    private static final int CLUSTER_COLOR_INPUT = 0;
-    private static final int CLUSTER_COLOR_ACTIVATE = 1;
-    private static final int CLUSTER_MODEL_ROTATE_Z = 0;
-    private static final int CLUSTER_MODEL_ROTATE_Y = 1;
-    private static final int CLUSTER_MODEL_NAVIGATION = 2;
+    private static final int ROW_COLOR_BLINK = 0;
+    private static final int ROW_COLOR_DEACTIVATED = 1;
+    private static final int ROW_MODEL_ROTATE_FACE = 0;
+    private static final int ROW_MODEL_POSITION = 1;
+    private static final int ROW_MODEL_RAISE_Y = 2;
+    private static final int ROW_MODEL_BOUNCE_Y = 3;
 
-    private static final int CYCLES_INPUT = 20;
-    private static final int CYCLES_ACTIVATE = 60;
+    private static final int CYCLES_BLINK = 20;
+    private static final int CYCLES_SELECTED = 60;
     private static final int CYCLES_ROTATE = 30;
-    private static final int CYCLES_VERTICAL_MOVE = 200;
+    private static final int CYCLES_RAISE = 100;
+    private static final int CYCLES_BOUNCE = 200;
 
     private static final int SHADOW_PROGRAMSET = 0;
     private static final int MAIN_PROGRAMSET = 1;
@@ -111,7 +119,9 @@ public final class Loader extends FSG{
     private static final int SHADOWMAP_ORTHO_DIAMETER = 4;
     private static final int SHADOWMAP_ORTHO_NEAR = 1;
     private static final int SHADOWMAP_ORTHO_FAR = 1500;
-    private static final int PIECE_TEXTURE_DIMENSION = 512;
+    private static final int LAYER1_PIECE_TEXTURE_DIMENSION = 512;
+    private static final int LAYER2_PIECE_TEXTURE_DIMENSION = 256;
+    private static final int LAYER3_PIECE_TEXTURE_DIMENSION = 128;
     private static final int SELECTION_CYCLES = 5;
     private static final int LIGHT_SPIN_CYCLES = 3600;
     private static final float Y_REDUCTION = 0.5f;
@@ -124,13 +134,16 @@ public final class Loader extends FSG{
     private static final FSGamma GAMMA = new FSGamma(new VLFloat(1.5f));
 
     private static int UBOBINDPOINT = 0;
-    private static int TEXUNIT = 0;
+    private static int TEXUNIT = 1;
     private static ByteBuffer PIXEL_BUFFER = null;
 
-    private FSInput.Entry collisionClosestPoint;
-    private float collisionMinDistance;
+    private FSInput.Entry collisionClosestEntry;
+    private float collisionDistance;
 
-    private FSTexture texArray;
+    private FSTexture texArrayLayer1;
+    private FSTexture texArrayLayer2;
+    private FSTexture texArrayLayer3;
+    
     private FSLightPoint lightPoint;
     private FSShadowPoint shadowPoint;
 
@@ -150,21 +163,8 @@ public final class Loader extends FSG{
 
     private FSMesh[] layers;
 
-    private VLVProcessor procLayer1Y;
-    private VLVProcessor procLayer2Y;
-    private VLVProcessor procLayer3Y;
-
-    private VLVProcessor procLayer1R;
-    private VLVProcessor procLayer2R;
-    private VLVProcessor procLayer3R;
-
-    private VLVProcessor procLayer1CI;
-    private VLVProcessor procLayer2CI;
-    private VLVProcessor procLayer3CI;
-
-    private VLVProcessor procLayer1CA;
-    private VLVProcessor procLayer2CA;
-    private VLVProcessor procLayer3CA;
+    private VLVProcessor processorModel;
+    private VLVProcessor processorColor;
 
     private FSP programDepthSingular;
     private FSP programMainSingular;
@@ -190,7 +190,6 @@ public final class Loader extends FSG{
         ////////// SETUP
 
         addBasics();
-        addTextures(act);
 
         ////////// BUILD
 
@@ -249,10 +248,10 @@ public final class Loader extends FSG{
                 new VLArrayFloat(new float[]{ -10, 10, 0, 1.0f }));
 
         shadowPoint = new FSShadowPoint(lightPoint,
-                new VLInt(1250),
-                new VLInt(1250),
+                new VLInt(1024),
+                new VLInt(1024),
                 new VLFloat(0.5f), new VLFloat(0.55f),
-                new VLFloat(1.5f),
+                new VLFloat(1.25f),
                 new VLFloat(1f),
                 new VLFloat(1300));
 
@@ -271,76 +270,51 @@ public final class Loader extends FSG{
 
         BUFFER_ELEMENT_SHORT_DEFAULT = BUFFERMANAGER.add(new FSBufferManager.EntryShort(new FSVertexBuffer(GLES32.GL_ELEMENT_ARRAY_BUFFER, GLES32.GL_STATIC_DRAW), new VLBufferShort()));
         BUFFER_ARRAY_FLOAT_DEFAULT = BUFFERMANAGER.add(new FSBufferManager.EntryFloat(new FSVertexBuffer(GLES32.GL_ARRAY_BUFFER, GLES32.GL_STATIC_DRAW), new VLBufferFloat()));
-    }
 
-    private void addTextures(FSActivity act){
-        texArray = new FSTexture(new VLInt(GLES32.GL_TEXTURE_2D_ARRAY), new VLInt(TEXUNIT));
-        texArray.bind();
-        texArray.storage3D(1, GLES32.GL_RGBA8, PIECE_TEXTURE_DIMENSION, PIECE_TEXTURE_DIMENSION, LAYER_INSTANCE_COUNT);
-        texArray.minFilter(GLES32.GL_LINEAR);
-        texArray.magFilter(GLES32.GL_LINEAR);
-        texArray.wrapS(GLES32.GL_CLAMP_TO_EDGE);
-        texArray.wrapT(GLES32.GL_CLAMP_TO_EDGE);
-        texArray.baseLevel(0);
-        texArray.maxLevel(LAYER_INSTANCE_COUNT - 1);
+        texArrayLayer1 = new FSTexture(new VLInt(GLES32.GL_TEXTURE_2D_ARRAY), new VLInt(TEXUNIT++));
+        texArrayLayer1.bind();
+        texArrayLayer1.storage3D(1, GLES32.GL_RGBA8, LAYER1_PIECE_TEXTURE_DIMENSION, LAYER1_PIECE_TEXTURE_DIMENSION, LAYER_INSTANCE_COUNT);
+        texArrayLayer1.minFilter(GLES32.GL_LINEAR);
+        texArrayLayer1.magFilter(GLES32.GL_LINEAR);
+        texArrayLayer1.wrapS(GLES32.GL_CLAMP_TO_EDGE);
+        texArrayLayer1.wrapT(GLES32.GL_CLAMP_TO_EDGE);
+        texArrayLayer1.baseLevel(0);
+        texArrayLayer1.maxLevel(LAYER_INSTANCE_COUNT - 1);
+        texArrayLayer1.unbind();
 
         FSTools.checkGLError();
 
-        Bitmap b = null;
+        texArrayLayer2 = new FSTexture(new VLInt(GLES32.GL_TEXTURE_2D_ARRAY), new VLInt(TEXUNIT++));
+        texArrayLayer2.bind();
+        texArrayLayer2.storage3D(1, GLES32.GL_RGBA8, LAYER2_PIECE_TEXTURE_DIMENSION, LAYER2_PIECE_TEXTURE_DIMENSION, LAYER_INSTANCE_COUNT);
+        texArrayLayer2.minFilter(GLES32.GL_LINEAR);
+        texArrayLayer2.magFilter(GLES32.GL_LINEAR);
+        texArrayLayer2.wrapS(GLES32.GL_CLAMP_TO_EDGE);
+        texArrayLayer2.wrapT(GLES32.GL_CLAMP_TO_EDGE);
+        texArrayLayer2.baseLevel(0);
+        texArrayLayer2.maxLevel(LAYER_INSTANCE_COUNT - 1);
+        texArrayLayer2.unbind();
 
-        int[] resources = new int[]{
-                R.drawable.circle,
-                R.drawable.hex,
-                R.drawable.square,
-                R.drawable.triangle,
-                R.drawable.circlecone,
-                R.drawable.squarestar,
-                R.drawable.bladecircle,
-                R.drawable.pointedsquare,
-                R.drawable.rsquare,
-                R.drawable.rhombus,
-                R.drawable.rectangle,
-                R.drawable.trapezoid
-        };
+        FSTools.checkGLError();
 
-        Paint paint = new Paint();
-        paint.setAntiAlias(true);
-        paint.setDither(true);
+        texArrayLayer3 = new FSTexture(new VLInt(GLES32.GL_TEXTURE_2D_ARRAY), new VLInt(TEXUNIT++));
+        texArrayLayer3.bind();
+        texArrayLayer3.storage3D(1, GLES32.GL_RGBA8, LAYER3_PIECE_TEXTURE_DIMENSION, LAYER3_PIECE_TEXTURE_DIMENSION, LAYER_INSTANCE_COUNT);
+        texArrayLayer3.minFilter(GLES32.GL_LINEAR);
+        texArrayLayer3.magFilter(GLES32.GL_LINEAR);
+        texArrayLayer3.wrapS(GLES32.GL_CLAMP_TO_EDGE);
+        texArrayLayer3.wrapT(GLES32.GL_CLAMP_TO_EDGE);
+        texArrayLayer3.baseLevel(0);
+        texArrayLayer3.maxLevel(LAYER_INSTANCE_COUNT - 1);
+        texArrayLayer3.unbind();
 
-        for(int i = 0; i < LAYER_INSTANCE_COUNT; i++){
-            BitmapFactory.Options opts = new BitmapFactory.Options();
-            opts.inPreferredConfig = Bitmap.Config.ARGB_8888;
-            opts.outConfig = Bitmap.Config.ARGB_8888;
-            opts.inScaled = true;
-            opts.inMutable = true;
-
-            b = BitmapFactory.decodeResource(act.getResources(), resources[i % resources.length], opts);
-
-            if(PIXEL_BUFFER == null){
-                PIXEL_BUFFER = ByteBuffer.allocate(b.getAllocationByteCount());
-                PIXEL_BUFFER.order(ByteOrder.nativeOrder());
-            }
-
-            PIXEL_BUFFER.position(0);
-
-            b.copyPixelsToBuffer(PIXEL_BUFFER);
-            b.recycle();
-
-            PIXEL_BUFFER.position(0);
-
-            texArray.subImage3D(0, 0, 0, i, PIECE_TEXTURE_DIMENSION,
-                    PIECE_TEXTURE_DIMENSION, 1, GLES32.GL_RGBA, GLES32.GL_UNSIGNED_BYTE, PIXEL_BUFFER);
-
-            FSTools.checkGLError();
-        }
-
-        texArray.unbind();
+        FSTools.checkGLError();
     }
 
     private FSBufferLayout[] registerLayers(){
         Assembler assemblerlayers = new Assembler();
         assemblerlayers.ENABLE_DATA_PACK = true;
-        assemblerlayers.SYNC_MODELCLUSTER_AND_MODELARRAY = true;
+        assemblerlayers.SYNC_MODELMATRIX_AND_MODELARRAY = true;
         assemblerlayers.SYNC_MODELARRAY_AND_SCHEMATICS = true;
         assemblerlayers.SYNC_MODELARRAY_AND_BUFFER = true;
         assemblerlayers.SYNC_POSITION_AND_BUFFER = true;
@@ -363,16 +337,29 @@ public final class Loader extends FSG{
         assemblerlayers.DRAW_MODE_INDEXED = true;
         assemblerlayers.configure();
 
-        VLListType<DataPack> layerpacks = new VLListType<>(LAYER_INSTANCE_COUNT, 10);
-        DataPack pack = new DataPack(new VLArrayFloat(COLOR_PIECES), texArray, MATERIAL_OBSIDIAN, null);
+        VLListType<DataPack> layer1packs = new VLListType<>(LAYER_INSTANCE_COUNT, 10);
+        VLListType<DataPack> layer2packs = new VLListType<>(LAYER_INSTANCE_COUNT, 10);
+        VLListType<DataPack> layer3packs = new VLListType<>(LAYER_INSTANCE_COUNT, 10);
+
+        DataPack layer1pack = new DataPack(new VLArrayFloat(COLOR_PIECES), texArrayLayer1, MATERIAL_OBSIDIAN, null);
+        DataPack layer2pack = new DataPack(new VLArrayFloat(COLOR_PIECES), texArrayLayer2, MATERIAL_OBSIDIAN, null);
+        DataPack layer3pack = new DataPack(new VLArrayFloat(COLOR_PIECES), texArrayLayer3, MATERIAL_OBSIDIAN, null);
 
         for(int i = 0; i < LAYER_INSTANCE_COUNT; i++){
-            layerpacks.add(pack);
+            layer1packs.add(layer1pack);
         }
 
-        Registration reglayer1 = AUTOMATOR.addScannerInstanced(assemblerlayers, new DataGroup(layerpacks), "layer1.", GLES32.GL_TRIANGLES, LAYER_INSTANCE_COUNT);
-        Registration reglayer2 = AUTOMATOR.addScannerInstanced(assemblerlayers, new DataGroup(layerpacks), "layer2.", GLES32.GL_TRIANGLES, LAYER_INSTANCE_COUNT);
-        Registration reglayer3 = AUTOMATOR.addScannerInstanced(assemblerlayers, new DataGroup(layerpacks), "layer3.", GLES32.GL_TRIANGLES, LAYER_INSTANCE_COUNT);
+        for(int i = 0; i < LAYER_INSTANCE_COUNT; i++){
+            layer2packs.add(layer2pack);
+        }
+
+        for(int i = 0; i < LAYER_INSTANCE_COUNT; i++){
+            layer3packs.add(layer3pack);
+        }
+
+        Registration reglayer1 = AUTOMATOR.addScannerInstanced(assemblerlayers, new DataGroup(layer1packs), "layer1.", GLES32.GL_TRIANGLES, LAYER_INSTANCE_COUNT);
+        Registration reglayer2 = AUTOMATOR.addScannerInstanced(assemblerlayers, new DataGroup(layer2packs), "layer2.", GLES32.GL_TRIANGLES, LAYER_INSTANCE_COUNT);
+        Registration reglayer3 = AUTOMATOR.addScannerInstanced(assemblerlayers, new DataGroup(layer3packs), "layer3.", GLES32.GL_TRIANGLES, LAYER_INSTANCE_COUNT);
 
         reglayer1.addProgram(programDepthLayers);
         reglayer2.addProgram(programDepthLayers);
@@ -398,7 +385,7 @@ public final class Loader extends FSG{
     private FSBufferLayout registerSingular(){
         Assembler assemblersingular = new Assembler();
         assemblersingular.ENABLE_DATA_PACK = true;
-        assemblersingular.SYNC_MODELCLUSTER_AND_MODELARRAY = true;
+        assemblersingular.SYNC_MODELMATRIX_AND_MODELARRAY = true;
         assemblersingular.SYNC_MODELARRAY_AND_SCHEMATICS = true;
         assemblersingular.SYNC_MODELARRAY_AND_BUFFER = true;
         assemblersingular.SYNC_POSITION_AND_BUFFER = true;
@@ -441,9 +428,9 @@ public final class Loader extends FSG{
         float[] array2 = new float[LAYER_INSTANCE_COUNT];
         float[] array3 = new float[LAYER_INSTANCE_COUNT];
 
-        Arrays.fill(array1, 1f);
-        Arrays.fill(array2, 1f);
-        Arrays.fill(array3, 1f);
+        Arrays.fill(array1, 5f);
+        Arrays.fill(array2, 5f);
+        Arrays.fill(array3, 5f);
 
         links1.add(new ModColor.TextureControlLink(new VLArrayFloat(array1)));
         links2.add(new ModColor.TextureControlLink(new VLArrayFloat(array2)));
@@ -576,106 +563,251 @@ public final class Loader extends FSG{
     }
 
     private void setupProcessors(){
-        procLayer1Y = new VLVProcessor(LAYER_INSTANCE_COUNT, 0);
-        procLayer2Y = new VLVProcessor(LAYER_INSTANCE_COUNT, 0);
-        procLayer3Y = new VLVProcessor(LAYER_INSTANCE_COUNT, 0);
-
-        procLayer1R = new VLVProcessor(LAYER_INSTANCE_COUNT, 0);
-        procLayer2R = new VLVProcessor(LAYER_INSTANCE_COUNT, 0);
-        procLayer3R = new VLVProcessor(LAYER_INSTANCE_COUNT, 0);
-
-        procLayer1CI = new VLVProcessor(LAYER_INSTANCE_COUNT, 0);
-        procLayer2CI = new VLVProcessor(LAYER_INSTANCE_COUNT, 0);
-        procLayer3CI = new VLVProcessor(LAYER_INSTANCE_COUNT, 0);
-
-        procLayer1CA = new VLVProcessor(LAYER_INSTANCE_COUNT, 0);
-        procLayer2CA = new VLVProcessor(LAYER_INSTANCE_COUNT, 0);
-        procLayer3CA = new VLVProcessor(LAYER_INSTANCE_COUNT, 0);
-
-        VLVProcessor[] rprocs = new VLVProcessor[]{
-                procLayer1R, procLayer2R, procLayer3R
-        };
-        VLVProcessor[] yprocs = new VLVProcessor[]{
-                procLayer1Y, procLayer2Y, procLayer3Y
-        };
-        VLVProcessor[] ciprocs = new VLVProcessor[]{
-                procLayer1CI, procLayer2CI, procLayer3CI
-        };
-        VLVProcessor[] caprocs = new VLVProcessor[]{
-                procLayer1CA, procLayer2CA, procLayer3CA
-        };
+        processorModel = new VLVProcessor(LAYER_INSTANCE_COUNT * 9, 0);
+        processorColor = new VLVProcessor(LAYER_INSTANCE_COUNT * 6, 0);
 
         FSMesh layer;
         FSInstance instance;
-        FSModelCluster modelcluster;
+        FSModelMatrix modelmatrix;
         FSSchematics schematics;
-        VLVCluster colorcluster;
-        VLVProcessor yproc;
-        VLVProcessor rproc;
-        VLVProcessor ciproc;
-        VLVProcessor caproc;
+        VLVMatrix colormatrix;
         float yv;
+        float yraise;
+
+        PROCESSORS.add(processorModel);
+        PROCESSORS.add(processorColor);
 
         for(int i = 0; i < layers.length; i++){
             layer = layers[i];
-            yproc = yprocs[i];
-            rproc = rprocs[i];
-            ciproc = ciprocs[i];
-            caproc = caprocs[i];
-
-            PROCESSORS.add(caproc);
-            PROCESSORS.add(yproc);
 
             for(int i2 = 0; i2 < layer.size(); i2++){
                 instance = layer.instance(i2);
-                modelcluster = instance.modelCluster();
+                modelmatrix = instance.modelMatrix();
                 schematics = instance.schematics();
-                yv = modelcluster.getY(0, 0).get() - Y_REDUCTION;
+                yv = modelmatrix.getY(0).get() - Y_REDUCTION;
 
-                modelcluster.addSet(0,1, 0);
-                modelcluster.addSet(0,1, 0);
-                modelcluster.addRowRotate(CLUSTER_MODEL_ROTATE_Z, new VLVConst(-90), VLVConst.ZERO, VLVConst.ZERO, VLVConst.ONE);
-                modelcluster.addRowRotate(CLUSTER_MODEL_ROTATE_Y, new VLVInterpolated(0, -45, CYCLES_ROTATE, VLV.LOOP_NONE, VLV.INTERP_DECELERATE_SINE_SQRT), VLVConst.ZERO, VLVConst.ONE, VLVConst.ZERO);
-                modelcluster.setY(2, 0, new VLVInterpolated(yv, yv + schematics.modelHeight() * 0.75F, 120 + RANDOM.nextInt(60), VLV.LOOP_FORWARD_BACKWARD, VLV.INTERP_ACCELERATE_DECELERATE_CUBIC));
-                modelcluster.sync();
+                yraise = yv + schematics.modelHeight() * 0.75F;
 
-                colorcluster = new VLVCluster(2, 0);
-                colorcluster.addSet(1, 0);
-                colorcluster.addSet(1, 0);
+                modelmatrix.addRowRotate(0, new VLVConst(-90), VLVConst.ZERO, VLVConst.ZERO, VLVConst.ONE);
+                modelmatrix.addRowTranslation(VLVConst.ZERO, new VLVInterpolated(0, yraise, CYCLES_BOUNCE, VLV.LOOP_FORWARD_BACKWARD, VLV.INTERP_ACCELERATE_DECELERATE_CUBIC), VLVConst.ZERO);
+                modelmatrix.addRowTranslation(VLVConst.ZERO, new VLVInterpolated(0, yraise, CYCLES_RAISE, VLV.LOOP_NONE, VLV.INTERP_ACCELERATE_DECELERATE_CUBIC), VLVConst.ZERO);
+                modelmatrix.sync();
 
-                colorcluster.addRow(CLUSTER_COLOR_INPUT, 4, 0);
-                colorcluster.addColumn(CLUSTER_COLOR_INPUT, 0, new VLVInterpolated(COLOR_PIECES[0], COLOR_INPUT[0], CYCLES_INPUT, VLV.LOOP_FORWARD_BACKWARD, VLV.INTERP_ACCELERATE_DECELERATE_COS));
-                colorcluster.addColumn(CLUSTER_COLOR_INPUT, 0, new VLVInterpolated(COLOR_PIECES[0], COLOR_INPUT[1], CYCLES_INPUT, VLV.LOOP_FORWARD_BACKWARD, VLV.INTERP_ACCELERATE_DECELERATE_COS));
-                colorcluster.addColumn(CLUSTER_COLOR_INPUT, 0, new VLVInterpolated(COLOR_PIECES[0], COLOR_INPUT[2], CYCLES_INPUT, VLV.LOOP_FORWARD_BACKWARD, VLV.INTERP_ACCELERATE_DECELERATE_COS));
-                colorcluster.addColumn(CLUSTER_COLOR_INPUT, 0, new VLVInterpolated(COLOR_PIECES[0], COLOR_INPUT[3], CYCLES_INPUT, VLV.LOOP_FORWARD_BACKWARD, VLV.INTERP_ACCELERATE_DECELERATE_COS));
+                processorModel.add(new VLVProcessor.Entry(modelmatrix, ROW_MODEL_ROTATE_FACE, 0));
+                processorModel.add(new VLVProcessor.Entry(modelmatrix, ROW_MODEL_BOUNCE_Y, 0));
+                processorModel.add(new VLVProcessor.Entry(modelmatrix, ROW_MODEL_RAISE_Y, 0));
 
-                colorcluster.addRow(CLUSTER_COLOR_ACTIVATE, 4, 0);
-                colorcluster.addColumn(CLUSTER_COLOR_ACTIVATE, 0, new VLVInterpolated(COLOR_PIECES[0], COLOR_ACTIVE[0], CYCLES_ACTIVATE, VLV.LOOP_NONE, VLV.INTERP_ACCELERATE_DECELERATE_COS));
-                colorcluster.addColumn(CLUSTER_COLOR_ACTIVATE, 0, new VLVInterpolated(COLOR_PIECES[0], COLOR_ACTIVE[1], CYCLES_ACTIVATE, VLV.LOOP_NONE, VLV.INTERP_ACCELERATE_DECELERATE_COS));
-                colorcluster.addColumn(CLUSTER_COLOR_ACTIVATE, 0, new VLVInterpolated(COLOR_PIECES[0], COLOR_ACTIVE[2], CYCLES_ACTIVATE, VLV.LOOP_NONE, VLV.INTERP_ACCELERATE_DECELERATE_COS));
-                colorcluster.addColumn(CLUSTER_COLOR_ACTIVATE, 0, new VLVInterpolated(COLOR_PIECES[0], COLOR_ACTIVE[3], CYCLES_ACTIVATE, VLV.LOOP_NONE, VLV.INTERP_ACCELERATE_DECELERATE_COS));
+                colormatrix = new VLVMatrix(2, 0);
+                colormatrix.addRow(4, 0);
+                colormatrix.addColumn(ROW_COLOR_BLINK, 0, new VLVInterpolated(COLOR_PIECES[0], COLOR_BLINK[0], CYCLES_BLINK, VLV.LOOP_FORWARD_BACKWARD, VLV.INTERP_ACCELERATE_DECELERATE_COS));
+                colormatrix.addColumn(ROW_COLOR_BLINK, 0, new VLVInterpolated(COLOR_PIECES[0], COLOR_BLINK[1], CYCLES_BLINK, VLV.LOOP_FORWARD_BACKWARD, VLV.INTERP_ACCELERATE_DECELERATE_COS));
+                colormatrix.addColumn(ROW_COLOR_BLINK, 0, new VLVInterpolated(COLOR_PIECES[0], COLOR_BLINK[2], CYCLES_BLINK, VLV.LOOP_FORWARD_BACKWARD, VLV.INTERP_ACCELERATE_DECELERATE_COS));
+                colormatrix.addColumn(ROW_COLOR_BLINK, 0, new VLVInterpolated(COLOR_PIECES[0], COLOR_BLINK[3], CYCLES_BLINK, VLV.LOOP_FORWARD_BACKWARD, VLV.INTERP_ACCELERATE_DECELERATE_COS));
 
-                rproc.add(new VLVProcessor.Entry(modelcluster, CLUSTER_MODEL_ROTATE_Y, RANDOM.nextInt(300)));
-                yproc.add(new VLVProcessor.Entry(modelcluster, CLUSTER_MODEL_NAVIGATION, RANDOM.nextInt(300)));
+                colormatrix.addRow(4, 0);
+                colormatrix.addColumn(ROW_COLOR_DEACTIVATED, 0, new VLVInterpolated(COLOR_PIECES[0], COLOR_SELECTED[0], CYCLES_SELECTED, VLV.LOOP_NONE, VLV.INTERP_ACCELERATE_DECELERATE_COS));
+                colormatrix.addColumn(ROW_COLOR_DEACTIVATED, 0, new VLVInterpolated(COLOR_PIECES[0], COLOR_SELECTED[1], CYCLES_SELECTED, VLV.LOOP_NONE, VLV.INTERP_ACCELERATE_DECELERATE_COS));
+                colormatrix.addColumn(ROW_COLOR_DEACTIVATED, 0, new VLVInterpolated(COLOR_PIECES[0], COLOR_SELECTED[2], CYCLES_SELECTED, VLV.LOOP_NONE, VLV.INTERP_ACCELERATE_DECELERATE_COS));
+                colormatrix.addColumn(ROW_COLOR_DEACTIVATED, 0, new VLVInterpolated(COLOR_PIECES[0], COLOR_SELECTED[3], CYCLES_SELECTED, VLV.LOOP_NONE, VLV.INTERP_ACCELERATE_DECELERATE_COS));
 
-                caproc.add(new VLVProcessor.Entry(colorcluster, CLUSTER_COLOR_INPUT, VLVProcessor.SYNC_INDEX, 0, 0));
-                ciproc.add(new VLVProcessor.Entry(colorcluster, CLUSTER_COLOR_ACTIVATE, VLVProcessor.SYNC_INDEX, 0, 0));
+                processorColor.add(new VLVProcessor.Entry(colormatrix, ROW_COLOR_BLINK, VLVProcessor.SYNC_INDEX, 0, 0));
+                processorColor.add(new VLVProcessor.Entry(colormatrix, ROW_COLOR_DEACTIVATED, VLVProcessor.SYNC_INDEX, 0, 0));
 
                 schematics.inputBounds().add(new FSBoundsCuboid(schematics,
                         50, 50f, 50f, FSBounds.MODE_X_OFFSET_VOLUMETRIC, FSBounds.MODE_Y_OFFSET_VOLUMETRIC, FSBounds.MODE_Z_OFFSET_VOLUMETRIC,
                         40f, 40f, 40f, FSBounds.MODE_X_VOLUMETRIC, FSBounds.MODE_Y_VOLUMETRIC, FSBounds.MODE_Z_VOLUMETRIC));
             }
         }
+
+        processorModel.activateAll();
+        processorModel.start();
     }
 
-    private void activateProc(VLVProcessor proc, int index){
-        proc.pause();
-        proc.reset();
-        proc.deactivateAll();
-        proc.activate(index);
-        proc.start();
+    private void changePieceTexture(final FSTexture layertexture, final int dimensions, final int subimageindex, final int resource){
+        FSRenderer.addTask(new Runnable(){
 
-        FSControl.signalFrameRender(true);
+            @Override
+            public void run(){
+                BitmapFactory.Options opts = new BitmapFactory.Options();
+                opts.inPreferredConfig = Bitmap.Config.ARGB_8888;
+                opts.outConfig = Bitmap.Config.ARGB_8888;
+                opts.inScaled = true;
+                opts.inMutable = true;
+
+                Bitmap b = BitmapFactory.decodeResource(FSControl.getContext().getResources(), resource, opts);
+
+                PIXEL_BUFFER.position(0);
+
+                b.copyPixelsToBuffer(PIXEL_BUFFER);
+                b.recycle();
+
+                PIXEL_BUFFER.position(0);
+
+                layertexture.bind();
+                layertexture.subImage3D(0, 0, 0, subimageindex, dimensions, dimensions, 1, GLES32.GL_RGBA, GLES32.GL_UNSIGNED_BYTE, PIXEL_BUFFER);
+                layertexture.unbind();
+
+                FSTools.checkGLError();
+            }
+        });
+    }
+
+    private void startGame(){
+        RANDOM.setSeed(System.currentTimeMillis());
+
+        int choice = 124 + RANDOM.nextInt(3);
+        choice = GAME_MATCH_SYMBOLS;
+
+        switch(choice){
+            case GAME_MATCH_SYMBOLS:
+                startMatchSymbolsGame();
+                break;
+
+            case GAME_MATCH_COLORS:
+                startMatchColorsGame();
+                break;
+
+            case GAME_MATCH_ROTATION:
+                startMatchRotationGame();
+                break;
+
+            default:
+                new RuntimeException("Invalid game type choice : " + choice);
+        }
+    }
+
+    private void startMatchSymbolsGame(){
+        Bitmap b = null;
+
+        int[] resources = new int[]{
+                R.drawable.circle,
+                R.drawable.hex,
+                R.drawable.square,
+                R.drawable.triangle,
+                R.drawable.circlecone,
+                R.drawable.squarestar,
+                R.drawable.bladecircle,
+                R.drawable.pointedsquare,
+                R.drawable.rsquare,
+                R.drawable.rhombus,
+                R.drawable.rectangle,
+                R.drawable.trapezoid
+        };
+
+        int[] timespicked = new int[resources.length];
+        Arrays.fill(timespicked, 0);
+
+        Paint paint = new Paint();
+        paint.setAntiAlias(true);
+        paint.setDither(true);
+
+        Context cxt = FSControl.getContext();
+
+        BitmapFactory.Options opts = new BitmapFactory.Options();
+        opts.inPreferredConfig = Bitmap.Config.ARGB_8888;
+        opts.outConfig = Bitmap.Config.ARGB_8888;
+        opts.inScaled = true;
+        opts.inMutable = true;
+
+        int choice = 0;
+        int requiredchoices = LAYER_INSTANCE_COUNT / 3;
+        int index = 0;
+
+        PIXEL_BUFFER = null;
+        texArrayLayer1.bind();
+
+        final int[] symbols = new int[LAYER_INSTANCE_COUNT];
+        Arrays.fill(symbols, -1);
+
+        for(int i = 0; i < requiredchoices; i++){
+            choice = RANDOM.nextInt(resources.length);
+
+            while(timespicked[choice] >= SAME_SYMBOL_PICK_LIMIT){
+                choice = RANDOM.nextInt(resources.length);
+            }
+
+            b = BitmapFactory.decodeResource(cxt.getResources(), resources[choice], opts);
+
+            if(PIXEL_BUFFER == null){
+                PIXEL_BUFFER = ByteBuffer.allocate(b.getAllocationByteCount());
+                PIXEL_BUFFER.order(ByteOrder.nativeOrder());
+            }
+
+            PIXEL_BUFFER.position(0);
+
+            b.copyPixelsToBuffer(PIXEL_BUFFER);
+            b.recycle();
+
+            for(int i2 = 0; i2 < 3; i2++){
+                index = RANDOM.nextInt(LAYER_INSTANCE_COUNT);
+
+                while(symbols[index] != -1){
+                    index = RANDOM.nextInt(LAYER_INSTANCE_COUNT);
+                }
+
+                symbols[index] = choice;
+
+                PIXEL_BUFFER.position(0);
+                texArrayLayer1.subImage3D(0, 0, 0, index, LAYER1_PIECE_TEXTURE_DIMENSION, LAYER1_PIECE_TEXTURE_DIMENSION, 1, GLES32.GL_RGBA, GLES32.GL_UNSIGNED_BYTE, PIXEL_BUFFER);
+            }
+        }
+
+        FSTools.checkGLError();
+        texArrayLayer1.unbind();
+
+        activateInputListeners(layer1, new Runnable(){
+
+            private long delay;
+
+            @Override
+            public void run(){
+
+            }
+        });
+    }
+
+    private void startMatchColorsGame(){
+
+    }
+
+    private void startMatchRotationGame(){
+        
+    }
+
+    private void changePieceTextureIntensityPiece(FSMesh layer, int index, float intensity){
+        VLArrayFloat data = ((ModColor.TextureControlLink)layer.link(0)).data;
+        data.provider()[index] = intensity;
+        data.sync();
+    }
+
+    private void changePieceTextureIntensityLayer(FSMesh layer, float intensity){
+        int size = layer.size();
+        VLArrayFloat data = ((ModColor.TextureControlLink)layer.link(0)).data;
+
+        for(int i = 0; i < size; i++){
+            data.provider()[i] = intensity;
+        }
+
+        data.sync();
+    }
+
+    private void changePieceTextureIntensityAll(float intensity){
+        int lsize = layers.length;
+        int size;
+        VLArrayFloat data;
+        FSMesh layer;
+
+        for(int i = 0; i < lsize; i++){
+            layer = layers[i];
+            size = layer.size();
+            data = ((ModColor.TextureControlLink)layer.link(0)).data;
+
+            for(int i2 = 0; i2 < size; i2++){
+                data.provider()[i2] = intensity;
+            }
+
+            data.sync();
+        }
     }
 
     private void activateInputListeners(FSMesh targetlayer, Runnable onactivated){
@@ -698,9 +830,9 @@ public final class Loader extends FSG{
 
                         float distance = VLMath.euclideanDistance(CLAMPEDPOINTCACHE, 0, near, 0, 3);
 
-                        if(collisionMinDistance > distance){
-                            collisionMinDistance = distance;
-                            collisionClosestPoint = entry;
+                        if(collisionDistance > distance){
+                            collisionDistance = distance;
+                            collisionClosestEntry = entry;
                         }
                     }
 
@@ -713,56 +845,25 @@ public final class Loader extends FSG{
 
             @Override
             public void preProcess(){
-                collisionClosestPoint = null;
-                collisionMinDistance = Float.MAX_VALUE;
+                collisionClosestEntry = null;
+                collisionDistance = Float.MAX_VALUE;
             }
 
             @Override
             public void postProcess(){
-                if(collisionClosestPoint != null){
+                if(collisionClosestEntry != null){
                     onactivated.run();
                 }
             }
         });
     }
 
-    private void changePieceTexture(final FSInstance instance, final int subimageindex, final int resource){
-        FSRenderer.addTask(new Runnable(){
-
-            @Override
-            public void run(){
-                BitmapFactory.Options opts = new BitmapFactory.Options();
-                opts.inPreferredConfig = Bitmap.Config.ARGB_8888;
-                opts.outConfig = Bitmap.Config.ARGB_8888;
-                opts.inScaled = true;
-                opts.inMutable = true;
-
-                Bitmap b = BitmapFactory.decodeResource(FSControl.getContext().getResources(), resource, opts);
-
-                PIXEL_BUFFER.position(0);
-
-                b.copyPixelsToBuffer(PIXEL_BUFFER);
-                b.recycle();
-
-                PIXEL_BUFFER.position(0);
-
-                texArray.bind();
-                texArray.subImage3D(0, 0, 0, subimageindex, PIECE_TEXTURE_DIMENSION, PIECE_TEXTURE_DIMENSION,
-                        1, GLES32.GL_RGBA, GLES32.GL_UNSIGNED_BYTE, PIXEL_BUFFER);
-                texArray.unbind();
-
-                FSTools.checkGLError();
-            }
-        });
-    }
-
-    private void startGame(){
-
-    }
-
     @Override
     protected void destroyAssets(){
         shadowPoint.destroy();
-        texArray.destroy();
+
+        texArrayLayer1.destroy();
+        texArrayLayer2.destroy();
+        texArrayLayer3.destroy();
     }
 }

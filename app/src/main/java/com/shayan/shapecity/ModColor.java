@@ -221,7 +221,7 @@ public final class ModColor{
             program.modify(setuptexture, policy);
             program.modify(setupubo, policy);
 
-            program.fragmentShader().addMainCode("vec4 vcolor = colortex * colorubo;");
+            program.fragmentShader().addMainCode("vec4 vcolor = colortex + colorubo;");
         }
     }
 

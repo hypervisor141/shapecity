@@ -5,7 +5,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Paint;
 import android.opengl.GLES32;
-import android.util.Log;
 
 import com.nurverek.firestorm.FSControl;
 import com.nurverek.firestorm.FSTexture;
@@ -14,9 +13,6 @@ import com.nurverek.firestorm.Loader;
 import com.nurverek.vanguard.VLArrayFloat;
 import com.nurverek.vanguard.VLInt;
 import com.nurverek.vanguard.VLListInt;
-import com.nurverek.vanguard.VLTask;
-import com.nurverek.vanguard.VLTaskDone;
-import com.nurverek.vanguard.VLVInterpolated;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -200,6 +196,7 @@ public final class Game{
 
         Arrays.fill(activePieces.array(), -1);
 
+        Animation.prepareDeactivators();
         Animation.reveal();
 
         Input.activateInputListeners(Loader.layer1, new Runnable(){
@@ -210,8 +207,6 @@ public final class Game{
 
                 if(activated[target]){
                     activePieces.set(target, symbols[target]);
-
-                    Log.d("wtf", "CALLED");
 
                     Animation.reveal(target);
 
@@ -230,7 +225,7 @@ public final class Game{
                                 if(activePieces.get(i) == match){
                                     activated[i] = false;
 
-                                    Animation.deactivate(i);
+                                    Animation.deactivatePiece(i);
                                     linkdata.set(i, Animation.TEXCONTROL_ACTIVE);
 
                                     counter++;

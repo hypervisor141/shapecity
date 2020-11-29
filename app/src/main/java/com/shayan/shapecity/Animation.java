@@ -169,7 +169,7 @@ public final class Animation{
 
         VLVProcessor.Entry entry = proc.get(instance);
 
-        entry.target.reset();
+        entry.reset();
         entry.target.reinitialize(cycles);
         entry.delay = delay;
         entry.resetDelayTracker();
@@ -238,7 +238,12 @@ public final class Animation{
         activateProcessor(processorTextureBlink, instance, CYCLES_REVEAL_INPUT, 0, task);
     }
 
-    public static void deactivate(int instance){
+    public static void prepareDeactivators(){
+        processorRaise.deactivateAll();
+        processorShade.deactivateAll();
+    }
+
+    public static void deactivatePiece(int instance){
         processorBounce.get(instance).reset();
         processorBlink.get(instance).reset();
         processorTextureBlink.get(instance).reset();

@@ -88,6 +88,8 @@ public final class Game{
     }
 
     public static void startGame(){
+        Animation.rotateLightSource();
+
         RANDOM.setSeed(System.currentTimeMillis());
 
         int choice = 124 + RANDOM.nextInt(3);

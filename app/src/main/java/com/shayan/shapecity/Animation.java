@@ -163,11 +163,7 @@ public final class Animation{
     }
 
     public static void activateProcessor(VLVProcessor proc, int instance, int cycles, int delay, VLTask<VLVInterpolated> task){
-        proc.pause();
-
-        if(proc.indexOfActive(instance) >= -1){
-            proc.activate(instance);
-        }
+        proc.reactivate(instance);
 
         VLVProcessor.Entry entry = proc.get(instance);
 
@@ -208,7 +204,7 @@ public final class Animation{
                 }));
 
         VLVProcessor controlproc = FSRenderer.getControllersProcessor();
-        controlproc.add(controlproc.new Entry(v, 0));
+        controlproc.add(new VLVProcessor.Entry(v, 0));
         controlproc.start();
     }
 
@@ -241,17 +237,13 @@ public final class Animation{
     }
 
     public static void deactivate(int instance){
-        int indexbounce = processorBounce.indexOfActive(instance);
-        int indexblink = processorBlink.indexOfActive(instance);
-        int indextexblink = processorTextureBlink.indexOfActive(instance);
+        processorBounce.get(instance).reset();
+        processorBlink.get(instance).reset();
+        processorTextureBlink.get(instance).reset();
 
-        processorBounce.get(indexbounce).target.reset();
-        processorBlink.get(indexblink).target.reset();
-        processorTextureBlink.get(indextexblink).target.reset();
-
-        processorBounce.deactivate(indexbounce);
-        processorBlink.deactivate(indexblink);
-        processorTextureBlink.deactivate(indextexblink);
+        processorBounce.deactivate(instance);
+        processorBlink.deactivate(instance);
+        processorTextureBlink.deactivate(instance);
 
         activateProcessor(processorRaise, instance, CYCLES_DEACTIVATED, 0, null);
         activateProcessor(processorShade, instance, CYCLES_DEACTIVATED, 0, null);

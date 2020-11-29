@@ -38,7 +38,7 @@ public final class Camera{
         }));
 
         VLVProcessor controlproc = FSRenderer.getControllersProcessor();
-        controlproc.add(controlproc.new Entry(v, 0));
+        controlproc.add(new VLVProcessor.Entry(v, 0));
         controlproc.start();
     }
 }

@@ -73,12 +73,12 @@ public final class Animation{
     private static final int CYCLES_ROTATE = 30;
     private static final int CYCLES_RAISE = 100;
     private static final int CYCLES_BOUNCE = 200;
-    private static final int CYCLES_REVEAL_MIN = 100;
-    private static final int CYCLES_REVEAL_MAX = 150;
+    private static final int CYCLES_REVEAL_MIN = 40;
+    private static final int CYCLES_REVEAL_MAX = 60;
     private static final int CYCLES_REVEAL_DELAY_MIN = 0;
     private static final int CYCLES_REVEAL_DELAY_MAX = 250;
     private static final int CYCLES_REVEAL_REPEAT = 360;
-    private static final int CYCLES_REVEAL_INPUT = 100;
+    private static final int CYCLES_REVEAL_INPUT = 50;
     private static final int CYCLES_TEXCONTROL = 100;
 
     private static final float Y_REDUCTION = 0.5f;

@@ -35,7 +35,7 @@ public class Start extends FSActivity{
         try{
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
             requestWindowFeature(Window.FEATURE_NO_TITLE);
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
             getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE | WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
 
             base.setLayoutParams(new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
@@ -106,7 +106,7 @@ public class Start extends FSActivity{
         scene.perspective(1f, (float)width / height, 1F, 1500F);
         scene.updateViewPort();
 
-        scene.eyePosition(0f, 400f, -0.01f);
+        scene.eyePosition(0f, 550f, -0.01f);
         scene.lookAt(0f, 0f, 0f, 0f, 1f, 0f);
         scene.updateViewProjection();
     }

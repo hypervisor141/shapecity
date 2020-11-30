@@ -5,9 +5,9 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Paint;
 import android.opengl.GLES32;
-import android.util.Log;
 
 import com.nurverek.firestorm.FSControl;
+import com.nurverek.firestorm.FSMesh;
 import com.nurverek.firestorm.FSTexture;
 import com.nurverek.firestorm.FSTools;
 import com.nurverek.firestorm.Loader;
@@ -27,11 +27,9 @@ public final class Game{
     private static final int GAME_MATCH_ROTATION = 126;
 
     private static final int GAME_MATCHSYM_PICK_LIMIT = 2;
-    private static final int GAME_MATCHSYM_REPEAT_ICON_LIMIT = 2;
+    private static final int GAME_MATCHSYM_REPEAT_ICON_LIMIT = 4;
 
-    private static final int LAYER1_PIECE_TEXTURE_DIMENSION = 512;
-    private static final int LAYER2_PIECE_TEXTURE_DIMENSION = 256;
-    private static final int LAYER3_PIECE_TEXTURE_DIMENSION = 128;
+    private static final int LAYER_PIECE_TEXTURE_DIMENSION = 512;
 
     protected static final SecureRandom RANDOM = new SecureRandom();
     public static ByteBuffer PIXEL_BUFFER = null;
@@ -48,7 +46,7 @@ public final class Game{
     public static void initialize(){
         texArrayLayer1 = new FSTexture(new VLInt(GLES32.GL_TEXTURE_2D_ARRAY), new VLInt(Loader.TEXUNIT++));
         texArrayLayer1.bind();
-        texArrayLayer1.storage3D(1, GLES32.GL_RGBA8, LAYER1_PIECE_TEXTURE_DIMENSION, LAYER1_PIECE_TEXTURE_DIMENSION, Loader.LAYER_INSTANCE_COUNT);
+        texArrayLayer1.storage3D(1, GLES32.GL_RGBA8, LAYER_PIECE_TEXTURE_DIMENSION, LAYER_PIECE_TEXTURE_DIMENSION, Loader.LAYER_INSTANCE_COUNT);
         texArrayLayer1.minFilter(GLES32.GL_LINEAR);
         texArrayLayer1.magFilter(GLES32.GL_LINEAR);
         texArrayLayer1.wrapS(GLES32.GL_CLAMP_TO_EDGE);
@@ -61,7 +59,7 @@ public final class Game{
 
         texArrayLayer2 = new FSTexture(new VLInt(GLES32.GL_TEXTURE_2D_ARRAY), new VLInt(Loader.TEXUNIT++));
         texArrayLayer2.bind();
-        texArrayLayer2.storage3D(1, GLES32.GL_RGBA8, LAYER2_PIECE_TEXTURE_DIMENSION, LAYER2_PIECE_TEXTURE_DIMENSION, Loader.LAYER_INSTANCE_COUNT);
+        texArrayLayer2.storage3D(1, GLES32.GL_RGBA8, LAYER_PIECE_TEXTURE_DIMENSION, LAYER_PIECE_TEXTURE_DIMENSION, Loader.LAYER_INSTANCE_COUNT);
         texArrayLayer2.minFilter(GLES32.GL_LINEAR);
         texArrayLayer2.magFilter(GLES32.GL_LINEAR);
         texArrayLayer2.wrapS(GLES32.GL_CLAMP_TO_EDGE);
@@ -74,7 +72,7 @@ public final class Game{
 
         texArrayLayer3 = new FSTexture(new VLInt(GLES32.GL_TEXTURE_2D_ARRAY), new VLInt(Loader.TEXUNIT++));
         texArrayLayer3.bind();
-        texArrayLayer3.storage3D(1, GLES32.GL_RGBA8, LAYER3_PIECE_TEXTURE_DIMENSION, LAYER3_PIECE_TEXTURE_DIMENSION, Loader.LAYER_INSTANCE_COUNT);
+        texArrayLayer3.storage3D(1, GLES32.GL_RGBA8, LAYER_PIECE_TEXTURE_DIMENSION, LAYER_PIECE_TEXTURE_DIMENSION, Loader.LAYER_INSTANCE_COUNT);
         texArrayLayer3.minFilter(GLES32.GL_LINEAR);
         texArrayLayer3.magFilter(GLES32.GL_LINEAR);
         texArrayLayer3.wrapS(GLES32.GL_CLAMP_TO_EDGE);
@@ -88,6 +86,7 @@ public final class Game{
 
     public static void startGame(){
         Animation.rotateLightSource();
+        Camera.rotateCamera();
 
         RANDOM.setSeed(System.currentTimeMillis());
 
@@ -143,13 +142,10 @@ public final class Game{
         int index = 0;
 
         PIXEL_BUFFER = null;
-        texArrayLayer1.bind();
+        texArrayLayer3.bind();
 
         symbols = new int[Loader.LAYER_INSTANCE_COUNT];
-        activated = new boolean[Loader.LAYER_INSTANCE_COUNT];
-
         Arrays.fill(symbols, -1);
-        Arrays.fill(activated, true);
 
         for(int i = 0; i < requiredchoices; i++){
             choice = RANDOM.nextInt(resources.length);
@@ -182,23 +178,54 @@ public final class Game{
                 symbols[index] = choice;
 
                 PIXEL_BUFFER.position(0);
-                texArrayLayer1.subImage3D(0, 0, 0, index, LAYER1_PIECE_TEXTURE_DIMENSION, LAYER1_PIECE_TEXTURE_DIMENSION, 1, GLES32.GL_RGBA, GLES32.GL_UNSIGNED_BYTE, PIXEL_BUFFER);
+                texArrayLayer3.subImage3D(0, 0, 0, index, LAYER_PIECE_TEXTURE_DIMENSION, LAYER_PIECE_TEXTURE_DIMENSION, 1, GLES32.GL_RGBA, GLES32.GL_UNSIGNED_BYTE, PIXEL_BUFFER);
             }
         }
 
         FSTools.checkGLError();
-        texArrayLayer1.unbind();
+        texArrayLayer3.unbind();
 
         activePieces = new VLListInt(Loader.LAYER_INSTANCE_COUNT, 0);
         activePieces.virtualSize(Loader.LAYER_INSTANCE_COUNT);
 
+        activated = new boolean[Loader.LAYER_INSTANCE_COUNT];
+
+        activateMatchSymForLayer();
+    }
+
+    private static void startMatchColorsGame(){
+
+    }
+
+    private static void startMatchRotationGame(){
+
+    }
+
+    private static void activateMatchSymForLayer(){
         Arrays.fill(activePieces.array(), -1);
+        Arrays.fill(activated, true);
 
-        Animation.prepareDeactivators();
-        Animation.reveal();
-        Animation.revealRepeat();
+        final int layer = 2;
 
-        Input.activateInputListeners(Loader.layer1, new Runnable(){
+        Animation.clearRaiseBaseProcessors();
+
+        Animation.raiseBases(1);
+        Animation.raiseBases(2);
+
+        Animation.clearStandbyProcessors();
+
+        Animation.standBy(0);
+        Animation.standBy(1);
+
+        Animation.clearDeactivationProcessors();
+        Animation.clearRevealProcessors();
+
+        Animation.reveal(layer);
+        Animation.revealRepeat(layer);
+
+        final FSMesh layermesh = Loader.layers[layer];
+
+        Input.activateInputListeners(layermesh, new Runnable(){
 
             @Override
             public void run(){
@@ -207,7 +234,8 @@ public final class Game{
                 if(activated[target]){
                     activePieces.set(target, symbols[target]);
 
-                    Animation.reveal(target);
+                    Animation.clearRevealProcessors();
+                    Animation.reveal(layer, target);
 
                     if(getActiveSymbolCount() >= GAME_MATCHSYM_PICK_LIMIT){
                         int match = checkSymbolMatch();
@@ -218,14 +246,14 @@ public final class Game{
                             int indexblink = 0;
                             int indextexblink = 0;
 
-                            VLArrayFloat linkdata = ((ModColor.TextureControlLink)Loader.layer1.link(0)).data;
+                            VLArrayFloat linkdata = ((ModColor.TextureControlLink)layermesh.link(0)).data;
 
                             for(int i = 0; i < activePieces.size(); i++){
                                 if(activePieces.get(i) == match){
                                     activated[i] = false;
                                     activePieces.set(i, -1);
 
-                                    Animation.deactivatePiece(i);
+                                    Animation.deactivatePiece(layer * Loader.LAYER_INSTANCE_COUNT + i);
                                     linkdata.set(i, Animation.TEXCONTROL_ACTIVE);
 
                                     counter++;
@@ -242,14 +270,6 @@ public final class Game{
                 }
             }
         });
-    }
-
-    private static void startMatchColorsGame(){
-
-    }
-
-    private static void startMatchRotationGame(){
-
     }
 
     private static int checkSymbolMatch(){

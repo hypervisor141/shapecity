@@ -103,7 +103,7 @@ public class Start extends FSActivity{
         FSViewConfig scene = FSControl.getViewConfig();
         scene.setPerspectiveMode();
         scene.viewPort(0, 0, width, height);
-        scene.perspective(1f, (float)width / height, 1F, 1500F);
+        scene.perspective(60f, (float)width / height, 1F, 1500F);
         scene.updateViewPort();
 
         scene.eyePosition(0f, 550f, -0.01f);

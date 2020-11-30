@@ -17,7 +17,6 @@ import com.shayan.shapecity.ModLight;
 import com.shayan.shapecity.ModModel;
 import com.shayan.shapecity.ModNoLight;
 
-import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
 
@@ -85,7 +84,7 @@ public final class Loader extends FSG{
     private static int BUFFER_ELEMENT_SHORT_DEFAULT;
     private static int BUFFER_ARRAY_FLOAT_DEFAULT;
 
-    public static final int LAYER_INSTANCE_COUNT = 16;
+    public static final int LAYER_INSTANCE_COUNT = 24;
     public static FSLightPoint lightPoint;
     public static FSShadowPoint shadowPoint;
 
@@ -167,7 +166,7 @@ public final class Loader extends FSG{
                 new VLInt(1024),
                 new VLInt(1024),
                 new VLFloat(0.5f), new VLFloat(0.55f),
-                new VLFloat(1.25f),
+                new VLFloat(2f),
                 new VLFloat(1f),
                 new VLFloat(1300));
 
@@ -218,9 +217,9 @@ public final class Loader extends FSG{
         VLListType<DataPack> layer2packs = new VLListType<>(LAYER_INSTANCE_COUNT, 10);
         VLListType<DataPack> layer3packs = new VLListType<>(LAYER_INSTANCE_COUNT, 10);
 
-        DataPack layer1pack = new DataPack(new VLArrayFloat(Animation.COLOR_PIECES), Game.texArrayLayer1, MATERIAL_OBSIDIAN, null);
-        DataPack layer2pack = new DataPack(new VLArrayFloat(Animation.COLOR_PIECES), Game.texArrayLayer1, MATERIAL_OBSIDIAN, null);
-        DataPack layer3pack = new DataPack(new VLArrayFloat(Animation.COLOR_PIECES), Game.texArrayLayer1, MATERIAL_OBSIDIAN, null);
+        DataPack layer1pack = new DataPack(new VLArrayFloat(Animation.COLOR_LAYER1), Game.texArrayLayer1, MATERIAL_OBSIDIAN, null);
+        DataPack layer2pack = new DataPack(new VLArrayFloat(Animation.COLOR_LAYER2), Game.texArrayLayer2, MATERIAL_OBSIDIAN, null);
+        DataPack layer3pack = new DataPack(new VLArrayFloat(Animation.COLOR_LAYER3), Game.texArrayLayer3, MATERIAL_OBSIDIAN, null);
 
         for(int i = 0; i < LAYER_INSTANCE_COUNT; i++){
             layer1packs.add(layer1pack);

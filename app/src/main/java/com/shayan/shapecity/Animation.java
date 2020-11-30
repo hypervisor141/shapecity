@@ -93,7 +93,7 @@ public final class Animation{
     private static final int CYCLES_TEXCONTROL = 100;
 
     private static final float Y_REDUCTION = 0.5f;
-    private static final float Y_BOUNCE_HEIGHT_MULTIPLIER = 0.95f;
+    private static final float Y_BOUNCE_HEIGHT_MULTIPLIER = 0.5f;
     private static final float Y_BASE_HEIGHT_MULTIPLIER = 0.5f;
 
     private static VLVProcessor processorBounce;
@@ -156,7 +156,7 @@ public final class Animation{
 
                 modelmatrix.getY(0).set(yv);
 
-                yraise = yv + schematics.modelHeight() * Y_BOUNCE_HEIGHT_MULTIPLIER;
+                yraise = schematics.modelHeight() * Y_BOUNCE_HEIGHT_MULTIPLIER;
                 yraisebase = 0;
 
                 for(int i3 = 0; i3 < i; i3++){
@@ -165,7 +165,7 @@ public final class Animation{
 
                 modelmatrix.addRowRotate(0, new VLVConst(90f), VLVConst.ZERO, VLVConst.ONE, VLVConst.ZERO);
                 modelmatrix.addRowRotate(0, new VLVConst(90f), VLVConst.ZERO, VLVConst.ZERO, VLVConst.ONE);
-                modelmatrix.addRowTranslation(VLVConst.ZERO, new VLVInterpolated(0f, yraisebase, CYCLES_RAISE_BASE_MIN, VLV.LOOP_NONE, VLV.INTERP_DECELERATE_COS_SQRT), VLVConst.ZERO);
+                modelmatrix.addRowTranslation(VLVConst.ZERO, new VLVInterpolated(0f, yraisebase, CYCLES_RAISE_BASE_MAX, VLV.LOOP_NONE, VLV.INTERP_DECELERATE_COS_SQRT), VLVConst.ZERO);
                 modelmatrix.addRowTranslation(VLVConst.ZERO, new VLVInterpolated(0f, yraise, CYCLES_BOUNCE, VLV.LOOP_RETURN_ONCE, VLV.INTERP_DECELERATE_COS_SQRT), VLVConst.ZERO);
                 modelmatrix.addRowTranslation(VLVConst.ZERO, new VLVInterpolated(0f, yraise, CYCLES_RAISE, VLV.LOOP_NONE, VLV.INTERP_DECELERATE_COS_SQRT), VLVConst.ZERO);
 
@@ -318,6 +318,7 @@ public final class Animation{
 
             @Override
             public void run(VLTask task, VLVLinear var){
+                clearRevealProcessors();
                 reveal(layer);
             }
         }));

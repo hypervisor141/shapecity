@@ -86,7 +86,7 @@ public final class Game{
 
     public static void startGame(){
         Animation.rotateLightSource();
-        Camera.rotateCamera();
+//        Camera.rotateCamera();
 
         RANDOM.setSeed(System.currentTimeMillis());
 

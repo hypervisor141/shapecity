@@ -85,7 +85,7 @@ public final class Loader extends FSG{
     private static int BUFFER_ELEMENT_SHORT_DEFAULT;
     private static int BUFFER_ARRAY_FLOAT_DEFAULT;
 
-    public static final int LAYER_INSTANCE_COUNT = 36;
+    public static final int LAYER_INSTANCE_COUNT = 16;
     public static FSLightPoint lightPoint;
     public static FSShadowPoint shadowPoint;
 

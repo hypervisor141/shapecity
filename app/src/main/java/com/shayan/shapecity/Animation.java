@@ -18,6 +18,7 @@ import com.nurverek.vanguard.VLListType;
 import com.nurverek.vanguard.VLTask;
 import com.nurverek.vanguard.VLTaskContinous;
 import com.nurverek.vanguard.VLTaskDone;
+import com.nurverek.vanguard.VLTaskTargetValue;
 import com.nurverek.vanguard.VLV;
 import com.nurverek.vanguard.VLVConst;
 import com.nurverek.vanguard.VLVInterpolated;
@@ -63,8 +64,8 @@ public final class Animation{
     private static final int ROW_COLOR_DEACTIVATED = 1;
     private static final int ROW_MODEL_ROTATE_FACE = 0;
     private static final int ROW_MODEL_POSITION = 1;
-    private static final int ROW_MODEL_BOUNCE_Y = 2;
-    private static final int ROW_MODEL_RAISE_Y = 3;
+    private static final int ROW_MODEL_BOUNCE_Y = 3;
+    private static final int ROW_MODEL_RAISE_Y = 4;
 
     private static final int CYCLES_LIGHT_ROTATION = 3600;
     private static final int CYCLES_BLINK = 20;
@@ -72,12 +73,16 @@ public final class Animation{
     private static final int CYCLES_ROTATE = 30;
     private static final int CYCLES_RAISE = 100;
     private static final int CYCLES_BOUNCE = 200;
-    private static final int CYCLES_REVEAL_ALL = 150;
+    private static final int CYCLES_REVEAL_MIN = 100;
+    private static final int CYCLES_REVEAL_MAX = 150;
+    private static final int CYCLES_REVEAL_DELAY_MIN = 0;
+    private static final int CYCLES_REVEAL_DELAY_MAX = 250;
+    private static final int CYCLES_REVEAL_REPEAT = 360;
     private static final int CYCLES_REVEAL_INPUT = 100;
     private static final int CYCLES_TEXCONTROL = 100;
 
-    private static final float Y_REDUCTION = 0.99f;
-    private static final float Y_MAX_HEIGHT_MULTIPLIER = 1.5f;
+    private static final float Y_REDUCTION = 0.5f;
+    private static final float Y_MAX_HEIGHT_MULTIPLIER = 0.95f;
 
     private static VLVProcessor processorBounce;
     private static VLVProcessor processorRaise;
@@ -123,62 +128,71 @@ public final class Animation{
                 modelmatrix = instance.modelMatrix();
                 schematics = instance.schematics();
                 yv = modelmatrix.getY(0).get() - Y_REDUCTION;
-                yraise = yv + schematics.modelHeight() * Y_MAX_HEIGHT_MULTIPLIER;
 
                 modelmatrix.getY(0).set(yv);
 
-                modelmatrix.addRowRotate(0, new VLVConst(-90f), VLVConst.ZERO, VLVConst.ZERO, VLVConst.ONE);
-                modelmatrix.addRowTranslation(VLVConst.ZERO, new VLVInterpolated(0f, yraise, CYCLES_BOUNCE, VLV.LOOP_RETURN_ONCE, VLV.INTERP_DECELERATE_COS_SQRT), VLVConst.ZERO);
-                modelmatrix.addRowTranslation(VLVConst.ZERO, new VLVInterpolated(0f, yraise, CYCLES_RAISE, VLV.LOOP_NONE, VLV.INTERP_DECELERATE_COS_SQRT), VLVConst.ZERO);
+                if(i == 0){
+                    yraise = yv + schematics.modelHeight() * Y_MAX_HEIGHT_MULTIPLIER;
+
+                    modelmatrix.addRowRotate(0, new VLVConst(90f), VLVConst.ZERO, VLVConst.ONE, VLVConst.ZERO);
+                    modelmatrix.addRowRotate(0, new VLVConst(90f), VLVConst.ZERO, VLVConst.ZERO, VLVConst.ONE);
+                    modelmatrix.addRowTranslation(VLVConst.ZERO, new VLVInterpolated(0f, yraise, CYCLES_BOUNCE, VLV.LOOP_RETURN_ONCE, VLV.INTERP_DECELERATE_COS_SQRT), VLVConst.ZERO);
+                    modelmatrix.addRowTranslation(VLVConst.ZERO, new VLVInterpolated(0f, yraise, CYCLES_RAISE, VLV.LOOP_NONE, VLV.INTERP_DECELERATE_COS_SQRT), VLVConst.ZERO);
+
+                    colormatrix = new VLVMatrix(2, 0);
+                    colormatrix.addRow(4, 0);
+                    colormatrix.addColumn(ROW_COLOR_BLINK, new VLVInterpolated(COLOR_PIECES[0], COLOR_BLINK[0], CYCLES_BLINK, VLV.LOOP_RETURN_ONCE, VLV.INTERP_DECELERATE_COS_SQRT));
+                    colormatrix.addColumn(ROW_COLOR_BLINK, new VLVInterpolated(COLOR_PIECES[1], COLOR_BLINK[1], CYCLES_BLINK, VLV.LOOP_RETURN_ONCE, VLV.INTERP_DECELERATE_COS_SQRT));
+                    colormatrix.addColumn(ROW_COLOR_BLINK, new VLVInterpolated(COLOR_PIECES[2], COLOR_BLINK[2], CYCLES_BLINK, VLV.LOOP_RETURN_ONCE, VLV.INTERP_DECELERATE_COS_SQRT));
+                    colormatrix.addColumn(ROW_COLOR_BLINK, new VLVInterpolated(COLOR_PIECES[3], COLOR_BLINK[3], CYCLES_BLINK, VLV.LOOP_RETURN_ONCE, VLV.INTERP_DECELERATE_COS_SQRT));
+
+                    colormatrix.addRow(4, 0);
+                    colormatrix.addColumn(ROW_COLOR_DEACTIVATED, new VLVInterpolated(COLOR_PIECES[0], COLOR_DEACTIVATED[0], CYCLES_DEACTIVATED, VLV.LOOP_NONE, VLV.INTERP_DECELERATE_COS_SQRT));
+                    colormatrix.addColumn(ROW_COLOR_DEACTIVATED, new VLVInterpolated(COLOR_PIECES[1], COLOR_DEACTIVATED[1], CYCLES_DEACTIVATED, VLV.LOOP_NONE, VLV.INTERP_DECELERATE_COS_SQRT));
+                    colormatrix.addColumn(ROW_COLOR_DEACTIVATED, new VLVInterpolated(COLOR_PIECES[2], COLOR_DEACTIVATED[2], CYCLES_DEACTIVATED, VLV.LOOP_NONE, VLV.INTERP_DECELERATE_COS_SQRT));
+                    colormatrix.addColumn(ROW_COLOR_DEACTIVATED, new VLVInterpolated(COLOR_PIECES[3], COLOR_DEACTIVATED[3], CYCLES_DEACTIVATED, VLV.LOOP_NONE, VLV.INTERP_DECELERATE_COS_SQRT));
+
+                    texblinkvar = new VLVInterpolated(TEXCONTROL_IDLE, TEXCONTROL_ACTIVE, CYCLES_TEXCONTROL, VLV.LOOP_RETURN_ONCE, VLV.INTERP_DECELERATE_COS_SQRT);
+
+                    colormatrix.SYNCER.add(new VLArray.DefinitionMatrix(instance.colors(), ROW_COLOR_BLINK, 0));
+                    colormatrix.SYNCER.add(new VLArray.DefinitionMatrix(instance.colors(), ROW_COLOR_DEACTIVATED, 0));
+                    texblinkvar.SYNCER.add(new VLArray.DefinitionVLV(linkdata, i2));
+
+                    processorBounce.add(new VLVProcessor.Entry(modelmatrix, ROW_MODEL_BOUNCE_Y, 0));
+                    processorRaise.add(new VLVProcessor.Entry(modelmatrix, ROW_MODEL_RAISE_Y, 0));
+                    processorBlink.add(new VLVProcessor.Entry(colormatrix, ROW_COLOR_BLINK, VLVProcessor.SYNC_INDEX, 0, 0));
+                    processorShade.add(new VLVProcessor.Entry(colormatrix, ROW_COLOR_DEACTIVATED, VLVProcessor.SYNC_INDEX, 1, 0));
+                    processorTextureBlink.add(new VLVProcessor.Entry(texblinkvar, 0));
+
+                    schematics.inputBounds().add(new FSBoundsCuboid(schematics,
+                            50, 50f, 50f, FSBounds.MODE_X_OFFSET_VOLUMETRIC, FSBounds.MODE_Y_OFFSET_VOLUMETRIC, FSBounds.MODE_Z_OFFSET_VOLUMETRIC,
+                            40f, 40f, 40f, FSBounds.MODE_X_VOLUMETRIC, FSBounds.MODE_Y_VOLUMETRIC, FSBounds.MODE_Z_VOLUMETRIC));
+                }
+
                 modelmatrix.sync();
-
-                colormatrix = new VLVMatrix(2, 0);
-                colormatrix.addRow(4, 0);
-                colormatrix.addColumn(ROW_COLOR_BLINK, new VLVInterpolated(COLOR_PIECES[0], COLOR_BLINK[0], CYCLES_BLINK, VLV.LOOP_RETURN_ONCE, VLV.INTERP_DECELERATE_COS_SQRT));
-                colormatrix.addColumn(ROW_COLOR_BLINK, new VLVInterpolated(COLOR_PIECES[1], COLOR_BLINK[1], CYCLES_BLINK, VLV.LOOP_RETURN_ONCE, VLV.INTERP_DECELERATE_COS_SQRT));
-                colormatrix.addColumn(ROW_COLOR_BLINK, new VLVInterpolated(COLOR_PIECES[2], COLOR_BLINK[2], CYCLES_BLINK, VLV.LOOP_RETURN_ONCE, VLV.INTERP_DECELERATE_COS_SQRT));
-                colormatrix.addColumn(ROW_COLOR_BLINK, new VLVInterpolated(COLOR_PIECES[3], COLOR_BLINK[3], CYCLES_BLINK, VLV.LOOP_RETURN_ONCE, VLV.INTERP_DECELERATE_COS_SQRT));
-
-                colormatrix.addRow(4, 0);
-                colormatrix.addColumn(ROW_COLOR_DEACTIVATED, new VLVInterpolated(COLOR_PIECES[0], COLOR_DEACTIVATED[0], CYCLES_DEACTIVATED, VLV.LOOP_NONE, VLV.INTERP_DECELERATE_COS_SQRT));
-                colormatrix.addColumn(ROW_COLOR_DEACTIVATED, new VLVInterpolated(COLOR_PIECES[1], COLOR_DEACTIVATED[1], CYCLES_DEACTIVATED, VLV.LOOP_NONE, VLV.INTERP_DECELERATE_COS_SQRT));
-                colormatrix.addColumn(ROW_COLOR_DEACTIVATED, new VLVInterpolated(COLOR_PIECES[2], COLOR_DEACTIVATED[2], CYCLES_DEACTIVATED, VLV.LOOP_NONE, VLV.INTERP_DECELERATE_COS_SQRT));
-                colormatrix.addColumn(ROW_COLOR_DEACTIVATED, new VLVInterpolated(COLOR_PIECES[3], COLOR_DEACTIVATED[3], CYCLES_DEACTIVATED, VLV.LOOP_NONE, VLV.INTERP_DECELERATE_COS_SQRT));
-
-                texblinkvar = new VLVInterpolated(TEXCONTROL_IDLE, TEXCONTROL_ACTIVE, CYCLES_TEXCONTROL, VLV.LOOP_RETURN_ONCE, VLV.INTERP_DECELERATE_COS_SQRT);
-
-                colormatrix.SYNCER.add(new VLArray.DefinitionMatrix(instance.colors(), ROW_COLOR_BLINK, 0));
-                colormatrix.SYNCER.add(new VLArray.DefinitionMatrix(instance.colors(), ROW_COLOR_DEACTIVATED, 0));
-                texblinkvar.SYNCER.add(new VLArray.DefinitionVLV(linkdata, i2));
-
-                processorBounce.add(new VLVProcessor.Entry(modelmatrix, ROW_MODEL_BOUNCE_Y, 0));
-                processorRaise.add(new VLVProcessor.Entry(modelmatrix, ROW_MODEL_RAISE_Y, 0));
-                processorBlink.add(new VLVProcessor.Entry(colormatrix, ROW_COLOR_BLINK, VLVProcessor.SYNC_INDEX, 0, 0));
-                processorShade.add(new VLVProcessor.Entry(colormatrix, ROW_COLOR_DEACTIVATED, VLVProcessor.SYNC_INDEX, 1, 0));
-                processorTextureBlink.add(new VLVProcessor.Entry(texblinkvar, 0));
-
-                schematics.inputBounds().add(new FSBoundsCuboid(schematics,
-                        50, 50f, 50f, FSBounds.MODE_X_OFFSET_VOLUMETRIC, FSBounds.MODE_Y_OFFSET_VOLUMETRIC, FSBounds.MODE_Z_OFFSET_VOLUMETRIC,
-                        40f, 40f, 40f, FSBounds.MODE_X_VOLUMETRIC, FSBounds.MODE_Y_VOLUMETRIC, FSBounds.MODE_Z_VOLUMETRIC));
             }
         }
     }
 
-    public static void activateProcessor(VLVProcessor proc, int instance, int cycles, int delay, VLTask<VLVInterpolated> task){
-        proc.reactivate(instance);
+    public static void activateProcessor(VLVProcessor proc, int instance, int cycles, int delay, VLTask<VLVInterpolated> task, boolean activate){
+        if(proc.isActive(instance)){
+            VLVProcessor.Entry entry = proc.get(instance);
 
-        VLVProcessor.Entry entry = proc.get(instance);
+            entry.reset();
+            entry.target.reinitialize(cycles);
+            entry.delay = delay;
+            entry.resetDelayTracker();
 
-        entry.reset();
-        entry.target.reinitialize(cycles);
-        entry.delay = delay;
-        entry.resetDelayTracker();
+            if(task != null){
+                entry.target.setTask(task);
+            }
 
-        if(task != null){
-            entry.target.setTask(task);
+            proc.start();
+
+        }else if(activate){
+            proc.reactivate(instance);
+            activateProcessor(proc, instance, cycles, delay, task, false);
         }
-
-        proc.start();
     }
 
     public static void rotateLightSource(){
@@ -210,17 +224,31 @@ public final class Animation{
         controlproc.start();
     }
 
+    public static void revealRepeat(){
+        VLVLinear control = new VLVLinear(0, 100, CYCLES_REVEAL_REPEAT, VLV.LOOP_FORWARD).setTask(new VLTaskTargetValue(new VLTask.Task<VLVLinear>(){
+
+            @Override
+            public void run(VLTask task, VLVLinear var){
+                reveal();
+            }
+        }));
+
+        VLVProcessor proc = FSRenderer.getControllersProcessor();
+        proc.add(new VLVProcessor.Entry(control, 0));
+        proc.start();
+    }
+
     public static void reveal(){
         int cycles = 0;
         int delay = 0;
 
         for(int i = 0; i < Loader.LAYER_INSTANCE_COUNT; i++){
-            cycles = 100 + Game.RANDOM.nextInt(100);
-            delay = Game.RANDOM.nextInt(200);
+            cycles = CYCLES_REVEAL_MIN + Game.RANDOM.nextInt(CYCLES_REVEAL_MAX - CYCLES_REVEAL_MIN);
+            delay = CYCLES_REVEAL_DELAY_MIN + Game.RANDOM.nextInt(CYCLES_REVEAL_DELAY_MAX - CYCLES_REVEAL_DELAY_MIN);
 
-            activateProcessor(processorBounce, i, cycles, delay, null);
-            activateProcessor(processorBlink, i, cycles, delay, null);
-            activateProcessor(processorTextureBlink, i, cycles, delay, null);
+            activateProcessor(processorBounce, i, cycles, delay, null, false);
+            activateProcessor(processorBlink, i, cycles, delay, null, false);
+            activateProcessor(processorTextureBlink, i, cycles, delay, null, false);
         }
     }
 
@@ -233,9 +261,9 @@ public final class Animation{
             }
         });
 
-        activateProcessor(processorBounce, instance, CYCLES_REVEAL_INPUT, 0, null);
-        activateProcessor(processorBlink, instance, CYCLES_REVEAL_INPUT, 0, null);
-        activateProcessor(processorTextureBlink, instance, CYCLES_REVEAL_INPUT, 0, task);
+        activateProcessor(processorBounce, instance, CYCLES_REVEAL_INPUT, 0, null, false);
+        activateProcessor(processorBlink, instance, CYCLES_REVEAL_INPUT, 0, null, false);
+        activateProcessor(processorTextureBlink, instance, CYCLES_REVEAL_INPUT, 0, task, false);
     }
 
     public static void prepareDeactivators(){
@@ -252,8 +280,8 @@ public final class Animation{
         processorBlink.deactivate(instance);
         processorTextureBlink.deactivate(instance);
 
-        activateProcessor(processorRaise, instance, CYCLES_DEACTIVATED, 0, null);
-        activateProcessor(processorShade, instance, CYCLES_DEACTIVATED, 0, null);
+        activateProcessor(processorRaise, instance, CYCLES_DEACTIVATED, 0, null, true);
+        activateProcessor(processorShade, instance, CYCLES_DEACTIVATED, 0, null, true);
     }
 
     public static void destroy(){

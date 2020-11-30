@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Paint;
 import android.opengl.GLES32;
+import android.util.Log;
 
 import com.nurverek.firestorm.FSControl;
 import com.nurverek.firestorm.FSTexture;
@@ -24,7 +25,9 @@ public final class Game{
     private static final int GAME_MATCH_SYMBOLS = 124;
     private static final int GAME_MATCH_COLORS = 125;
     private static final int GAME_MATCH_ROTATION = 126;
-    private static final int GAME_MATCHSYM_PICK_LIMIT = 3;
+
+    private static final int GAME_MATCHSYM_PICK_LIMIT = 2;
+    private static final int GAME_MATCHSYM_REPEAT_ICON_LIMIT = 2;
 
     private static final int LAYER1_PIECE_TEXTURE_DIMENSION = 512;
     private static final int LAYER2_PIECE_TEXTURE_DIMENSION = 256;
@@ -117,14 +120,7 @@ public final class Game{
                 R.drawable.hex,
                 R.drawable.square,
                 R.drawable.triangle,
-                R.drawable.circlecone,
-                R.drawable.squarestar,
-                R.drawable.bladecircle,
-                R.drawable.pointedsquare,
-                R.drawable.rsquare,
-                R.drawable.rhombus,
-                R.drawable.rectangle,
-                R.drawable.trapezoid
+                R.drawable.rsquare
         };
 
         int[] timespicked = new int[resources.length];
@@ -143,7 +139,7 @@ public final class Game{
         opts.inMutable = true;
 
         int choice = 0;
-        int requiredchoices = Loader.LAYER_INSTANCE_COUNT / 3;
+        int requiredchoices = Loader.LAYER_INSTANCE_COUNT / GAME_MATCHSYM_PICK_LIMIT;
         int index = 0;
 
         PIXEL_BUFFER = null;
@@ -158,9 +154,11 @@ public final class Game{
         for(int i = 0; i < requiredchoices; i++){
             choice = RANDOM.nextInt(resources.length);
 
-            while(timespicked[choice] >= GAME_MATCHSYM_PICK_LIMIT){
+            while(timespicked[choice] >= GAME_MATCHSYM_REPEAT_ICON_LIMIT){
                 choice = RANDOM.nextInt(resources.length);
             }
+
+            timespicked[choice]++;
 
             b = BitmapFactory.decodeResource(cxt.getResources(), resources[choice], opts);
 
@@ -174,7 +172,7 @@ public final class Game{
             b.copyPixelsToBuffer(PIXEL_BUFFER);
             b.recycle();
 
-            for(int i2 = 0; i2 < 3; i2++){
+            for(int i2 = 0; i2 < GAME_MATCHSYM_PICK_LIMIT; i2++){
                 index = RANDOM.nextInt(Loader.LAYER_INSTANCE_COUNT);
 
                 while(symbols[index] != -1){
@@ -198,6 +196,7 @@ public final class Game{
 
         Animation.prepareDeactivators();
         Animation.reveal();
+        Animation.revealRepeat();
 
         Input.activateInputListeners(Loader.layer1, new Runnable(){
 
@@ -224,6 +223,7 @@ public final class Game{
                             for(int i = 0; i < activePieces.size(); i++){
                                 if(activePieces.get(i) == match){
                                     activated[i] = false;
+                                    activePieces.set(i, -1);
 
                                     Animation.deactivatePiece(i);
                                     linkdata.set(i, Animation.TEXCONTROL_ACTIVE);

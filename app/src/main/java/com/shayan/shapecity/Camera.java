@@ -13,8 +13,8 @@ import com.nurverek.vanguard.VLVProcessor;
 
 public final class Camera{
 
-    protected static void rotateCamera(){
-        VLVInterpolated v = new VLVInterpolated(0, 360, 2000, VLV.LOOP_FORWARD, VLV.INTERP_LINEAR);
+    public static void rotateCamera(){
+        VLVInterpolated v = new VLVInterpolated(0, 360, 1000, VLV.LOOP_FORWARD, VLV.INTERP_LINEAR);
 
         v.setTask(new VLTaskContinous(new VLTask.Task<VLVInterpolated>(){
 

@@ -6,8 +6,8 @@ import android.util.Log;
 import com.nurverek.firestorm.FSBounds;
 import com.nurverek.firestorm.FSBoundsCuboid;
 import com.nurverek.firestorm.FSInstance;
+import com.nurverek.firestorm.FSMatrixModel;
 import com.nurverek.firestorm.FSMesh;
-import com.nurverek.firestorm.FSModelMatrix;
 import com.nurverek.firestorm.FSRenderer;
 import com.nurverek.firestorm.FSSchematics;
 import com.nurverek.firestorm.Loader;
@@ -71,7 +71,7 @@ public final class Animation{
     private static final int ROW_MODEL_ROTATE_FACE = 0;
     private static final int ROW_MODEL_POSITION = 1;
     private static final int ROW_MODEL_RAISE_BASE = 3;
-    private static final int ROW_MODEL_BOUNCE_Y = 4;
+    private static final int ROW_MODEL_BOUNCE = 4;
     private static final int ROW_MODEL_RAISE_Y = 5;
 
     private static final int CYCLES_LIGHT_ROTATION = 3600;
@@ -117,7 +117,7 @@ public final class Animation{
 
         FSMesh layer;
         FSInstance instance;
-        FSModelMatrix modelmatrix;
+        FSMatrixModel modelmatrix;
         FSSchematics schematics;
         VLVMatrix colormatrix;
         VLVInterpolated texblinkvar;
@@ -170,20 +170,17 @@ public final class Animation{
                 modelmatrix.addRowTranslation(VLVConst.ZERO, new VLVInterpolated(0f, yraise, CYCLES_RAISE, VLV.LOOP_NONE, VLV.INTERP_DECELERATE_COS_SQRT), VLVConst.ZERO);
 
                 colormatrix = new VLVMatrix(3, 0);
-
+                colormatrix.addRow(4, 0);
+                colormatrix.addRow(4, 0);
                 colormatrix.addRow(4, 0);
                 colormatrix.addColumn(ROW_COLOR_STANDBY, new VLVInterpolated(colors[i][0], COLOR_STANDBY[0], CYCLES_DEACTIVATED, VLV.LOOP_NONE, VLV.INTERP_DECELERATE_COS_SQRT));
                 colormatrix.addColumn(ROW_COLOR_STANDBY, new VLVInterpolated(colors[i][1], COLOR_STANDBY[1], CYCLES_DEACTIVATED, VLV.LOOP_NONE, VLV.INTERP_DECELERATE_COS_SQRT));
                 colormatrix.addColumn(ROW_COLOR_STANDBY, new VLVInterpolated(colors[i][2], COLOR_STANDBY[2], CYCLES_DEACTIVATED, VLV.LOOP_NONE, VLV.INTERP_DECELERATE_COS_SQRT));
                 colormatrix.addColumn(ROW_COLOR_STANDBY, new VLVInterpolated(colors[i][3], COLOR_STANDBY[3], CYCLES_DEACTIVATED, VLV.LOOP_NONE, VLV.INTERP_DECELERATE_COS_SQRT));
-
-                colormatrix.addRow(4, 0);
                 colormatrix.addColumn(ROW_COLOR_BLINK, new VLVInterpolated(colors[i][0], COLOR_BLINK[0], CYCLES_BLINK, VLV.LOOP_RETURN_ONCE, VLV.INTERP_DECELERATE_COS_SQRT));
                 colormatrix.addColumn(ROW_COLOR_BLINK, new VLVInterpolated(colors[i][1], COLOR_BLINK[1], CYCLES_BLINK, VLV.LOOP_RETURN_ONCE, VLV.INTERP_DECELERATE_COS_SQRT));
                 colormatrix.addColumn(ROW_COLOR_BLINK, new VLVInterpolated(colors[i][2], COLOR_BLINK[2], CYCLES_BLINK, VLV.LOOP_RETURN_ONCE, VLV.INTERP_DECELERATE_COS_SQRT));
                 colormatrix.addColumn(ROW_COLOR_BLINK, new VLVInterpolated(colors[i][3], COLOR_BLINK[3], CYCLES_BLINK, VLV.LOOP_RETURN_ONCE, VLV.INTERP_DECELERATE_COS_SQRT));
-
-                colormatrix.addRow(4, 0);
                 colormatrix.addColumn(ROW_COLOR_DEACTIVATED, new VLVInterpolated(colors[i][0], COLOR_DEACTIVATED[0], CYCLES_DEACTIVATED, VLV.LOOP_NONE, VLV.INTERP_DECELERATE_COS_SQRT));
                 colormatrix.addColumn(ROW_COLOR_DEACTIVATED, new VLVInterpolated(colors[i][1], COLOR_DEACTIVATED[1], CYCLES_DEACTIVATED, VLV.LOOP_NONE, VLV.INTERP_DECELERATE_COS_SQRT));
                 colormatrix.addColumn(ROW_COLOR_DEACTIVATED, new VLVInterpolated(colors[i][2], COLOR_DEACTIVATED[2], CYCLES_DEACTIVATED, VLV.LOOP_NONE, VLV.INTERP_DECELERATE_COS_SQRT));
@@ -201,7 +198,7 @@ public final class Animation{
                 texblinkvar.sync();
 
                 processorRaiseBase.add(new VLVProcessor.Entry(modelmatrix, ROW_MODEL_RAISE_BASE, 0));
-                processorBounce.add(new VLVProcessor.Entry(modelmatrix, ROW_MODEL_BOUNCE_Y, 0));
+                processorBounce.add(new VLVProcessor.Entry(modelmatrix, ROW_MODEL_BOUNCE, 0));
                 processorRaise.add(new VLVProcessor.Entry(modelmatrix, ROW_MODEL_RAISE_Y, 0));
                 processorStandby.add(new VLVProcessor.Entry(colormatrix, ROW_COLOR_STANDBY, VLVProcessor.SYNC_INDEX, 0, 0));
                 processorBlink.add(new VLVProcessor.Entry(colormatrix, ROW_COLOR_BLINK, VLVProcessor.SYNC_INDEX, 1, 0));
@@ -220,7 +217,11 @@ public final class Animation{
             VLVProcessor.Entry entry = proc.get(instance);
 
             entry.reset();
-            entry.target.reinitialize(cycles);
+
+            if(proc != processorBounce){
+                entry.target.reinitialize(cycles);
+            }
+
             entry.delay = delay;
             entry.resetDelayTracker();
 
@@ -286,6 +287,8 @@ public final class Animation{
 
         int cycles = 0;
         int delay = 0;
+
+        Log.d("wtf", "REVEAL");
 
         for(int i = basesize; i < maxsize; i++){
             cycles = CYCLES_REVEAL_MIN + Game.RANDOM.nextInt(CYCLES_REVEAL_MAX - CYCLES_REVEAL_MIN);

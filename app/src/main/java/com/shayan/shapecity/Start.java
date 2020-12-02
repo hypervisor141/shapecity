@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.opengl.GLES32;
-import android.opengl.Matrix;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -17,11 +16,6 @@ import com.nurverek.firestorm.FSRenderPass;
 import com.nurverek.firestorm.FSRenderer;
 import com.nurverek.firestorm.FSViewConfig;
 import com.nurverek.firestorm.Loader;
-import com.nurverek.vanguard.VLTask;
-import com.nurverek.vanguard.VLTaskContinous;
-import com.nurverek.vanguard.VLV;
-import com.nurverek.vanguard.VLVInterpolated;
-import com.nurverek.vanguard.VLVProcessor;
 
 public class Start extends FSActivity{
 
@@ -55,13 +49,7 @@ public class Start extends FSActivity{
         super.onWindowFocusChanged(hasFocus);
 
         if(hasFocus){
-            getWindow().getDecorView().setSystemUiVisibility(
-                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                            | View.SYSTEM_UI_FLAG_FULLSCREEN
-                            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
         }
     }
 

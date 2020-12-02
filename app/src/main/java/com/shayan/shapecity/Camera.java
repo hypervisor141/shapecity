@@ -14,7 +14,7 @@ import com.nurverek.vanguard.VLVariable;
 public final class Camera{
 
     public static void rotateCamera(){
-//        VLVCurved v = new VLVCurved(0, 360, 1000, VLVariable.LOOP_FORWARD, VLVCurved.CURVE_ACC_DEC_COS);
+//        VLVCurved v = new VLVCurved(0, 360, 1250, VLVariable.LOOP_FORWARD, VLVCurved.CURVE_LINEAR);
 //
 //        v.setTask(new VLTaskContinous(new VLTask.Task<VLVCurved>(){
 //
@@ -23,7 +23,7 @@ public final class Camera{
 //            @Override
 //            public void run(VLTask t, VLVCurved v){
 //                FSViewConfig c = FSControl.getViewConfig();
-//                c.eyePosition(0, 7F, 10F);
+//                c.eyePosition(0, 7F, 30F);
 //
 //                float[] eyepos = c.eyePosition().provider();
 //

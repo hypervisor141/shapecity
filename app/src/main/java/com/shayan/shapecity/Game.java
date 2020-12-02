@@ -220,7 +220,7 @@ public final class Game{
         Animation.clearDeactivationProcessors();
         Animation.clearRevealProcessors();
 
-        Animation.reveal(layer);
+        Animation.reveal(layer, true);
         Animation.revealRepeat(layer);
 
         final FSMesh layermesh = Loader.layers[layer];
@@ -234,7 +234,6 @@ public final class Game{
                 if(activated[target]){
                     activePieces.set(target, symbols[target]);
 
-                    Animation.clearRevealProcessors();
                     Animation.reveal(layer, target);
 
                     if(getActiveSymbolCount() >= GAME_MATCHSYM_PICK_LIMIT){

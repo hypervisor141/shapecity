@@ -14,31 +14,31 @@ import com.nurverek.vanguard.VLVariable;
 public final class Camera{
 
     public static void rotateCamera(){
-        VLVCurved v = new VLVCurved(0, 360, 1000, VLVariable.LOOP_FORWARD, VLVCurved.CURVE_ACC_DEC_COS);
-
-        v.setTask(new VLTaskContinous(new VLTask.Task<VLVCurved>(){
-
-            private float[] cache = new float[16];
-
-            @Override
-            public void run(VLTask t, VLVCurved v){
-                FSViewConfig c = FSControl.getViewConfig();
-                c.eyePosition(0, 7F, 10F);
-
-                float[] eyepos = c.eyePosition().provider();
-
-                Matrix.setIdentityM(cache, 0);
-                Matrix.rotateM(cache, 0, v.get(), 0f, 1f, 0f);
-                Matrix.multiplyMV(eyepos, 0, cache, 0, eyepos, 0);
-
-                c.eyePositionDivideByW();
-                c.lookAt(0f, 0f, 0f, 0f, 1f, 0f);
-                c.updateViewProjection();
-            }
-        }));
-
-        VLVProcessor controlproc = FSRenderer.getControllersProcessor();
-        controlproc.add(new VLVProcessor.EntryVar(v, 0));
-        controlproc.start();
+//        VLVCurved v = new VLVCurved(0, 360, 1000, VLVariable.LOOP_FORWARD, VLVCurved.CURVE_ACC_DEC_COS);
+//
+//        v.setTask(new VLTaskContinous(new VLTask.Task<VLVCurved>(){
+//
+//            private float[] cache = new float[16];
+//
+//            @Override
+//            public void run(VLTask t, VLVCurved v){
+//                FSViewConfig c = FSControl.getViewConfig();
+//                c.eyePosition(0, 7F, 10F);
+//
+//                float[] eyepos = c.eyePosition().provider();
+//
+//                Matrix.setIdentityM(cache, 0);
+//                Matrix.rotateM(cache, 0, v.get(), 0f, 1f, 0f);
+//                Matrix.multiplyMV(eyepos, 0, cache, 0, eyepos, 0);
+//
+//                c.eyePositionDivideByW();
+//                c.lookAt(0f, 0f, 0f, 0f, 1f, 0f);
+//                c.updateViewProjection();
+//            }
+//        }));
+//
+//        VLVProcessor controlproc = FSRenderer.getControllersProcessor();
+//        controlproc.add(new VLVProcessor.EntryVar(v, 0));
+//        controlproc.start();
     }
 }

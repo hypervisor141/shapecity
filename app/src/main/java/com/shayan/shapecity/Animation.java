@@ -1,6 +1,7 @@
 package com.shayan.shapecity;
 
 import android.opengl.Matrix;
+import android.util.Log;
 
 import com.nurverek.firestorm.FSBounds;
 import com.nurverek.firestorm.FSBoundsCuboid;
@@ -71,13 +72,12 @@ public final class Animation{
     private static final int ROW_MODEL_POSITION = 1;
     private static final int ROW_MODEL_RAISE_BASE = 3;
     private static final int ROW_MODEL_BOUNCE = 4;
-    private static final int ROW_MODEL_RAISE_Y = 5;
 
     private static final int CYCLES_LIGHT_ROTATION = 3600;
     private static final int CYCLES_BLINK = 20;
     private static final int CYCLES_DEACTIVATED = 60;
+    private static final int CYCLES_STANDBY = 100;
     private static final int CYCLES_ROTATE = 30;
-    private static final int CYCLES_RAISE = 100;
     private static final int CYCLES_RAISE_BASE_MIN = 150;
     private static final int CYCLES_RAISE_BASE_MAX = 250;
     private static final int CYCLES_RAISE_BASE_DELAY_MIN = 0;
@@ -97,7 +97,6 @@ public final class Animation{
 
     private static VLVProcessor processorBounce;
     private static VLVProcessor processorRaiseBase;
-    private static VLVProcessor processorRaise;
     private static VLVProcessor processorBlink;
     private static VLVProcessor processorDeactivate;
     private static VLVProcessor processorStandby;
@@ -108,7 +107,6 @@ public final class Animation{
 
         processorRaiseBase = new VLVProcessor(itemsize, 0);
         processorBounce = new VLVProcessor(itemsize, 0);
-        processorRaise = new VLVProcessor(itemsize, 0);
         processorBlink = new VLVProcessor(itemsize, 0);
         processorDeactivate = new VLVProcessor(itemsize, 0);
         processorStandby = new VLVProcessor(itemsize, 0);
@@ -131,7 +129,6 @@ public final class Animation{
 
         processors.add(processorRaiseBase);
         processors.add(processorBounce);
-        processors.add(processorRaise);
         processors.add(processorBlink);
         processors.add(processorDeactivate);
         processors.add(processorStandby);
@@ -166,16 +163,15 @@ public final class Animation{
                 modelmatrix.addRowRotate(0, new VLVConst(90f), VLVConst.ZERO, VLVConst.ZERO, VLVConst.ONE);
                 modelmatrix.addRowTranslation(VLVConst.ZERO, new VLVCurved(0f, yraisebase, CYCLES_RAISE_BASE_MAX, VLVariable.LOOP_NONE, VLVCurved.CURVE_DEC_COS_SQRT), VLVConst.ZERO);
                 modelmatrix.addRowTranslation(VLVConst.ZERO, new VLVCurved(0f, yraise, CYCLES_BOUNCE, VLVariable.LOOP_RETURN_ONCE, VLVCurved.CURVE_DEC_COS_SQRT), VLVConst.ZERO);
-                modelmatrix.addRowTranslation(VLVConst.ZERO, new VLVCurved(0f, yraise, CYCLES_RAISE, VLVariable.LOOP_NONE, VLVCurved.CURVE_DEC_COS_SQRT), VLVConst.ZERO);
 
                 colormatrix = new VLVMatrix(3, 0);
                 colormatrix.addRow(4, 0);
                 colormatrix.addRow(4, 0);
                 colormatrix.addRow(4, 0);
-                colormatrix.addColumn(ROW_COLOR_STANDBY, new VLVCurved(colors[i][0], COLOR_STANDBY[0], CYCLES_DEACTIVATED, VLVariable.LOOP_NONE, VLVCurved.CURVE_DEC_COS_SQRT));
-                colormatrix.addColumn(ROW_COLOR_STANDBY, new VLVCurved(colors[i][1], COLOR_STANDBY[1], CYCLES_DEACTIVATED, VLVariable.LOOP_NONE, VLVCurved.CURVE_DEC_COS_SQRT));
-                colormatrix.addColumn(ROW_COLOR_STANDBY, new VLVCurved(colors[i][2], COLOR_STANDBY[2], CYCLES_DEACTIVATED, VLVariable.LOOP_NONE, VLVCurved.CURVE_DEC_COS_SQRT));
-                colormatrix.addColumn(ROW_COLOR_STANDBY, new VLVCurved(colors[i][3], COLOR_STANDBY[3], CYCLES_DEACTIVATED, VLVariable.LOOP_NONE, VLVCurved.CURVE_DEC_COS_SQRT));
+                colormatrix.addColumn(ROW_COLOR_STANDBY, new VLVCurved(colors[i][0], COLOR_STANDBY[0], CYCLES_STANDBY, VLVariable.LOOP_NONE, VLVCurved.CURVE_DEC_COS_SQRT));
+                colormatrix.addColumn(ROW_COLOR_STANDBY, new VLVCurved(colors[i][1], COLOR_STANDBY[1], CYCLES_STANDBY, VLVariable.LOOP_NONE, VLVCurved.CURVE_DEC_COS_SQRT));
+                colormatrix.addColumn(ROW_COLOR_STANDBY, new VLVCurved(colors[i][2], COLOR_STANDBY[2], CYCLES_STANDBY, VLVariable.LOOP_NONE, VLVCurved.CURVE_DEC_COS_SQRT));
+                colormatrix.addColumn(ROW_COLOR_STANDBY, new VLVCurved(colors[i][3], COLOR_STANDBY[3], CYCLES_STANDBY, VLVariable.LOOP_NONE, VLVCurved.CURVE_DEC_COS_SQRT));
                 colormatrix.addColumn(ROW_COLOR_BLINK, new VLVCurved(colors[i][0], COLOR_BLINK[0], CYCLES_BLINK, VLVariable.LOOP_RETURN_ONCE, VLVCurved.CURVE_DEC_COS_SQRT));
                 colormatrix.addColumn(ROW_COLOR_BLINK, new VLVCurved(colors[i][1], COLOR_BLINK[1], CYCLES_BLINK, VLVariable.LOOP_RETURN_ONCE, VLVCurved.CURVE_DEC_COS_SQRT));
                 colormatrix.addColumn(ROW_COLOR_BLINK, new VLVCurved(colors[i][2], COLOR_BLINK[2], CYCLES_BLINK, VLVariable.LOOP_RETURN_ONCE, VLVCurved.CURVE_DEC_COS_SQRT));
@@ -198,7 +194,6 @@ public final class Animation{
 
                 processorRaiseBase.add(new VLVProcessor.EntryMatRow(modelmatrix, ROW_MODEL_RAISE_BASE, 0));
                 processorBounce.add(new VLVProcessor.EntryMatRow(modelmatrix, ROW_MODEL_BOUNCE, 0));
-                processorRaise.add(new VLVProcessor.EntryMatRow(modelmatrix, ROW_MODEL_RAISE_Y, 0));
                 processorStandby.add(new VLVProcessor.EntryMatRow(colormatrix, ROW_COLOR_STANDBY, VLVProcessor.SYNC_INDEX, 0, 0));
                 processorBlink.add(new VLVProcessor.EntryMatRow(colormatrix, ROW_COLOR_BLINK, VLVProcessor.SYNC_INDEX, 1, 0));
                 processorDeactivate.add(new VLVProcessor.EntryMatRow(colormatrix, ROW_COLOR_DEACTIVATED, VLVProcessor.SYNC_INDEX, 2, 0));
@@ -275,7 +270,7 @@ public final class Animation{
         }
     }
 
-    public static void reveal(int layer){
+    public static void reveal(int layer, boolean reactivate){
         int basesize = layer * Loader.LAYER_INSTANCE_COUNT;
         int maxsize = basesize + Loader.LAYER_INSTANCE_COUNT;
 
@@ -286,18 +281,18 @@ public final class Animation{
             cycles = CYCLES_REVEAL_MIN + Game.RANDOM.nextInt(CYCLES_REVEAL_MAX - CYCLES_REVEAL_MIN);
             delay = CYCLES_REVEAL_DELAY_MIN + Game.RANDOM.nextInt(CYCLES_REVEAL_DELAY_MAX - CYCLES_REVEAL_DELAY_MIN);
 
-            activateProcessor(processorBounce, i, cycles, delay, true);
-            activateProcessor(processorBlink, i, cycles, delay, true);
-            activateProcessor(processorTextureBlink, i, cycles, delay, true);
+            activateProcessor(processorBounce, i, cycles, delay, reactivate);
+            activateProcessor(processorBlink, i, cycles, delay, reactivate);
+            activateProcessor(processorTextureBlink, i, cycles, delay, reactivate);
         }
     }
 
     public static void reveal(int layer, final int instance){
         int target = layer * Loader.LAYER_INSTANCE_COUNT + instance;
 
-        activateProcessor(processorBounce, target, CYCLES_REVEAL_INPUT, 0, true);
-        activateProcessor(processorBlink, target, CYCLES_REVEAL_INPUT, 0, true);
-        activateProcessor(processorTextureBlink, target, CYCLES_REVEAL_INPUT, 0, true);
+        activateProcessor(processorBounce, target, CYCLES_REVEAL_INPUT, 0, false);
+        activateProcessor(processorBlink, target, CYCLES_REVEAL_INPUT, 0, false);
+        activateProcessor(processorTextureBlink, target, CYCLES_REVEAL_INPUT, 0, false);
 
         ((VLVariable)processorTextureBlink.get(target).target).setTask(new VLTaskDone(new VLTask.Task<VLVCurved>(){
 
@@ -313,8 +308,7 @@ public final class Animation{
 
             @Override
             public void run(VLTask task, VLVLinear var){
-                clearRevealProcessors();
-                reveal(layer);
+                reveal(layer, false);
             }
         }));
 
@@ -339,15 +333,14 @@ public final class Animation{
     }
 
     public static void deactivatePiece(int instance){
-        processorBounce.get(instance).reset();
-        processorBlink.get(instance).reset();
-        processorTextureBlink.get(instance).reset();
+        processorBounce.get(instance).finish();
+        processorBlink.get(instance).finish();
+        processorTextureBlink.get(instance).finish();
 
         processorBounce.deactivate(instance);
         processorBlink.deactivate(instance);
         processorTextureBlink.deactivate(instance);
 
-        activateProcessor(processorRaise, instance, CYCLES_DEACTIVATED, 0, true);
         activateProcessor(processorDeactivate, instance, CYCLES_DEACTIVATED, 0, true);
     }
 
@@ -358,7 +351,6 @@ public final class Animation{
     }
 
     public static void clearDeactivationProcessors(){
-        processorRaise.deactivateAll();
         processorDeactivate.deactivateAll();
     }
 

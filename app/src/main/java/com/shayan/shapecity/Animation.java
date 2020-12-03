@@ -82,13 +82,17 @@ public final class Animation{
     private static final int CYCLES_RAISE_BASE_MAX = 250;
     private static final int CYCLES_RAISE_BASE_DELAY_MIN = 0;
     private static final int CYCLES_RAISE_BASE_DELAY_MAX = 100;
+    private static final int CYCLES_LOWER_BASE_MIN = 60;
+    private static final int CYCLES_LOWER_BASE_MAX = 120;
+    private static final int CYCLES_LOWER_BASE_DELAY_MIN = 0;
+    private static final int CYCLES_LOWER_BASE_DELAY_MAX = 50;
     private static final int CYCLES_BOUNCE = 200;
-    private static final int CYCLES_REVEAL_MIN = 40;
-    private static final int CYCLES_REVEAL_MAX = 60;
+    private static final int CYCLES_REVEAL_MIN = 60;
+    private static final int CYCLES_REVEAL_MAX = 100;
     private static final int CYCLES_REVEAL_DELAY_MIN = 0;
-    private static final int CYCLES_REVEAL_DELAY_MAX = 250;
+    private static final int CYCLES_REVEAL_DELAY_MAX = 200;
     private static final int CYCLES_REVEAL_REPEAT = 360;
-    private static final int CYCLES_REVEAL_INPUT = 50;
+    private static final int CYCLES_REVEAL_INPUT = 80;
     private static final int CYCLES_TEXCONTROL = 100;
 
     private static final float Y_REDUCTION = 0.5f;
@@ -263,11 +267,39 @@ public final class Animation{
         int delay = 0;
 
         for(int i = basesize; i < maxsize; i++){
-            cycles = CYCLES_RAISE_BASE_MIN + Game.RANDOM.nextInt(CYCLES_REVEAL_MAX - CYCLES_REVEAL_MIN);
-            delay = CYCLES_REVEAL_DELAY_MIN + Game.RANDOM.nextInt(CYCLES_REVEAL_DELAY_MAX - CYCLES_REVEAL_DELAY_MIN);
+            cycles = CYCLES_RAISE_BASE_MIN + Game.RANDOM.nextInt(CYCLES_RAISE_BASE_MAX - CYCLES_RAISE_BASE_MIN);
+            delay = CYCLES_RAISE_BASE_DELAY_MIN + Game.RANDOM.nextInt(CYCLES_RAISE_BASE_DELAY_MAX - CYCLES_RAISE_BASE_DELAY_MIN);
 
             activateProcessor(processorRaiseBase, i, cycles, delay, true);
         }
+    }
+
+    public static void lowerBases(int layer, VLTask post){
+        int basesize = layer * Loader.LAYER_INSTANCE_COUNT;
+        int maxsize = basesize + Loader.LAYER_INSTANCE_COUNT;
+
+        int cycles = 0;
+        int delay = 0;
+        int mincycles = 0;
+        int maxdelay = 0;
+        
+        for(int i = basesize; i < maxsize; i++){
+            cycles = -(CYCLES_LOWER_BASE_MIN + Game.RANDOM.nextInt(CYCLES_LOWER_BASE_MAX - CYCLES_LOWER_BASE_MIN));
+            delay = CYCLES_LOWER_BASE_DELAY_MIN + Game.RANDOM.nextInt(CYCLES_LOWER_BASE_DELAY_MAX - CYCLES_LOWER_BASE_DELAY_MIN);
+
+            if(mincycles > cycles){
+                mincycles = cycles;
+            }
+            if(maxdelay < delay){
+                maxdelay = delay;
+            }
+
+            activateProcessor(processorRaiseBase, i, cycles, delay, true);
+        }
+
+        VLVProcessor proc = FSRenderer.getControllersProcessor();
+        proc.add(new VLVProcessor.EntryVar(new VLVLinear(0, 10, mincycles, VLVariable.LOOP_NONE, post), maxdelay));
+        proc.start();
     }
 
     public static void reveal(int layer, boolean reactivate){
@@ -332,6 +364,21 @@ public final class Animation{
         }
     }
 
+    public static void activate(final int layer){
+        int basesize = layer * Loader.LAYER_INSTANCE_COUNT;
+        int maxsize = basesize + Loader.LAYER_INSTANCE_COUNT;
+
+        int cycles = 0;
+        int delay = 0;
+
+        for(int i = basesize; i < maxsize; i++){
+            cycles = -(CYCLES_REVEAL_MIN + Game.RANDOM.nextInt(CYCLES_REVEAL_MAX - CYCLES_REVEAL_MIN));
+            delay = CYCLES_REVEAL_DELAY_MIN + Game.RANDOM.nextInt(CYCLES_REVEAL_DELAY_MAX - CYCLES_REVEAL_DELAY_MIN);
+
+            activateProcessor(processorStandby, i, cycles, delay, true);
+        }
+    }
+
     public static void deactivatePiece(int instance){
         processorBounce.get(instance).finish();
         processorBlink.get(instance).finish();
@@ -342,6 +389,12 @@ public final class Animation{
         processorTextureBlink.deactivate(instance);
 
         activateProcessor(processorDeactivate, instance, CYCLES_DEACTIVATED, 0, true);
+    }
+
+    public static void resetRevealProcessors(){
+        processorBounce.reset();
+        processorBlink.reset();
+        processorTextureBlink.reset();
     }
 
     public static void clearRevealProcessors(){

@@ -163,8 +163,8 @@ public final class Loader extends FSG{
                 new VLArrayFloat(new float[]{ -5F, 5F, 0F, 1.0F }));
 
         shadowPoint = new FSShadowPoint(lightPoint,
-                new VLInt(1300),
-                new VLInt(1300),
+                new VLInt(1024),
+                new VLInt(1024),
                 new VLFloat(0.05F),
                 new VLFloat(0.1F),
                 new VLFloat(1.1F),

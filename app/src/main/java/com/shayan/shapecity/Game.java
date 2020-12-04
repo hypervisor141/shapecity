@@ -5,20 +5,18 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Paint;
 import android.opengl.GLES32;
-import android.util.Log;
 
 import com.nurverek.firestorm.FSControl;
 import com.nurverek.firestorm.FSMesh;
-import com.nurverek.firestorm.FSRenderer;
 import com.nurverek.firestorm.FSTexture;
 import com.nurverek.firestorm.FSTools;
 import com.nurverek.firestorm.Loader;
-import com.nurverek.vanguard.VLArrayFloat;
 import com.nurverek.vanguard.VLInt;
 import com.nurverek.vanguard.VLListInt;
 import com.nurverek.vanguard.VLTask;
 import com.nurverek.vanguard.VLTaskDone;
-import com.nurverek.vanguard.VLVariable;
+import com.nurverek.vanguard.VLVLinear;
+import com.nurverek.vanguard.VLVProcessor;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -196,6 +194,7 @@ public final class Game{
         activated = new boolean[Loader.LAYER_INSTANCE_COUNT];
 
         Animation.clearRaiseBaseProcessors();
+
         Animation.raiseBases(1);
         Animation.raiseBases(2);
 
@@ -219,6 +218,7 @@ public final class Game{
         Arrays.fill(activePieces.array(), -1);
         Arrays.fill(activated, true);
 
+        Animation.clearMiscProcessors();
         Animation.clearDeactivationProcessors();
         Animation.clearRevealProcessors();
 
@@ -236,17 +236,18 @@ public final class Game{
                 if(activated[target]){
                     activePieces.set(target, symbols[target]);
 
-                    FSRenderer.getControllersProcessor().purge();
 //                    Animation.resetRevealProcessors();
 
-                    Animation.lowerBases(layer, new VLTaskDone(new VLTask.Task(){
+                    Animation.lowerBases(layer, new VLTaskDone(new VLTask.Task<VLVLinear>(){
 
                         @Override
-                        public void run(VLTask task, VLVariable var){
+                        public void run(VLTask task, VLVProcessor processor, VLVLinear var){
                             int next = layer - 1;
 
                             Animation.activate(next);
                             activateMatchSymForLayer(next);
+
+                            processor.removeCurrentEntry();
                         }
                     }));
 
@@ -284,16 +285,18 @@ public final class Game{
 //                                    Log.d("wtf", "ALL DONE");
 //
 //                                }else{
-//                                    Animation.lowerBases(layer, new VLTaskDone(new VLTask.Task(){
+//                                        Animation.lowerBases(layer, new VLTaskDone(new VLTask.Task(){
 //
-//                                        @Override
-//                                        public void run(VLTask task, VLVariable var){
-//                                            int next = layer - 1;
+//                                            @Override
+//                                            public void run(VLTask task, VLVProcessor processor, VLVariable var){
+//                                                int next = layer - 1;
 //
-//                                            Animation.activate(next);
-//                                            activateMatchSymForLayer(next);
-//                                        }
-//                                    }));
+//                                                Animation.activate(next);
+//                                                activateMatchSymForLayer(next);
+//
+//                                                processor.removeCurrentEntry();
+//                                            }
+//                                        }));
 //                                }
 //                            }
 //

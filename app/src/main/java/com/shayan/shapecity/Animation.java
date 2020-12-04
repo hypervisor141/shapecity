@@ -105,6 +105,7 @@ public final class Animation{
     private static VLVProcessor processorDeactivate;
     private static VLVProcessor processorStandby;
     private static VLVProcessor processorTextureBlink;
+    private static VLVProcessor processorMisc;
 
     public static void setupProcessors(Loader loader){
         int itemsize = Loader.LAYER_INSTANCE_COUNT * Loader.layers.length;
@@ -115,6 +116,7 @@ public final class Animation{
         processorDeactivate = new VLVProcessor(itemsize, 0);
         processorStandby = new VLVProcessor(itemsize, 0);
         processorTextureBlink = new VLVProcessor(itemsize, 0);
+        processorMisc = new VLVProcessor(10, 10);
 
         FSMesh layer;
         FSInstance instance;
@@ -239,11 +241,11 @@ public final class Animation{
             private float[] cache = new float[16];
 
             @Override
-            public void run(VLTask t, VLVLinear v){
+            public void run(VLTask<VLVLinear> task, VLVProcessor processor, VLVLinear var){
                 float[] pos = Loader.lightPoint.position().provider();
 
                 Matrix.setIdentityM(cache, 0);
-                Matrix.rotateM(cache, 0, v.get(), 0f, 1f ,0f);
+                Matrix.rotateM(cache, 0, var.get(), 0f, 1f ,0f);
                 Matrix.multiplyMV(pos, 0, cache, 0, orgpos, 0);
 
                 pos[0] /= pos[3];
@@ -274,7 +276,7 @@ public final class Animation{
         }
     }
 
-    public static void lowerBases(int layer, VLTask post){
+    public static void lowerBases(int layer, VLTask<VLVLinear> post){
         int basesize = layer * Loader.LAYER_INSTANCE_COUNT;
         int maxsize = basesize + Loader.LAYER_INSTANCE_COUNT;
 
@@ -297,9 +299,8 @@ public final class Animation{
             activateProcessor(processorRaiseBase, i, cycles, delay, true);
         }
 
-        VLVProcessor proc = FSRenderer.getControllersProcessor();
-        proc.add(new VLVProcessor.EntryVar(new VLVLinear(0, 10, mincycles, VLVariable.LOOP_NONE, post), maxdelay));
-        proc.start();
+        processorMisc.add(new VLVProcessor.EntryVar(new VLVLinear(0, 10, mincycles, VLVariable.LOOP_NONE, post), maxdelay));
+        processorMisc.start();
     }
 
     public static void reveal(int layer, boolean reactivate){
@@ -329,7 +330,7 @@ public final class Animation{
         ((VLVariable)processorTextureBlink.get(target).target).setTask(new VLTaskDone(new VLTask.Task<VLVCurved>(){
 
             @Override
-            public void run(VLTask task, VLVCurved var){
+            public void run(VLTask<VLVCurved> task, VLVProcessor processor, VLVCurved var){
                 Game.activePieces.set(instance, -1);
             }
         }));
@@ -339,14 +340,13 @@ public final class Animation{
         VLVLinear control = new VLVLinear(0, CYCLES_REVEAL_REPEAT, CYCLES_REVEAL_REPEAT, VLVariable.LOOP_FORWARD, new VLTaskTargetValue(new VLTask.Task<VLVLinear>(){
 
             @Override
-            public void run(VLTask task, VLVLinear var){
+            public void run(VLTask<VLVLinear> task, VLVProcessor processor, VLVLinear var){
                 reveal(layer, false);
             }
         }));
 
-        VLVProcessor proc = FSRenderer.getControllersProcessor();
-        proc.add(new VLVProcessor.EntryVar(control, 0));
-        proc.start();
+        processorMisc.add(new VLVProcessor.EntryVar(control, 0));
+        processorMisc.start();
     }
 
     public static void standBy(final int layer){
@@ -395,6 +395,10 @@ public final class Animation{
         processorBounce.reset();
         processorBlink.reset();
         processorTextureBlink.reset();
+    }
+
+    public static void clearMiscProcessors(){
+        processorMisc.purge();
     }
 
     public static void clearRevealProcessors(){

@@ -21,14 +21,14 @@ public final class Camera{
             private float[] cache = new float[16];
 
             @Override
-            public void run(VLTask t, VLVCurved v){
+            public void run(VLTask<VLVCurved> task, VLVProcessor processor, VLVCurved var){
                 FSViewConfig c = FSControl.getViewConfig();
                 c.eyePosition(0, 7F, 5F);
 
                 float[] eyepos = c.eyePosition().provider();
 
                 Matrix.setIdentityM(cache, 0);
-                Matrix.rotateM(cache, 0, v.get(), 0f, 1f, 0f);
+                Matrix.rotateM(cache, 0, var.get(), 0f, 1f, 0f);
                 Matrix.multiplyMV(eyepos, 0, cache, 0, eyepos, 0);
 
                 c.eyePositionDivideByW();

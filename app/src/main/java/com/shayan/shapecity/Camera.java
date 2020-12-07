@@ -8,20 +8,19 @@ import com.nurverek.firestorm.FSViewConfig;
 import com.nurverek.vanguard.VLTask;
 import com.nurverek.vanguard.VLTaskContinous;
 import com.nurverek.vanguard.VLVCurved;
-import com.nurverek.vanguard.VLVProcessor;
+import com.nurverek.vanguard.VLVLinear;
+import com.nurverek.vanguard.VLVRunner;
 import com.nurverek.vanguard.VLVariable;
 
 public final class Camera{
 
     public static void rotateCamera(){
-        VLVCurved v = new VLVCurved(0, 360, 1250, VLVariable.LOOP_FORWARD, VLVCurved.CURVE_LINEAR);
-
-        v.setTask(new VLTaskContinous(new VLTask.Task<VLVCurved>(){
+        VLVLinear v = new VLVLinear(0, 360, 1250, VLVariable.LOOP_FORWARD, new VLTaskContinous(new VLTask.Task<VLVLinear>(){
 
             private float[] cache = new float[16];
 
             @Override
-            public void run(VLTask<VLVCurved> task, VLVProcessor processor, VLVCurved var){
+            public void run(VLTask<VLVLinear> task, VLVRunner runner, VLVLinear var){
                 FSViewConfig c = FSControl.getViewConfig();
                 c.eyePosition(0, 7F, 5F);
 
@@ -37,8 +36,8 @@ public final class Camera{
             }
         }));
 
-        VLVProcessor controlproc = FSRenderer.getControllersProcessor();
-        controlproc.add(new VLVProcessor.EntryVar(v, 0));
+        VLVRunner controlproc = FSRenderer.getControllersProcessor();
+        controlproc.add(new VLVRunner.EntryVar(v, 0));
         controlproc.start();
     }
 }

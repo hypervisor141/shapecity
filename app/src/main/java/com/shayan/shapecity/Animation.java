@@ -1,7 +1,6 @@
 package com.shayan.shapecity;
 
 import android.opengl.Matrix;
-import android.util.Log;
 
 import com.nurverek.firestorm.FSBounds;
 import com.nurverek.firestorm.FSBoundsCuboid;
@@ -16,13 +15,14 @@ import com.nurverek.vanguard.VLArrayFloat;
 import com.nurverek.vanguard.VLListType;
 import com.nurverek.vanguard.VLTask;
 import com.nurverek.vanguard.VLTaskContinous;
-import com.nurverek.vanguard.VLTaskDone;
-import com.nurverek.vanguard.VLTaskTargetValue;
 import com.nurverek.vanguard.VLVConst;
+import com.nurverek.vanguard.VLVControl;
 import com.nurverek.vanguard.VLVCurved;
 import com.nurverek.vanguard.VLVLinear;
 import com.nurverek.vanguard.VLVMatrix;
-import com.nurverek.vanguard.VLVProcessor;
+import com.nurverek.vanguard.VLVRunner;
+import com.nurverek.vanguard.VLVRunnerManager;
+import com.nurverek.vanguard.VLVRunnerManagers;
 import com.nurverek.vanguard.VLVariable;
 
 public final class Animation{
@@ -99,24 +99,17 @@ public final class Animation{
     private static final float Y_BOUNCE_HEIGHT_MULTIPLIER = 0.5f;
     private static final float Y_BASE_HEIGHT_MULTIPLIER = 0.5f;
 
-    private static VLVProcessor processorBounce;
-    private static VLVProcessor processorRaiseBase;
-    private static VLVProcessor processorBlink;
-    private static VLVProcessor processorDeactivate;
-    private static VLVProcessor processorStandby;
-    private static VLVProcessor processorTextureBlink;
-    private static VLVProcessor processorMisc;
+    private static VLVRunnerManagers managers;
 
     public static void setupProcessors(Loader loader){
         int itemsize = Loader.LAYER_INSTANCE_COUNT * Loader.layers.length;
+        managers = new VLVRunnerManagers(3,0);
 
-        processorRaiseBase = new VLVProcessor(itemsize, 0);
-        processorBounce = new VLVProcessor(itemsize, 0);
-        processorBlink = new VLVProcessor(itemsize, 0);
-        processorDeactivate = new VLVProcessor(itemsize, 0);
-        processorStandby = new VLVProcessor(itemsize, 0);
-        processorTextureBlink = new VLVProcessor(itemsize, 0);
-        processorMisc = new VLVProcessor(10, 10);
+        float[][] colors = new float[][]{
+                COLOR_LAYER1,
+                COLOR_LAYER2,
+                COLOR_LAYER3,
+        };
 
         FSMesh layer;
         FSInstance instance;
@@ -131,24 +124,36 @@ public final class Animation{
         float yraise;
         float yraisebase;
 
-        VLListType<VLVProcessor> processors = loader.processors();
+        int size = Loader.layers.length;
 
-        processors.add(processorRaiseBase);
-        processors.add(processorBounce);
-        processors.add(processorBlink);
-        processors.add(processorDeactivate);
-        processors.add(processorStandby);
-        processors.add(processorTextureBlink);
+        VLListType<VLVRunner> main = loader.runners();
+        VLVRunnerManager raise = new VLVRunnerManager(3 * size, 0);
+        VLVRunnerManager reveal = new VLVRunnerManager(3 * size, 0);
+        VLVRunnerManager standby = new VLVRunnerManager(3 * size, 0);
 
-        float[][] colors = new float[][]{
-                COLOR_LAYER1,
-                COLOR_LAYER2,
-                COLOR_LAYER3,
-        };
+        managers.add(raise);
+        managers.add(reveal);
+        managers.add(standby);
 
-        for(int i = 0; i < Loader.layers.length; i++){
+        for(int i = 0; i < size; i++){
             layer = Loader.layers[i];
             linkdata = ((ModColor.TextureControlLink)layer.link(0)).data;
+
+            VLVRunner processorRaiseBase = new VLVRunner(itemsize, 0);
+            VLVRunner processorStandby = new VLVRunner(itemsize, 0);
+            VLVRunner processorBlink = new VLVRunner(itemsize, 0);
+            VLVRunner processorBounce = new VLVRunner(itemsize, 0);
+            VLVRunner processorTextureBlink = new VLVRunner(itemsize, 0);
+            VLVRunner processorDeactivate = new VLVRunner(itemsize, 0);
+            VLVRunner processorMisc = new VLVRunner(10, 10);
+
+            main.add(processorRaiseBase);
+            main.add(processorBounce);
+            main.add(processorBlink);
+            main.add(processorTextureBlink);
+            main.add(processorDeactivate);
+            main.add(processorStandby);
+            main.add(processorMisc);
 
             for(int i2 = 0; i2 < layer.size(); i2++){
                 instance = layer.instance(i2);
@@ -198,50 +203,59 @@ public final class Animation{
                 colormatrix.sync();
                 texblinkvar.sync();
 
-                processorRaiseBase.add(new VLVProcessor.EntryMatRow(modelmatrix, ROW_MODEL_RAISE_BASE, 0));
-                processorBounce.add(new VLVProcessor.EntryMatRow(modelmatrix, ROW_MODEL_BOUNCE, 0));
-                processorStandby.add(new VLVProcessor.EntryMatRow(colormatrix, ROW_COLOR_STANDBY, VLVProcessor.SYNC_INDEX, 0, 0));
-                processorBlink.add(new VLVProcessor.EntryMatRow(colormatrix, ROW_COLOR_BLINK, VLVProcessor.SYNC_INDEX, 1, 0));
-                processorDeactivate.add(new VLVProcessor.EntryMatRow(colormatrix, ROW_COLOR_DEACTIVATED, VLVProcessor.SYNC_INDEX, 2, 0));
-                processorTextureBlink.add(new VLVProcessor.EntryVar(texblinkvar, 0));
+                processorRaiseBase.add(new VLVRunner.EntryMatRow(modelmatrix, ROW_MODEL_RAISE_BASE, 0));
+                processorStandby.add(new VLVRunner.EntryMatRow(colormatrix, ROW_COLOR_STANDBY, VLVRunner.SYNC_INDEX, 0, 0));
+                processorBounce.add(new VLVRunner.EntryMatRow(modelmatrix, ROW_MODEL_BOUNCE, 0));
+                processorBlink.add(new VLVRunner.EntryMatRow(colormatrix, ROW_COLOR_BLINK, VLVRunner.SYNC_INDEX, 1, 0));
+                processorTextureBlink.add(new VLVRunner.EntryVar(texblinkvar, 0));
+                processorDeactivate.add(new VLVRunner.EntryMatRow(colormatrix, ROW_COLOR_DEACTIVATED, VLVRunner.SYNC_INDEX, 2, 0));
+                processorRaiseBase.add(new VLVRunner.EntryMatRow(modelmatrix, ROW_MODEL_RAISE_BASE, 0));
 
                 schematics.inputBounds().add(new FSBoundsCuboid(schematics,
                         50, 50f, 50f, FSBounds.MODE_X_OFFSET_VOLUMETRIC, FSBounds.MODE_Y_OFFSET_VOLUMETRIC, FSBounds.MODE_Z_OFFSET_VOLUMETRIC,
                         40f, 40f, 40f, FSBounds.MODE_X_VOLUMETRIC, FSBounds.MODE_Y_VOLUMETRIC, FSBounds.MODE_Z_VOLUMETRIC));
             }
+
+            raise.add(processorRaiseBase);
+
+            reveal.add(processorBlink);
+            reveal.add(processorBounce);
+            reveal.add(processorTextureBlink);
+
+            standby.add(processorStandby);
         }
     }
 
-    public static void activateProcessor(VLVProcessor proc, int instance, int cycles, int delay, boolean activate){
-        if(proc.isActive(instance)){
-            VLVProcessor.Entry entry = proc.get(instance);
-
-            entry.reset();
-
-            if(proc != processorBounce){
-                entry.target.initialize(cycles);
-            }
-
-            entry.delay = delay;
-            entry.resetDelayTracker();
-
-            proc.start();
-
-        }else if(activate){
-            proc.reactivate(instance);
-            activateProcessor(proc, instance, cycles, delay, false);
-        }
-    }
+//    public static void activateProcessor(VLVRunner proc, int instance, int cycles, int delay, boolean activate){
+//        if(proc.isActive(instance)){
+//            VLVRunner.Entry entry = proc.get(instance);
+//
+//            entry.reset();
+//
+//            if(proc != processorBounce){
+//                entry.target.initialize(cycles);
+//            }
+//
+//            entry.delay = delay;
+//            entry.resetDelayTracker();
+//
+//            proc.start();
+//
+//        }else if(activate){
+//            proc.reactivate(instance);
+//            activateProcessor(proc, instance, cycles, delay, false);
+//        }
+//    }
 
     public static void rotateLightSource(){
         final float[] orgpos = Loader.lightPoint.position().provider().clone();
 
-        VLVLinear v = new VLVLinear(0, 360, CYCLES_LIGHT_ROTATION, VLVariable.LOOP_FORWARD, new VLTaskContinous(new VLTask.Task<VLVLinear>(){
+        VLVControl v = new VLVControl(CYCLES_LIGHT_ROTATION, VLVariable.LOOP_FORWARD, new VLTaskContinous(new VLTask.Task<VLVLinear>(){
 
             private float[] cache = new float[16];
 
             @Override
-            public void run(VLTask<VLVLinear> task, VLVProcessor processor, VLVLinear var){
+            public void run(VLTask<VLVLinear> task, VLVRunner processor, VLVLinear var){
                 float[] pos = Loader.lightPoint.position().provider();
 
                 Matrix.setIdentityM(cache, 0);
@@ -256,167 +270,177 @@ public final class Animation{
             }
         }));
 
-        VLVProcessor controlproc = FSRenderer.getControllersProcessor();
-        controlproc.add(new VLVProcessor.EntryVar(v, 0));
+        VLVRunner controlproc = FSRenderer.getControllersProcessor();
+        controlproc.add(new VLVRunner.EntryVar(v, 0));
         controlproc.start();
     }
 
     public static void raiseBases(int layer){
-        int basesize = layer * Loader.LAYER_INSTANCE_COUNT;
-        int maxsize = basesize + Loader.LAYER_INSTANCE_COUNT;
+//        int basesize = layer * Loader.LAYER_INSTANCE_COUNT;
+//        int maxsize = basesize + Loader.LAYER_INSTANCE_COUNT;
+//
+//        int cycles = 0;
+//        int delay = 0;
+//
+//        for(int i = basesize; i < maxsize; i++){
+//            cycles = CYCLES_RAISE_BASE_MIN + Game.RANDOM.nextInt(CYCLES_RAISE_BASE_MAX - CYCLES_RAISE_BASE_MIN);
+//            delay = CYCLES_RAISE_BASE_DELAY_MIN + Game.RANDOM.nextInt(CYCLES_RAISE_BASE_DELAY_MAX - CYCLES_RAISE_BASE_DELAY_MIN);
+//
+//            activateProcessor(processorRaiseBase, i, cycles, delay, true);
+//        }
 
-        int cycles = 0;
-        int delay = 0;
-
-        for(int i = basesize; i < maxsize; i++){
-            cycles = CYCLES_RAISE_BASE_MIN + Game.RANDOM.nextInt(CYCLES_RAISE_BASE_MAX - CYCLES_RAISE_BASE_MIN);
-            delay = CYCLES_RAISE_BASE_DELAY_MIN + Game.RANDOM.nextInt(CYCLES_RAISE_BASE_DELAY_MAX - CYCLES_RAISE_BASE_DELAY_MIN);
-
-            activateProcessor(processorRaiseBase, i, cycles, delay, true);
-        }
+        VLVRunnerManager manager = managers.get(0);
+        manager.randomizeCycles(layer, CYCLES_RAISE_BASE_MIN, CYCLES_RAISE_BASE_MAX);
+        manager.randomizeDelays(layer, CYCLES_RAISE_BASE_DELAY_MIN, CYCLES_RAISE_BASE_DELAY_MAX, true);
+        manager.start();
     }
 
     public static void lowerBases(int layer, VLTask<VLVLinear> post){
-        int basesize = layer * Loader.LAYER_INSTANCE_COUNT;
-        int maxsize = basesize + Loader.LAYER_INSTANCE_COUNT;
+//        int basesize = layer * Loader.LAYER_INSTANCE_COUNT;
+//        int maxsize = basesize + Loader.LAYER_INSTANCE_COUNT;
+//
+//        int cycles = 0;
+//        int delay = 0;
+//        int mincycles = 0;
+//        int maxdelay = 0;
+//
+//        for(int i = basesize; i < maxsize; i++){
+//            cycles = -(CYCLES_LOWER_BASE_MIN + Game.RANDOM.nextInt(CYCLES_LOWER_BASE_MAX - CYCLES_LOWER_BASE_MIN));
+//            delay = CYCLES_LOWER_BASE_DELAY_MIN + Game.RANDOM.nextInt(CYCLES_LOWER_BASE_DELAY_MAX - CYCLES_LOWER_BASE_DELAY_MIN);
+//
+//            if(mincycles > cycles){
+//                mincycles = cycles;
+//            }
+//            if(maxdelay < delay){
+//                maxdelay = delay;
+//            }
+//
+//            activateProcessor(processorRaiseBase, i, cycles, delay, true);
+//        }
+//
+//        processorMisc.add(new VLVRunner.EntryVar(new VLVLinear(0, 10, mincycles, VLVariable.LOOP_NONE, post), maxdelay));
+//        processorMisc.start();
 
-        int cycles = 0;
-        int delay = 0;
-        int mincycles = 0;
-        int maxdelay = 0;
-        
-        for(int i = basesize; i < maxsize; i++){
-            cycles = -(CYCLES_LOWER_BASE_MIN + Game.RANDOM.nextInt(CYCLES_LOWER_BASE_MAX - CYCLES_LOWER_BASE_MIN));
-            delay = CYCLES_LOWER_BASE_DELAY_MIN + Game.RANDOM.nextInt(CYCLES_LOWER_BASE_DELAY_MAX - CYCLES_LOWER_BASE_DELAY_MIN);
-
-            if(mincycles > cycles){
-                mincycles = cycles;
-            }
-            if(maxdelay < delay){
-                maxdelay = delay;
-            }
-
-            activateProcessor(processorRaiseBase, i, cycles, delay, true);
-        }
-
-        processorMisc.add(new VLVProcessor.EntryVar(new VLVLinear(0, 10, mincycles, VLVariable.LOOP_NONE, post), maxdelay));
-        processorMisc.start();
+        VLVRunnerManager manager = managers.get(0);
+        manager.reverseReset(layer);
+        manager.randomizeCycles(layer, CYCLES_RAISE_BASE_MIN, CYCLES_RAISE_BASE_MAX);
+        manager.randomizeDelays(layer, CYCLES_RAISE_BASE_DELAY_MIN, CYCLES_RAISE_BASE_DELAY_MAX, true);
     }
 
     public static void reveal(int layer, boolean reactivate){
-        int basesize = layer * Loader.LAYER_INSTANCE_COUNT;
-        int maxsize = basesize + Loader.LAYER_INSTANCE_COUNT;
-
-        int cycles = 0;
-        int delay = 0;
-
-        for(int i = basesize; i < maxsize; i++){
-            cycles = CYCLES_REVEAL_MIN + Game.RANDOM.nextInt(CYCLES_REVEAL_MAX - CYCLES_REVEAL_MIN);
-            delay = CYCLES_REVEAL_DELAY_MIN + Game.RANDOM.nextInt(CYCLES_REVEAL_DELAY_MAX - CYCLES_REVEAL_DELAY_MIN);
-
-            activateProcessor(processorBounce, i, cycles, delay, reactivate);
-            activateProcessor(processorBlink, i, cycles, delay, reactivate);
-            activateProcessor(processorTextureBlink, i, cycles, delay, reactivate);
-        }
+//        int basesize = layer * Loader.LAYER_INSTANCE_COUNT;
+//        int maxsize = basesize + Loader.LAYER_INSTANCE_COUNT;
+//
+//        int cycles = 0;
+//        int delay = 0;
+//
+//        for(int i = basesize; i < maxsize; i++){
+//            cycles = CYCLES_REVEAL_MIN + Game.RANDOM.nextInt(CYCLES_REVEAL_MAX - CYCLES_REVEAL_MIN);
+//            delay = CYCLES_REVEAL_DELAY_MIN + Game.RANDOM.nextInt(CYCLES_REVEAL_DELAY_MAX - CYCLES_REVEAL_DELAY_MIN);
+//
+//            activateProcessor(processorBounce, i, cycles, delay, reactivate);
+//            activateProcessor(processorBlink, i, cycles, delay, reactivate);
+//            activateProcessor(processorTextureBlink, i, cycles, delay, reactivate);
+//        }
     }
 
     public static void reveal(int layer, final int instance){
-        int target = layer * Loader.LAYER_INSTANCE_COUNT + instance;
-
-        activateProcessor(processorBounce, target, CYCLES_REVEAL_INPUT, 0, false);
-        activateProcessor(processorBlink, target, CYCLES_REVEAL_INPUT, 0, false);
-        activateProcessor(processorTextureBlink, target, CYCLES_REVEAL_INPUT, 0, false);
-
-        ((VLVariable)processorTextureBlink.get(target).target).setTask(new VLTaskDone(new VLTask.Task<VLVCurved>(){
-
-            @Override
-            public void run(VLTask<VLVCurved> task, VLVProcessor processor, VLVCurved var){
-                Game.activePieces.set(instance, -1);
-            }
-        }));
+//        int target = layer * Loader.LAYER_INSTANCE_COUNT + instance;
+//
+//        activateProcessor(processorBounce, target, CYCLES_REVEAL_INPUT, 0, false);
+//        activateProcessor(processorBlink, target, CYCLES_REVEAL_INPUT, 0, false);
+//        activateProcessor(processorTextureBlink, target, CYCLES_REVEAL_INPUT, 0, false);
+//
+//        ((VLVariable)processorTextureBlink.get(target).target).setTask(new VLTaskDone(new VLTask.Task<VLVCurved>(){
+//
+//            @Override
+//            public void run(VLTask<VLVCurved> task, VLVRunner processor, VLVCurved var){
+//                Game.activePieces.set(instance, -1);
+//            }
+//        }));
     }
 
     public static void revealRepeat(final int layer){
-        VLVLinear control = new VLVLinear(0, CYCLES_REVEAL_REPEAT, CYCLES_REVEAL_REPEAT, VLVariable.LOOP_FORWARD, new VLTaskTargetValue(new VLTask.Task<VLVLinear>(){
-
-            @Override
-            public void run(VLTask<VLVLinear> task, VLVProcessor processor, VLVLinear var){
-                reveal(layer, false);
-            }
-        }));
-
-        processorMisc.add(new VLVProcessor.EntryVar(control, 0));
-        processorMisc.start();
+//        VLVLinear control = new VLVLinear(0, CYCLES_REVEAL_REPEAT, CYCLES_REVEAL_REPEAT, VLVariable.LOOP_FORWARD, new VLTaskTargetValue(new VLTask.Task<VLVLinear>(){
+//
+//            @Override
+//            public void run(VLTask<VLVLinear> task, VLVRunner processor, VLVLinear var){
+//                reveal(layer, false);
+//            }
+//        }));
+//
+//        processorMisc.add(new VLVRunner.EntryVar(control, 0));
+//        processorMisc.start();
     }
 
     public static void standBy(final int layer){
-        int basesize = layer * Loader.LAYER_INSTANCE_COUNT;
-        int maxsize = basesize + Loader.LAYER_INSTANCE_COUNT;
-
-        int cycles = 0;
-        int delay = 0;
-
-        for(int i = basesize; i < maxsize; i++){
-            cycles = CYCLES_REVEAL_MIN + Game.RANDOM.nextInt(CYCLES_REVEAL_MAX - CYCLES_REVEAL_MIN);
-            delay = CYCLES_REVEAL_DELAY_MIN + Game.RANDOM.nextInt(CYCLES_REVEAL_DELAY_MAX - CYCLES_REVEAL_DELAY_MIN);
-
-            activateProcessor(processorStandby, i, cycles, delay, true);
-        }
+//        int basesize = layer * Loader.LAYER_INSTANCE_COUNT;
+//        int maxsize = basesize + Loader.LAYER_INSTANCE_COUNT;
+//
+//        int cycles = 0;
+//        int delay = 0;
+//
+//        for(int i = basesize; i < maxsize; i++){
+//            cycles = CYCLES_REVEAL_MIN + Game.RANDOM.nextInt(CYCLES_REVEAL_MAX - CYCLES_REVEAL_MIN);
+//            delay = CYCLES_REVEAL_DELAY_MIN + Game.RANDOM.nextInt(CYCLES_REVEAL_DELAY_MAX - CYCLES_REVEAL_DELAY_MIN);
+//
+//            activateProcessor(processorStandby, i, cycles, delay, true);
+//        }
     }
 
     public static void activate(final int layer){
-        int basesize = layer * Loader.LAYER_INSTANCE_COUNT;
-        int maxsize = basesize + Loader.LAYER_INSTANCE_COUNT;
-
-        int cycles = 0;
-        int delay = 0;
-
-        for(int i = basesize; i < maxsize; i++){
-            cycles = -(CYCLES_REVEAL_MIN + Game.RANDOM.nextInt(CYCLES_REVEAL_MAX - CYCLES_REVEAL_MIN));
-            delay = CYCLES_REVEAL_DELAY_MIN + Game.RANDOM.nextInt(CYCLES_REVEAL_DELAY_MAX - CYCLES_REVEAL_DELAY_MIN);
-
-            activateProcessor(processorStandby, i, cycles, delay, true);
-        }
+//        int basesize = layer * Loader.LAYER_INSTANCE_COUNT;
+//        int maxsize = basesize + Loader.LAYER_INSTANCE_COUNT;
+//
+//        int cycles = 0;
+//        int delay = 0;
+//
+//        for(int i = basesize; i < maxsize; i++){
+//            cycles = -(CYCLES_REVEAL_MIN + Game.RANDOM.nextInt(CYCLES_REVEAL_MAX - CYCLES_REVEAL_MIN));
+//            delay = CYCLES_REVEAL_DELAY_MIN + Game.RANDOM.nextInt(CYCLES_REVEAL_DELAY_MAX - CYCLES_REVEAL_DELAY_MIN);
+//
+//            activateProcessor(processorStandby, i, cycles, delay, true);
+//        }
     }
 
     public static void deactivatePiece(int instance){
-        processorBounce.get(instance).finish();
-        processorBlink.get(instance).finish();
-        processorTextureBlink.get(instance).finish();
-
-        processorBounce.deactivate(instance);
-        processorBlink.deactivate(instance);
-        processorTextureBlink.deactivate(instance);
-
-        activateProcessor(processorDeactivate, instance, CYCLES_DEACTIVATED, 0, true);
+//        processorBounce.get(instance).finish();
+//        processorBlink.get(instance).finish();
+//        processorTextureBlink.get(instance).finish();
+//
+//        processorBounce.deactivate(instance);
+//        processorBlink.deactivate(instance);
+//        processorTextureBlink.deactivate(instance);
+//
+//        activateProcessor(processorDeactivate, instance, CYCLES_DEACTIVATED, 0, true);
     }
 
     public static void resetRevealProcessors(){
-        processorBounce.reset();
-        processorBlink.reset();
-        processorTextureBlink.reset();
+//        processorBounce.reset();
+//        processorBlink.reset();
+//        processorTextureBlink.reset();
     }
 
     public static void clearMiscProcessors(){
-        processorMisc.purge();
+//        processorMisc.purge();
     }
 
     public static void clearRevealProcessors(){
-        processorBounce.deactivateAll();
-        processorBlink.deactivateAll();
-        processorTextureBlink.deactivateAll();
+//        processorBounce.deactivateAll();
+//        processorBlink.deactivateAll();
+//        processorTextureBlink.deactivateAll();
     }
 
     public static void clearDeactivationProcessors(){
-        processorDeactivate.deactivateAll();
+//        processorDeactivate.deactivateAll();
     }
 
     public static void clearStandbyProcessors(){
-        processorStandby.deactivateAll();
+//        processorStandby.deactivateAll();
     }
 
     public static void clearRaiseBaseProcessors(){
-        processorRaiseBase.deactivateAll();
+//        processorRaiseBase.deactivateAll();
     }
 
     public static void destroy(){

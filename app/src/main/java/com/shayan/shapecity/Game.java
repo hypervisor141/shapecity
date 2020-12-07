@@ -16,7 +16,7 @@ import com.nurverek.vanguard.VLListInt;
 import com.nurverek.vanguard.VLTask;
 import com.nurverek.vanguard.VLTaskDone;
 import com.nurverek.vanguard.VLVLinear;
-import com.nurverek.vanguard.VLVProcessor;
+import com.nurverek.vanguard.VLVRunner;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -203,7 +203,7 @@ public final class Game{
         Animation.standBy(0);
         Animation.standBy(1);
 
-        activateMatchSymForLayer(2);
+//        activateMatchSymForLayer(2);
     }
 
     private static void startMatchColorsGame(){
@@ -241,13 +241,13 @@ public final class Game{
                     Animation.lowerBases(layer, new VLTaskDone(new VLTask.Task<VLVLinear>(){
 
                         @Override
-                        public void run(VLTask task, VLVProcessor processor, VLVLinear var){
+                        public void run(VLTask<VLVLinear> task, VLVRunner runner, VLVLinear linear){
                             int next = layer - 1;
 
                             Animation.activate(next);
                             activateMatchSymForLayer(next);
 
-                            processor.removeCurrentEntry();
+                            runner.removeCurrentEntry();
                         }
                     }));
 

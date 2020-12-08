@@ -280,7 +280,6 @@ public final class Animation{
 
         for(int i = 0; i < size; i++){
             runner = manager.get(i);
-            runner.deactivate();
 
             entry = runner.get(instance);
             entry.reactivate();

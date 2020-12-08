@@ -193,17 +193,13 @@ public final class Game{
 
         activated = new boolean[Loader.LAYER_INSTANCE_COUNT];
 
-        Animation.clearRaiseBaseProcessors();
-
         Animation.raiseBases(1);
         Animation.raiseBases(2);
-
-        Animation.clearStandbyProcessors();
 
         Animation.standBy(0);
         Animation.standBy(1);
 
-//        activateMatchSymForLayer(2);
+        activateMatchSymForLayer(2);
     }
 
     private static void startMatchColorsGame(){
@@ -218,11 +214,7 @@ public final class Game{
         Arrays.fill(activePieces.array(), -1);
         Arrays.fill(activated, true);
 
-        Animation.clearMiscProcessors();
-        Animation.clearDeactivationProcessors();
-        Animation.clearRevealProcessors();
-
-        Animation.reveal(layer, true);
+        Animation.reveal(layer);
         Animation.revealRepeat(layer);
 
         final FSMesh layermesh = Loader.layers[layer];
@@ -237,20 +229,9 @@ public final class Game{
                     activePieces.set(target, symbols[target]);
 
 //                    Animation.resetRevealProcessors();
-
-                    Animation.lowerBases(layer, new VLTaskDone(new VLTask.Task<VLVLinear>(){
-
-                        @Override
-                        public void run(VLTask<VLVLinear> task, VLVRunner runner, VLVLinear linear){
-                            int next = layer - 1;
-
-                            Animation.activate(next);
-                            activateMatchSymForLayer(next);
-
-                            runner.removeCurrentEntry();
-                        }
-                    }));
-
+//
+//                    Animation.lowerBases(layer);
+//
 //                    Animation.reveal(layer, target);
 //
 //                    if(getActiveSymbolCount() >= GAME_MATCHSYM_PICK_LIMIT){

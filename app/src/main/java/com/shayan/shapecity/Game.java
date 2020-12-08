@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Paint;
 import android.opengl.GLES32;
+import android.util.Log;
 
 import com.nurverek.firestorm.FSControl;
 import com.nurverek.firestorm.FSMesh;
@@ -13,10 +14,6 @@ import com.nurverek.firestorm.FSTools;
 import com.nurverek.firestorm.Loader;
 import com.nurverek.vanguard.VLInt;
 import com.nurverek.vanguard.VLListInt;
-import com.nurverek.vanguard.VLTask;
-import com.nurverek.vanguard.VLTaskDone;
-import com.nurverek.vanguard.VLVLinear;
-import com.nurverek.vanguard.VLVRunner;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -38,7 +35,7 @@ public final class Game{
     public static ByteBuffer PIXEL_BUFFER = null;
 
     protected static int[] symbols;
-    protected static boolean[] activated;
+    protected static boolean[] isactive;
 
     public static FSTexture texArrayLayer1;
     public static FSTexture texArrayLayer2;
@@ -191,7 +188,7 @@ public final class Game{
         activePieces = new VLListInt(Loader.LAYER_INSTANCE_COUNT, 0);
         activePieces.virtualSize(Loader.LAYER_INSTANCE_COUNT);
 
-        activated = new boolean[Loader.LAYER_INSTANCE_COUNT];
+        isactive = new boolean[Loader.LAYER_INSTANCE_COUNT];
 
         Animation.raiseBases(1);
         Animation.raiseBases(2);
@@ -212,7 +209,7 @@ public final class Game{
 
     private static void activateMatchSymForLayer(final int layer){
         Arrays.fill(activePieces.array(), -1);
-        Arrays.fill(activated, true);
+        Arrays.fill(isactive, true);
 
         Animation.reveal(layer);
         Animation.revealRepeat(layer);
@@ -225,14 +222,10 @@ public final class Game{
             public void run(){
                 final int target = Input.closestPoint.instanceindex;
 
-                if(activated[target]){
+                if(isactive[target]){
                     activePieces.set(target, symbols[target]);
+                    Animation.reveal(layer, target);
 
-//                    Animation.resetRevealProcessors();
-//
-//                    Animation.lowerBases(layer);
-//
-//                    Animation.reveal(layer, target);
 //
 //                    if(getActiveSymbolCount() >= GAME_MATCHSYM_PICK_LIMIT){
 //                        int match = checkSymbolMatch();
@@ -313,10 +306,10 @@ public final class Game{
     }
 
     private static boolean checkLayerFinished(){
-        int size = activated.length;
+        int size = isactive.length;
 
         for(int i = 0; i < size; i++){
-            if(activated[i]){
+            if(isactive[i]){
                 return false;
             }
         }

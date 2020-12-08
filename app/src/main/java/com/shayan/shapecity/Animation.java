@@ -57,6 +57,14 @@ public final class Animation{
     private static final int ROW_MODEL_RAISE_BASE = 3;
     private static final int ROW_MODEL_BOUNCE = 4;
 
+    private static final int RUNNER_RAISE_COUNT_PER_LAYER = 1;
+    private static final int RUNNER_STANDBY_COUNT_PER_LAYER = 1;
+    private static final int RUNNER_REVEAL_COUNT_PER_LAYER = 3;
+
+    private static final int RUNNER_RAISE_INDEX = 0;
+    private static final int RUNNER_STANDBY_INDEX = 1;
+    private static final int RUNNER_REVEAL_INDEX = 2;
+
     private static final int CYCLES_LIGHT_ROTATION = 3600;
     private static final int CYCLES_BLINK = 20;
     private static final int CYCLES_DEACTIVATED = 60;
@@ -114,9 +122,9 @@ public final class Animation{
 
             VLVRunnerManagers layermanagers = new VLVRunnerManagers(3, 0);
 
-            VLVRunnerManager raise = new VLVRunnerManager(size, 0);
-            VLVRunnerManager standby = new VLVRunnerManager(size, 0);
-            VLVRunnerManager reveal = new VLVRunnerManager(3 * size, 0);
+            VLVRunnerManager raise = new VLVRunnerManager(RUNNER_RAISE_COUNT_PER_LAYER * size, 0);
+            VLVRunnerManager standby = new VLVRunnerManager(RUNNER_STANDBY_COUNT_PER_LAYER * size, 0);
+            VLVRunnerManager reveal = new VLVRunnerManager(RUNNER_REVEAL_COUNT_PER_LAYER * size, 0);
 
             VLVRunner processorRaiseBase = new VLVRunner(itemsize, 0);
             VLVRunner processorStandby = new VLVRunner(itemsize, 0);
@@ -235,36 +243,51 @@ public final class Animation{
     }
 
     public static void raiseBases(int layer){
-        VLVRunnerManager manager = managers.get(layer).get(0);
+        VLVRunnerManager manager = managers.get(layer).get(RUNNER_RAISE_INDEX);
         manager.randomizeCycles(CYCLES_RAISE_BASE_MIN, CYCLES_RAISE_BASE_MAX, true, true);
         manager.randomizeDelays(CYCLES_RAISE_BASE_DELAY_MIN, CYCLES_RAISE_BASE_DELAY_MAX, true, false);
         manager.start();
     }
 
     public static void standBy(int layer){
-        VLVRunnerManager manager = managers.get(layer).get(1);
+        VLVRunnerManager manager = managers.get(layer).get(RUNNER_STANDBY_INDEX);
         manager.randomizeCycles(CYCLES_RAISE_BASE_MIN, CYCLES_RAISE_BASE_MAX, true, true);
         manager.randomizeDelays(CYCLES_RAISE_BASE_DELAY_MIN, CYCLES_RAISE_BASE_DELAY_MAX, true, false);
         manager.start();
     }
 
     public static void reveal(int layer){
-        VLVRunnerManager manager = managers.get(layer).get(2);
+        VLVRunnerManager manager = managers.get(layer).get(RUNNER_REVEAL_INDEX);
         manager.randomizeCycles(CYCLES_REVEAL_MIN, CYCLES_REVEAL_MAX, false, true);
         manager.randomizeDelays(CYCLES_REVEAL_DELAY_MIN, CYCLES_REVEAL_DELAY_MAX, false, false);
         manager.start();
     }
 
     public static void lowerBases(int layer){
-        VLVRunnerManager manager = managers.get(layer).get(0);
+        VLVRunnerManager manager = managers.get(layer).get(RUNNER_RAISE_INDEX);
         manager.randomizeCycles(CYCLES_RAISE_BASE_MIN, CYCLES_RAISE_BASE_MAX, true, true);
         manager.randomizeDelays(CYCLES_RAISE_BASE_DELAY_MIN, CYCLES_RAISE_BASE_DELAY_MAX, true, false);
         manager.reverse();
         manager.reset();
     }
 
-    public static void reveal(int layer, final int instance){
+    public static void reveal(int layer, int instance){
+        VLVRunnerManager manager = managers.get(layer).get(RUNNER_REVEAL_INDEX);
+        int size = manager.size();
 
+        VLVRunner runner;
+        VLVRunner.Entry entry;
+
+        for(int i = 0; i < size; i++){
+            runner = manager.get(i);
+            runner.deactivate();
+
+            entry = runner.get(instance);
+            entry.reactivate();
+            entry.reset();
+
+            runner.start();
+        }
     }
 
     public static void revealRepeat(final int layer){

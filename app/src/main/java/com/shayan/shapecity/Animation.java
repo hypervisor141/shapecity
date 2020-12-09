@@ -128,7 +128,7 @@ public final class Animation{
             VLVRunnerManager raise = new VLVRunnerManager(RUNNER_RAISE_COUNT_PER_LAYER * size, 0);
             VLVRunnerManager standby = new VLVRunnerManager(RUNNER_STANDBY_COUNT_PER_LAYER * size, 0);
             VLVRunnerManager reveal = new VLVRunnerManager(RUNNER_REVEAL_COUNT_PER_LAYER * size, 0);
-            VLVRunnerManager deactivate = new VLVRunnerManager(RUNNER_DEACTIVATE_COUNT_PER_LAYER * size, 0);
+            VLVRunnerManager deactivation = new VLVRunnerManager(RUNNER_DEACTIVATE_COUNT_PER_LAYER * size, 0);
 
             VLVRunner runnerRaiseBase = new VLVRunner(itemsize, 0);
             VLVRunner runnerStandby = new VLVRunner(itemsize, 0);
@@ -210,22 +210,24 @@ public final class Animation{
             reveal.add(runnerBounce);
             reveal.add(runnerTextureBlink);
 
-            deactivate.add(runnerDeactivate);
+            deactivation.add(runnerDeactivate);
 
             raise.initializeConnections(1, 1);
             standby.initializeConnections(1, 1);
             reveal.initializeConnections(1, 1);
-            deactivate.initializeConnections(1, 1);
+            deactivation.initializeConnections(1, 1);
 
             raise.findEndPoint();
             standby.findEndPoint();
-            deactivate.findEndPoint();
+            deactivation.findEndPoint();
             reveal.findEndPoint();
+
+            deactivation.deactivate();
 
             layermanagers.add(raise);
             layermanagers.add(standby);
             layermanagers.add(reveal);
-            layermanagers.add(deactivate);
+            layermanagers.add(deactivation);
 
             managers.add(layermanagers);
         }
@@ -295,8 +297,6 @@ public final class Animation{
 
         VLVRunner runner;
         VLVRunner.Entry entry;
-
-        manager.deactivate();
 
         for(int i = 0; i < size; i++){
             runner = manager.get(i);

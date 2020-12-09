@@ -12,8 +12,13 @@ import com.nurverek.firestorm.FSMesh;
 import com.nurverek.firestorm.FSTexture;
 import com.nurverek.firestorm.FSTools;
 import com.nurverek.firestorm.Loader;
+import com.nurverek.vanguard.VLArrayFloat;
 import com.nurverek.vanguard.VLInt;
 import com.nurverek.vanguard.VLListInt;
+import com.nurverek.vanguard.VLTask;
+import com.nurverek.vanguard.VLTaskDone;
+import com.nurverek.vanguard.VLVRunner;
+import com.nurverek.vanguard.VLVariable;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -41,7 +46,7 @@ public final class Game{
     public static FSTexture texArrayLayer2;
     public static FSTexture texArrayLayer3;
     
-    public static VLListInt activePieces;
+    public static VLListInt activatedSymbols;
 
     public static void initialize(){
         texArrayLayer1 = new FSTexture(new VLInt(GLES32.GL_TEXTURE_2D_ARRAY), new VLInt(Loader.TEXUNIT++));
@@ -185,8 +190,8 @@ public final class Game{
         FSTools.checkGLError();
         texArrayLayer3.unbind();
 
-        activePieces = new VLListInt(Loader.LAYER_INSTANCE_COUNT, 0);
-        activePieces.virtualSize(Loader.LAYER_INSTANCE_COUNT);
+        activatedSymbols = new VLListInt(Loader.LAYER_INSTANCE_COUNT, 0);
+        activatedSymbols.virtualSize(Loader.LAYER_INSTANCE_COUNT);
 
         isactive = new boolean[Loader.LAYER_INSTANCE_COUNT];
 
@@ -208,7 +213,7 @@ public final class Game{
     }
 
     private static void activateMatchSymForLayer(final int layer){
-        Arrays.fill(activePieces.array(), -1);
+        Arrays.fill(activatedSymbols.array(), -1);
         Arrays.fill(isactive, true);
 
         Animation.reveal(layer);
@@ -223,60 +228,56 @@ public final class Game{
                 final int target = Input.closestPoint.instanceindex;
 
                 if(isactive[target]){
-                    activePieces.set(target, symbols[target]);
-                    Animation.reveal(layer, target);
+                    activatedSymbols.set(target, symbols[target]);
 
-//
-//                    if(getActiveSymbolCount() >= GAME_MATCHSYM_PICK_LIMIT){
-//                        int match = checkSymbolMatch();
-//
-//                        if(match != -1){
-//                            int counter = 0;
-//                            int indexbounce = 0;
-//                            int indexblink = 0;
-//                            int indextexblink = 0;
-//
-//                            VLArrayFloat linkdata = ((ModColor.TextureControlLink)layermesh.link(0)).data;
-//
-//                            for(int i = 0; i < activePieces.size(); i++){
-//                                if(activePieces.get(i) == match){
-//                                    activated[i] = false;
-//                                    activePieces.set(i, -1);
-//
-//                                    Animation.deactivatePiece(layer * Loader.LAYER_INSTANCE_COUNT + i);
-//                                    linkdata.set(i, Animation.TEXCONTROL_ACTIVE);
-//
-//                                    counter++;
-//
-//                                    if(counter >= GAME_MATCHSYM_PICK_LIMIT){
-//                                        break;
-//                                    }
-//                                }
-//                            }
-//
-//                            if(checkLayerFinished()){
-//                                if(layer == 0){
-//                                    Log.d("wtf", "ALL DONE");
-//
-//                                }else{
-//                                        Animation.lowerBases(layer, new VLTaskDone(new VLTask.Task(){
-//
-//                                            @Override
-//                                            public void run(VLTask task, VLVProcessor processor, VLVariable var){
-//                                                int next = layer - 1;
-//
-//                                                Animation.activate(next);
-//                                                activateMatchSymForLayer(next);
-//
-//                                                processor.removeCurrentEntry();
-//                                            }
-//                                        }));
-//                                }
-//                            }
-//
-//                            linkdata.sync();
-//                        }
-//                    }
+                    Animation.revealResetTimer();
+                    Animation.reveal(layer, target, new Runnable(){
+
+                        @Override
+                        public void run(){
+                            activatedSymbols.set(target, -1);
+                        }
+                    });
+
+                    if(getActiveSymbolCount() >= GAME_MATCHSYM_PICK_LIMIT){
+                        int match = checkSymbolMatch();
+
+                        if(match != -1){
+                            int counter = 0;
+                            int indexbounce = 0;
+                            int indexblink = 0;
+                            int indextexblink = 0;
+
+                            VLArrayFloat linkdata = ((ModColor.TextureControlLink)layermesh.link(0)).data;
+
+                            for(int i = 0; i < activatedSymbols.size(); i++){
+                                if(activatedSymbols.get(i) == match){
+                                    isactive[i] = false;
+                                    activatedSymbols.set(i, -1);
+
+                                    Animation.deactivatePiece(layer, i);
+                                    linkdata.set(i, Animation.TEXCONTROL_ACTIVE);
+
+                                    counter++;
+
+                                    if(counter >= GAME_MATCHSYM_PICK_LIMIT){
+                                        break;
+                                    }
+                                }
+                            }
+
+                            if(checkLayerFinished()){
+                                if(layer == 0){
+                                    Log.d("wtf", "ALL DONE");
+
+                                }else{
+                                    Animation.lowerBases(layer);
+                                }
+                            }
+
+                            linkdata.sync();
+                        }
+                    }
                 }
             }
         });
@@ -289,8 +290,8 @@ public final class Game{
         for(int i = 0; i < symbols.length; i++){
             sym = symbols[i];
 
-            for(int i2 = 0; i2 < activePieces.size(); i2++){
-                if(sym == activePieces.get(i2)){
+            for(int i2 = 0; i2 < activatedSymbols.size(); i2++){
+                if(sym == activatedSymbols.get(i2)){
                     count++;
 
                     if(count >= GAME_MATCHSYM_PICK_LIMIT){
@@ -321,8 +322,8 @@ public final class Game{
         int sym = 0;
         int activecount = 0;
 
-        for(int i = 0; i < activePieces.size(); i++){
-            sym = activePieces.get(i);
+        for(int i = 0; i < activatedSymbols.size(); i++){
+            sym = activatedSymbols.get(i);
 
             if(sym != -1){
                 activecount++;

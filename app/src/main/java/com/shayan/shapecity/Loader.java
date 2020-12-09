@@ -130,7 +130,7 @@ public final class Loader extends FSG{
 
         postFullSetup();
 
-        Animation.setupProcessors(this);
+        Animation.setupRunners(this);
         Game.startGame();
     }
 

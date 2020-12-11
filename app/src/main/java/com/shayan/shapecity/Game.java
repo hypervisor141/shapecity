@@ -41,6 +41,7 @@ public final class Game{
     public static FSTexture texArrayLayer1;
     public static FSTexture texArrayLayer2;
     public static FSTexture texArrayLayer3;
+    public static FSTexture[] textures;
     
     public static VLListInt activatedSymbols;
 
@@ -83,6 +84,12 @@ public final class Game{
         texArrayLayer3.unbind();
 
         FSTools.checkGLError();
+
+        textures = new FSTexture[]{
+                texArrayLayer1,
+                texArrayLayer2,
+                texArrayLayer3
+        };
     }
 
     public static void startGame(){
@@ -113,6 +120,29 @@ public final class Game{
     }
 
     private static void startMatchSymbolsGame(){
+        activatedSymbols = new VLListInt(Loader.LAYER_INSTANCE_COUNT, 0);
+        activatedSymbols.virtualSize(Loader.LAYER_INSTANCE_COUNT);
+
+        isactive = new boolean[Loader.LAYER_INSTANCE_COUNT];
+
+        Animation.raiseBases(1);
+        Animation.raiseBases(2);
+
+        Animation.standBy(0);
+        Animation.standBy(1);
+
+        activateMatchSymForLayer(2);
+    }
+
+    private static void startMatchColorsGame(){
+
+    }
+
+    private static void startMatchRotationGame(){
+
+    }
+
+    private static void prepareMatchSymTextureForLayer(FSTexture texArrayLayer){
         Bitmap b = null;
 
         int[] resources = new int[]{
@@ -143,7 +173,7 @@ public final class Game{
         int index = 0;
 
         PIXEL_BUFFER = null;
-        texArrayLayer3.bind();
+        texArrayLayer.bind();
 
         symbols = new int[Loader.LAYER_INSTANCE_COUNT];
         Arrays.fill(symbols, -1);
@@ -179,36 +209,17 @@ public final class Game{
                 symbols[index] = choice;
 
                 PIXEL_BUFFER.position(0);
-                texArrayLayer3.subImage3D(0, 0, 0, index, LAYER_PIECE_TEXTURE_DIMENSION, LAYER_PIECE_TEXTURE_DIMENSION, 1, GLES32.GL_RGBA, GLES32.GL_UNSIGNED_BYTE, PIXEL_BUFFER);
+                texArrayLayer.subImage3D(0, 0, 0, index, LAYER_PIECE_TEXTURE_DIMENSION, LAYER_PIECE_TEXTURE_DIMENSION, 1, GLES32.GL_RGBA, GLES32.GL_UNSIGNED_BYTE, PIXEL_BUFFER);
             }
         }
 
         FSTools.checkGLError();
-        texArrayLayer3.unbind();
-
-        activatedSymbols = new VLListInt(Loader.LAYER_INSTANCE_COUNT, 0);
-        activatedSymbols.virtualSize(Loader.LAYER_INSTANCE_COUNT);
-
-        isactive = new boolean[Loader.LAYER_INSTANCE_COUNT];
-
-        Animation.raiseBases(1);
-        Animation.raiseBases(2);
-
-        Animation.standBy(0);
-        Animation.standBy(1);
-
-        activateMatchSymForLayer(2);
-    }
-
-    private static void startMatchColorsGame(){
-
-    }
-
-    private static void startMatchRotationGame(){
-
+        texArrayLayer.unbind();
     }
 
     private static void activateMatchSymForLayer(final int layer){
+        prepareMatchSymTextureForLayer(textures[layer]);
+
         Arrays.fill(activatedSymbols.array(), -1);
         Arrays.fill(isactive, true);
 
@@ -267,7 +278,18 @@ public final class Game{
                                     Log.d("wtf", "ALL DONE");
 
                                 }else{
-                                    Animation.lowerBases(layer);
+                                    Animation.lowerBases(layer, new Runnable(){
+
+                                        @Override
+                                        public void run(){
+                                            int nextlayer = layer - 1;
+
+                                            Animation.deactivateLayer(layer);
+                                            Animation.unstandBy(nextlayer);
+
+                                            activateMatchSymForLayer(nextlayer);
+                                        }
+                                    });
                                 }
                             }
 

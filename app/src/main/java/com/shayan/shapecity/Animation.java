@@ -85,11 +85,12 @@ public final class Animation{
     private static final int CYCLES_REVEAL_DELAY_MIN = 0;
     private static final int CYCLES_REVEAL_DELAY_MAX = 200;
     private static final int CYCLES_REVEAL_REPEAT = 360;
-    private static final int CYCLES_REVEAL_INPUT = 80;
+    private static final int CYCLES_REVEAL_REPEAT_FASTFORWARD_AFTER_INPUT = 240;
+    private static final int CYCLES_REVEAL_INPUT = 50;
     private static final int CYCLES_TEXCONTROL = 100;
 
     private static final float Y_REDUCTION = 0.5f;
-    private static final float Y_BOUNCE_HEIGHT_MULTIPLIER = 0.5f;
+    private static final float Y_BOUNCE_HEIGHT_MULTIPLIER = 0.1f;
     private static final float Y_BASE_HEIGHT_MULTIPLIER = 0.5f;
 
     private static VLListType<VLVRunnerManagers> managers;
@@ -112,7 +113,7 @@ public final class Animation{
         VLArrayFloat linkdata;
 
         float yv;
-        float yraise;
+        float ybounce;
         float yraisebase;
 
         int size = Loader.layers.length;
@@ -145,7 +146,7 @@ public final class Animation{
 
                 modelmatrix.getY(0).set(yv);
 
-                yraise = schematics.modelHeight() * Y_BOUNCE_HEIGHT_MULTIPLIER;
+                ybounce = schematics.modelHeight() * Y_BOUNCE_HEIGHT_MULTIPLIER;
                 yraisebase = 0;
 
                 for(int i3 = 0; i3 < i; i3++){
@@ -155,7 +156,7 @@ public final class Animation{
                 modelmatrix.addRowRotate(0, new VLVConst(90f), VLVConst.ZERO, VLVConst.ONE, VLVConst.ZERO);
                 modelmatrix.addRowRotate(0, new VLVConst(90f), VLVConst.ZERO, VLVConst.ZERO, VLVConst.ONE);
                 modelmatrix.addRowTranslation(VLVConst.ZERO, new VLVCurved(0f, yraisebase, CYCLES_RAISE_BASE_MAX, VLVariable.LOOP_NONE, VLVCurved.CURVE_DEC_COS_SQRT), VLVConst.ZERO);
-                modelmatrix.addRowTranslation(VLVConst.ZERO, new VLVCurved(0f, yraise, CYCLES_BOUNCE, VLVariable.LOOP_RETURN_ONCE, VLVCurved.CURVE_DEC_COS_SQRT), VLVConst.ZERO);
+                modelmatrix.addRowTranslation(VLVConst.ZERO, new VLVCurved(0f, ybounce, CYCLES_BOUNCE, VLVariable.LOOP_RETURN_ONCE, VLVCurved.CURVE_DEC_COS_SQRT), VLVConst.ZERO);
 
                 colormatrix = new VLVMatrix(3, 0);
                 colormatrix.addRow(4, 0);
@@ -269,9 +270,14 @@ public final class Animation{
     }
 
     public static void standBy(int layer){
+        managers.get(layer).get(RUNNER_STANDBY_INDEX).start();
+    }
+
+    public static void unstandBy(int layer){
         VLVRunnerManager manager = managers.get(layer).get(RUNNER_STANDBY_INDEX);
-        manager.randomizeCycles(CYCLES_RAISE_BASE_MIN, CYCLES_RAISE_BASE_MAX, true, true);
-        manager.randomizeDelays(CYCLES_RAISE_BASE_DELAY_MIN, CYCLES_RAISE_BASE_DELAY_MAX, true, false);
+        manager.reverse();
+        manager.reset();
+        manager.activ();
         manager.start();
     }
 
@@ -282,12 +288,21 @@ public final class Animation{
         manager.start();
     }
 
-    public static void lowerBases(int layer){
+    public static void lowerBases(int layer, final Runnable post){
         VLVRunnerManager manager = managers.get(layer).get(RUNNER_RAISE_INDEX);
         manager.randomizeCycles(CYCLES_RAISE_BASE_MIN, CYCLES_RAISE_BASE_MAX, true, true);
         manager.randomizeDelays(CYCLES_RAISE_BASE_DELAY_MIN, CYCLES_RAISE_BASE_DELAY_MAX, true, false);
         manager.reverse();
         manager.reset();
+        manager.start();
+
+        manager.connect(new VLVRunner.EndPoint(){
+
+            @Override
+            public void run(VLVRunner.Connections connections){
+                post.run();
+            }
+        });
     }
 
     public static void deactivatePiece(int layer, int instance){
@@ -314,8 +329,8 @@ public final class Animation{
             runner = managerreveal.get(i);
 
             entry = runner.get(instance);
-            entry.deactivate();
             entry.finish();
+            entry.sync();
         }
     }
 
@@ -330,7 +345,6 @@ public final class Animation{
             runner = manager.get(i);
 
             entry = runner.get(instance);
-            entry.reactivate();
             entry.reset();
 
             runner.start();
@@ -350,7 +364,7 @@ public final class Animation{
 
     public static void revealResetTimer(){
         controlreveal.reset();
-        controlreveal.fastForward(CYCLES_REVEAL_REPEAT / 2);
+        controlreveal.fastForward(CYCLES_REVEAL_REPEAT_FASTFORWARD_AFTER_INPUT);
     }
 
     public static void revealRepeat(final int layer){
@@ -363,6 +377,11 @@ public final class Animation{
         }));
 
         FSRenderer.getControlRunners().add(new VLVRunner.EntryVar(controlreveal, 0));
+    }
+
+    public static void deactivateLayer(int layer){
+        VLVRunner runner = FSRenderer.getControlRunners();
+        runner.remove(runner.size() - 1);
     }
 
     public static void destroy(){

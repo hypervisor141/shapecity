@@ -93,7 +93,7 @@ public final class Game{
     }
 
     public static void startGame(){
-        Animation.rotateLightSource();
+        Animations.rotateLightSource();
         Camera.rotateCamera();
 
         RANDOM.setSeed(System.currentTimeMillis());
@@ -125,11 +125,11 @@ public final class Game{
 
         isactive = new boolean[Loader.LAYER_INSTANCE_COUNT];
 
-        Animation.raiseBases(1);
-        Animation.raiseBases(2);
+        Animations.raiseBases(1);
+        Animations.raiseBases(2);
 
-        Animation.standBy(0);
-        Animation.standBy(1);
+        Animations.standBy(0);
+        Animations.standBy(1);
 
         activateMatchSymForLayer(2);
     }
@@ -223,8 +223,8 @@ public final class Game{
         Arrays.fill(activatedSymbols.array(), -1);
         Arrays.fill(isactive, true);
 
-        Animation.reveal(layer);
-        Animation.revealRepeat(layer);
+        Animations.reveal(layer);
+        Animations.revealRepeat(layer);
 
         final FSMesh layermesh = Loader.layers[layer];
 
@@ -237,8 +237,8 @@ public final class Game{
                 if(isactive[target]){
                     activatedSymbols.set(target, symbols[target]);
 
-                    Animation.revealResetTimer();
-                    Animation.reveal(layer, target, new Runnable(){
+                    Animations.revealResetTimer();
+                    Animations.reveal(layer, target, new Runnable(){
 
                         @Override
                         public void run(){
@@ -262,8 +262,8 @@ public final class Game{
                                     isactive[i] = false;
                                     activatedSymbols.set(i, -1);
 
-                                    Animation.deactivatePiece(layer, i);
-                                    linkdata.set(i, Animation.TEXCONTROL_ACTIVE);
+                                    Animations.deactivatePiece(layer, i);
+                                    linkdata.set(i, Animations.TEXCONTROL_ACTIVE);
 
                                     counter++;
 
@@ -278,14 +278,14 @@ public final class Game{
                                     Log.d("wtf", "ALL DONE");
 
                                 }else{
-                                    Animation.lowerBases(layer, new Runnable(){
+                                    Animations.lowerBases(layer, new Runnable(){
 
                                         @Override
                                         public void run(){
                                             int nextlayer = layer - 1;
 
-                                            Animation.deactivateLayer(layer);
-                                            Animation.unstandBy(nextlayer);
+                                            Animations.deactivateLayer(layer);
+                                            Animations.unstandBy(nextlayer);
 
                                             activateMatchSymForLayer(nextlayer);
                                         }

@@ -1,4 +1,3 @@
-
 package com.nurverek.firestorm;
 
 import android.opengl.GLES32;
@@ -9,7 +8,7 @@ import com.nurverek.vanguard.VLBufferShort;
 import com.nurverek.vanguard.VLFloat;
 import com.nurverek.vanguard.VLInt;
 import com.nurverek.vanguard.VLListType;
-import com.shayan.shapecity.Animation;
+import com.shayan.shapecity.Animations;
 import com.shayan.shapecity.Game;
 import com.shayan.shapecity.ModColor;
 import com.shayan.shapecity.ModDepthMap;
@@ -25,27 +24,13 @@ public final class Loader extends FSG{
     private static final int DEBUG_AUTOMATOR = FSControl.DEBUG_DISABLED;
     private static final int DEBUG_PROGRAMS = FSControl.DEBUG_DISABLED;
 
-    private static final FSLightMaterial MATERIAL_DEFAULT = new FSLightMaterial(new VLArrayFloat(
-            new float[]{ 0.2f, 0.2f, 0.2f }),
-            new VLFloat(32));
+    private static final FSLightMaterial MATERIAL_DEFAULT = new FSLightMaterial(new VLArrayFloat(new float[]{ 0.2f, 0.2f, 0.2f }), new VLFloat(32));
 
-    private static final FSLightMaterial MATERIAL_GOLD = new FSLightMaterial(
-            new VLArrayFloat(new float[]{ 0.24725f, 0.1995f, 0.0745f }),
-            new VLArrayFloat(new float[]{0.75164f, 0.60648f, 0.22648f }),
-            new VLArrayFloat(new float[]{ 0.628281f, 0.555802f, 0.366065f }),
-            new VLFloat(32));
+    private static final FSLightMaterial MATERIAL_GOLD = new FSLightMaterial(new VLArrayFloat(new float[]{ 0.24725f, 0.1995f, 0.0745f }), new VLArrayFloat(new float[]{ 0.75164f, 0.60648f, 0.22648f }), new VLArrayFloat(new float[]{ 0.628281f, 0.555802f, 0.366065f }), new VLFloat(32));
 
-    private static final FSLightMaterial MATERIAL_OBSIDIAN = new FSLightMaterial(
-            new VLArrayFloat(new float[]{ 0.05375f, 0.05f, 0.06625f }),
-            new VLArrayFloat(new float[]{ 0.18275f, 0.17f, 0.22525f }),
-            new VLArrayFloat(new float[]{ 0.332741f, 0.328634f, 0.346435f }),
-            new VLFloat(256));
+    private static final FSLightMaterial MATERIAL_OBSIDIAN = new FSLightMaterial(new VLArrayFloat(new float[]{ 0.05375f, 0.05f, 0.06625f }), new VLArrayFloat(new float[]{ 0.18275f, 0.17f, 0.22525f }), new VLArrayFloat(new float[]{ 0.332741f, 0.328634f, 0.346435f }), new VLFloat(256));
 
-    private static final FSLightMaterial MATERIAL_WHITE_RUBBER = new FSLightMaterial(
-            new VLArrayFloat(new float[]{ 0.05f, 0.05f, 0.05f }),
-            new VLArrayFloat(new float[]{ 0.5f, 0.5f, 0.5f }),
-            new VLArrayFloat(new float[]{ 0.7f, 0.7f, 0.7f }),
-            new VLFloat(32));
+    private static final FSLightMaterial MATERIAL_WHITE_RUBBER = new FSLightMaterial(new VLArrayFloat(new float[]{ 0.05f, 0.05f, 0.05f }), new VLArrayFloat(new float[]{ 0.5f, 0.5f, 0.5f }), new VLArrayFloat(new float[]{ 0.7f, 0.7f, 0.7f }), new VLFloat(32));
 
     private static final int SHADOW_PROGRAMSET = 0;
     private static final int MAIN_PROGRAMSET = 1;
@@ -130,7 +115,7 @@ public final class Loader extends FSG{
 
         postFullSetup();
 
-        Animation.setupRunners(this);
+        Animations.setupRunners(this);
         Game.startGame();
     }
 
@@ -158,18 +143,9 @@ public final class Loader extends FSG{
         programDepthLayers = new FSP(DEBUG_PROGRAMS);
         programMainLayers = new FSP(DEBUG_PROGRAMS);
 
-        lightPoint = new FSLightPoint(
-                new FSAttenuation(new VLFloat(1.0F), new VLFloat(0.007F), new VLFloat(0.0002F)),
-                new VLArrayFloat(new float[]{ -5F, 5F, 0F, 1.0F }));
+        lightPoint = new FSLightPoint(new FSAttenuation(new VLFloat(1.0F), new VLFloat(0.007F), new VLFloat(0.0002F)), new VLArrayFloat(new float[]{ -5F, 5F, 0F, 1.0F }));
 
-        shadowPoint = new FSShadowPoint(lightPoint,
-                new VLInt(1024),
-                new VLInt(1024),
-                new VLFloat(0.05F),
-                new VLFloat(0.1F),
-                new VLFloat(1.1F),
-                new VLFloat(1F),
-                new VLFloat(150F));
+        shadowPoint = new FSShadowPoint(lightPoint, new VLInt(1024), new VLInt(1024), new VLFloat(0.05F), new VLFloat(0.1F), new VLFloat(1.1F), new VLFloat(1F), new VLFloat(150F));
 
         shadowPoint.initialize(new VLInt(TEXUNIT++));
 
@@ -218,9 +194,9 @@ public final class Loader extends FSG{
         VLListType<DataPack> layer2packs = new VLListType<>(LAYER_INSTANCE_COUNT, 10);
         VLListType<DataPack> layer3packs = new VLListType<>(LAYER_INSTANCE_COUNT, 10);
 
-        DataPack layer1pack = new DataPack(new VLArrayFloat(Animation.COLOR_LAYER1), Game.texArrayLayer1, MATERIAL_OBSIDIAN, null);
-        DataPack layer2pack = new DataPack(new VLArrayFloat(Animation.COLOR_LAYER2), Game.texArrayLayer2, MATERIAL_OBSIDIAN, null);
-        DataPack layer3pack = new DataPack(new VLArrayFloat(Animation.COLOR_LAYER3), Game.texArrayLayer3, MATERIAL_OBSIDIAN, null);
+        DataPack layer1pack = new DataPack(new VLArrayFloat(Animations.COLOR_LAYER1), Game.texArrayLayer1, MATERIAL_OBSIDIAN, null);
+        DataPack layer2pack = new DataPack(new VLArrayFloat(Animations.COLOR_LAYER2), Game.texArrayLayer2, MATERIAL_OBSIDIAN, null);
+        DataPack layer3pack = new DataPack(new VLArrayFloat(Animations.COLOR_LAYER3), Game.texArrayLayer3, MATERIAL_OBSIDIAN, null);
 
         for(int i = 0; i < LAYER_INSTANCE_COUNT; i++){
             layer1packs.add(layer1pack);
@@ -250,11 +226,7 @@ public final class Loader extends FSG{
         layer2 = reglayer2.mesh();
         layer3 = reglayer3.mesh();
 
-        FSBufferLayout[] layerlayouts = new FSBufferLayout[]{
-                reglayer1.bufferLayout(),
-                reglayer2.bufferLayout(),
-                reglayer3.bufferLayout()
-        };
+        FSBufferLayout[] layerlayouts = new FSBufferLayout[]{ reglayer1.bufferLayout(), reglayer2.bufferLayout(), reglayer3.bufferLayout() };
 
         return layerlayouts;
     }
@@ -285,7 +257,7 @@ public final class Loader extends FSG{
         assemblersingular.DRAW_MODE_INDEXED = true;
         assemblersingular.configure();
 
-        DataPack citypack = new DataPack(new VLArrayFloat(Animation.COLOR_WHITE), null, MATERIAL_WHITE_RUBBER, null);
+        DataPack citypack = new DataPack(new VLArrayFloat(Animations.COLOR_WHITE), null, MATERIAL_WHITE_RUBBER, null);
         Registration cityreg = AUTOMATOR.addScannerSingle(assemblersingular, citypack, "city_cylinder", GLES32.GL_TRIANGLES);
 
         cityreg.addProgram(programDepthSingular);
@@ -305,9 +277,9 @@ public final class Loader extends FSG{
         float[] array2 = new float[LAYER_INSTANCE_COUNT];
         float[] array3 = new float[LAYER_INSTANCE_COUNT];
 
-        Arrays.fill(array1, Animation.TEXCONTROL_IDLE);
-        Arrays.fill(array2, Animation.TEXCONTROL_IDLE);
-        Arrays.fill(array3, Animation.TEXCONTROL_IDLE);
+        Arrays.fill(array1, Animations.TEXCONTROL_IDLE);
+        Arrays.fill(array2, Animations.TEXCONTROL_IDLE);
+        Arrays.fill(array3, Animations.TEXCONTROL_IDLE);
 
         links1.add(new ModColor.TextureControlLink(new VLArrayFloat(array1)));
         links2.add(new ModColor.TextureControlLink(new VLArrayFloat(array2)));
@@ -326,45 +298,30 @@ public final class Loader extends FSG{
         for(int i = 0; i < layerlayouts.length; i++){
             layout = layerlayouts[i];
 
-            int modelbuffer = BUFFERMANAGER.add(new FSBufferManager.EntryFloat(new FSVertexBuffer(GLES32.GL_UNIFORM_BUFFER,
-                    GLES32.GL_DYNAMIC_DRAW, UBOBINDPOINT++), new VLBufferFloat()));
+            int modelbuffer = BUFFERMANAGER.add(new FSBufferManager.EntryFloat(new FSVertexBuffer(GLES32.GL_UNIFORM_BUFFER, GLES32.GL_DYNAMIC_DRAW, UBOBINDPOINT++), new VLBufferFloat()));
 
-            int texcontrolbuffer = BUFFERMANAGER.add(new FSBufferManager.EntryFloat(new FSVertexBuffer(GLES32.GL_UNIFORM_BUFFER,
-                    GLES32.GL_DYNAMIC_DRAW, UBOBINDPOINT++), new VLBufferFloat()));
+            int texcontrolbuffer = BUFFERMANAGER.add(new FSBufferManager.EntryFloat(new FSVertexBuffer(GLES32.GL_UNIFORM_BUFFER, GLES32.GL_DYNAMIC_DRAW, UBOBINDPOINT++), new VLBufferFloat()));
 
-            int colorbuffer = BUFFERMANAGER.add(new FSBufferManager.EntryFloat(new FSVertexBuffer(GLES32.GL_UNIFORM_BUFFER,
-                    GLES32.GL_DYNAMIC_DRAW, UBOBINDPOINT++), new VLBufferFloat()));
+            int colorbuffer = BUFFERMANAGER.add(new FSBufferManager.EntryFloat(new FSVertexBuffer(GLES32.GL_UNIFORM_BUFFER, GLES32.GL_DYNAMIC_DRAW, UBOBINDPOINT++), new VLBufferFloat()));
 
-            layout.add(BUFFERMANAGER, modelbuffer, 1)
-                    .addElement(new FSBufferLayout.EntryElement(FSBufferLayout.ELEMENT_SEQUENTIAL_INSTANCED, ELEMENT_MODEL));
+            layout.add(BUFFERMANAGER, modelbuffer, 1).addElement(new FSBufferLayout.EntryElement(FSBufferLayout.ELEMENT_SEQUENTIAL_INSTANCED, ELEMENT_MODEL));
 
-            layout.add(BUFFERMANAGER, colorbuffer, 1)
-                    .addElement(new FSBufferLayout.EntryElement(FSBufferLayout.ELEMENT_SEQUENTIAL_INSTANCED, ELEMENT_COLOR));
+            layout.add(BUFFERMANAGER, colorbuffer, 1).addElement(new FSBufferLayout.EntryElement(FSBufferLayout.ELEMENT_SEQUENTIAL_INSTANCED, ELEMENT_COLOR));
 
-            layout.add(BUFFERMANAGER, BUFFER_ARRAY_FLOAT_DEFAULT, 3)
-                    .addElement(new FSBufferLayout.EntryElement(FSBufferLayout.ELEMENT_INTERLEAVED_SINGULAR, ELEMENT_POSITION))
-                    .addElement(new FSBufferLayout.EntryElement(FSBufferLayout.ELEMENT_INTERLEAVED_SINGULAR, ELEMENT_TEXCOORD))
-                    .addElement(new FSBufferLayout.EntryElement(FSBufferLayout.ELEMENT_INTERLEAVED_SINGULAR, ELEMENT_NORMAL));
+            layout.add(BUFFERMANAGER, BUFFER_ARRAY_FLOAT_DEFAULT, 3).addElement(new FSBufferLayout.EntryElement(FSBufferLayout.ELEMENT_INTERLEAVED_SINGULAR, ELEMENT_POSITION)).addElement(new FSBufferLayout.EntryElement(FSBufferLayout.ELEMENT_INTERLEAVED_SINGULAR, ELEMENT_TEXCOORD)).addElement(new FSBufferLayout.EntryElement(FSBufferLayout.ELEMENT_INTERLEAVED_SINGULAR, ELEMENT_NORMAL));
 
-            layout.add(BUFFERMANAGER, BUFFER_ELEMENT_SHORT_DEFAULT, 1)
-                    .addElement(new FSBufferLayout.EntryElement(FSBufferLayout.ELEMENT_SEQUENTIAL_INDICES, ELEMENT_INDEX));
+            layout.add(BUFFERMANAGER, BUFFER_ELEMENT_SHORT_DEFAULT, 1).addElement(new FSBufferLayout.EntryElement(FSBufferLayout.ELEMENT_SEQUENTIAL_INDICES, ELEMENT_INDEX));
 
-            layout.add(BUFFERMANAGER, texcontrolbuffer, 1)
-                    .addLink(new FSBufferLayout.EntryLink(FSBufferLayout.LINK_SEQUENTIAL_SINGULAR, 0, 0, 1, 1, 4));
+            layout.add(BUFFERMANAGER, texcontrolbuffer, 1).addLink(new FSBufferLayout.EntryLink(FSBufferLayout.LINK_SEQUENTIAL_SINGULAR, 0, 0, 1, 1, 4));
         }
 
-        int modelbuffer = BUFFERMANAGER.add(new FSBufferManager.EntryFloat(new FSVertexBuffer(GLES32.GL_ARRAY_BUFFER,
-                GLES32.GL_DYNAMIC_DRAW), new VLBufferFloat()));
+        int modelbuffer = BUFFERMANAGER.add(new FSBufferManager.EntryFloat(new FSVertexBuffer(GLES32.GL_ARRAY_BUFFER, GLES32.GL_DYNAMIC_DRAW), new VLBufferFloat()));
 
-        citylayout.add(BUFFERMANAGER, modelbuffer, 1)
-                .addElement(new FSBufferLayout.EntryElement(FSBufferLayout.ELEMENT_SEQUENTIAL_SINGULAR, ELEMENT_MODEL));
+        citylayout.add(BUFFERMANAGER, modelbuffer, 1).addElement(new FSBufferLayout.EntryElement(FSBufferLayout.ELEMENT_SEQUENTIAL_SINGULAR, ELEMENT_MODEL));
 
-        citylayout.add(BUFFERMANAGER, BUFFER_ARRAY_FLOAT_DEFAULT, 2)
-                .addElement(new FSBufferLayout.EntryElement(FSBufferLayout.ELEMENT_INTERLEAVED_SINGULAR, ELEMENT_POSITION))
-                .addElement(new FSBufferLayout.EntryElement(FSBufferLayout.ELEMENT_INTERLEAVED_SINGULAR, ELEMENT_NORMAL));
+        citylayout.add(BUFFERMANAGER, BUFFER_ARRAY_FLOAT_DEFAULT, 2).addElement(new FSBufferLayout.EntryElement(FSBufferLayout.ELEMENT_INTERLEAVED_SINGULAR, ELEMENT_POSITION)).addElement(new FSBufferLayout.EntryElement(FSBufferLayout.ELEMENT_INTERLEAVED_SINGULAR, ELEMENT_NORMAL));
 
-        citylayout.add(BUFFERMANAGER, BUFFER_ELEMENT_SHORT_DEFAULT, 1)
-                .addElement(new FSBufferLayout.EntryElement(FSBufferLayout.ELEMENT_SEQUENTIAL_INDICES, ELEMENT_INDEX));
+        citylayout.add(BUFFERMANAGER, BUFFER_ELEMENT_SHORT_DEFAULT, 1).addElement(new FSBufferLayout.EntryElement(FSBufferLayout.ELEMENT_SEQUENTIAL_INDICES, ELEMENT_INDEX));
     }
 
     private void setupPrograms(){
@@ -404,9 +361,7 @@ public final class Loader extends FSG{
     }
 
     private void postFullSetup(){
-        layers = new FSMesh[]{
-                layer1, layer2, layer3
-        };
+        layers = new FSMesh[]{ layer1, layer2, layer3 };
     }
 
     @Override
@@ -414,6 +369,6 @@ public final class Loader extends FSG{
         shadowPoint.destroy();
 
         Game.destroy();
-        Animation.destroy();
+        Animations.destroy();
     }
 }

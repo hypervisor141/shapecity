@@ -1,5 +1,3 @@
-package com.shayan.shapecity;
-
 import android.opengl.Matrix;
 
 import com.nurverek.firestorm.FSBounds;
@@ -25,6 +23,9 @@ import com.nurverek.vanguard.VLVRunner;
 import com.nurverek.vanguard.VLVRunnerManager;
 import com.nurverek.vanguard.VLVRunnerManagers;
 import com.nurverek.vanguard.VLVariable;
+import com.shayan.shapecity.ModColor;
+
+git spackage com.shayan.shapecity;
 
 public final class Animation{
 

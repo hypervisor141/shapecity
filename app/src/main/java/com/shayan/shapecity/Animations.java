@@ -12,12 +12,10 @@ import com.nurverek.firestorm.FSSchematics;
 import com.nurverek.firestorm.Loader;
 import com.nurverek.vanguard.VLArray;
 import com.nurverek.vanguard.VLArrayFloat;
-import com.nurverek.vanguard.VLListType;
 import com.nurverek.vanguard.VLTask;
 import com.nurverek.vanguard.VLTaskContinous;
 import com.nurverek.vanguard.VLTaskTargetValue;
 import com.nurverek.vanguard.VLV;
-import com.nurverek.vanguard.VLVConst;
 import com.nurverek.vanguard.VLVControl;
 import com.nurverek.vanguard.VLVCurved;
 import com.nurverek.vanguard.VLVLinear;
@@ -48,14 +46,6 @@ public final class Animations{
 
     public static final float TEXCONTROL_IDLE = 0F;
     public static final float TEXCONTROL_ACTIVE = 1F;
-
-    private static final int ROW_COLOR_STANDBY = 0;
-    private static final int ROW_COLOR_BLINK = 1;
-    private static final int ROW_COLOR_DEACTIVATED = 2;
-    private static final int ROW_MODEL_ROTATE_FACE = 0;
-    private static final int ROW_MODEL_POSITION = 1;
-    private static final int ROW_MODEL_RAISE_BASE = 3;
-    private static final int ROW_MODEL_BOUNCE = 4;
 
     private static final int RUNNER_RAISE_COUNT_PER_LAYER = 1;
     private static final int RUNNER_STANDBY_COUNT_PER_LAYER = 1;
@@ -94,43 +84,33 @@ public final class Animations{
     private static final float Y_BOUNCE_HEIGHT_MULTIPLIER = 0.1f;
     private static final float Y_BASE_HEIGHT_MULTIPLIER = 0.5f;
 
-    private static VLVManager<VLVManager> managers;
+    private static VLVManager rootmanager;
+    private static VLVManager controlmanager;
+    private static VLVRunner controlrunner;
     private static VLVControl controlreveal;
     private static VLVLinear controllight;
 
     public static void setupRunners(Loader loader){
-        int itemsize = Loader.LAYER_INSTANCE_COUNT * Loader.layers.length;
-        managers = new VLVManager<>(3, 0);
+        rootmanager = new VLVManager(3, 0);
+        controlmanager = new VLVManager(1, 0);
+        controlrunner = new VLVRunner(3,0);
+
+        controlmanager.add(controlrunner);
 
         float[][] colors = new float[][]{ COLOR_LAYER1, COLOR_LAYER2, COLOR_LAYER3, };
-
-        FSMesh layer;
-        FSInstance instance;
-        FSMatrixModel modelmatrix;
-        FSSchematics schematics;
-        VLVMatrix colormatrix;
-        VLVCurved texblinkvar;
-        ModColor.TextureControlLink link;
-        VLArrayFloat linkdata;
-
-        float yv;
-        float ybounce;
-        float yraisebase;
-
+        int itemsize = Loader.LAYER_INSTANCE_COUNT * Loader.layers.length;
         int size = Loader.layers.length;
 
-        VLListType<VLVRunner> main = loader.runners();
-
         for(int i = 0; i < size; i++){
-            layer = Loader.layers[i];
-            linkdata = ((ModColor.TextureControlLink)layer.link(0)).data;
+            FSMesh layer = Loader.layers[i];
+            VLArrayFloat linkdata = ((ModColor.TextureControlLink)layer.link(0)).data;
 
-            VLVManager<VLVManager> layermanagers = new VLVManager<VLVManager>(4, 0);
+            VLVManager layermanagers = new VLVManager(4, 0);
 
-            VLVManager<VLVRunner> raise = new VLVManager<>(RUNNER_RAISE_COUNT_PER_LAYER * size, 0);
-            VLVManager<VLVRunner> standby = new VLVManager<>(RUNNER_STANDBY_COUNT_PER_LAYER * size, 0);
-            VLVManager<VLVRunner> reveal = new VLVManager<>(RUNNER_REVEAL_COUNT_PER_LAYER * size, 0);
-            VLVManager<VLVRunner> deactivation = new VLVManager<>(RUNNER_DEACTIVATE_COUNT_PER_LAYER * size, 0);
+            VLVManager raise = new VLVManager(RUNNER_RAISE_COUNT_PER_LAYER * size, 0);
+            VLVManager standby = new VLVManager(RUNNER_STANDBY_COUNT_PER_LAYER * size, 0);
+            VLVManager reveal = new VLVManager(RUNNER_REVEAL_COUNT_PER_LAYER * size, 0);
+            VLVManager deactivation = new VLVManager(RUNNER_DEACTIVATE_COUNT_PER_LAYER * size, 0);
 
             VLVRunner runnerRaiseBase = new VLVRunner(itemsize, 0);
             VLVRunner runnerStandby = new VLVRunner(itemsize, 0);
@@ -140,69 +120,90 @@ public final class Animations{
             VLVRunner runnerDeactivate = new VLVRunner(itemsize, 0);
 
             for(int i2 = 0; i2 < layer.size(); i2++){
-                instance = layer.instance(i2);
-                modelmatrix = instance.modelMatrix();
-                schematics = instance.schematics();
-                yv = modelmatrix.getY(0).get() - Y_REDUCTION;
+                FSInstance instance = layer.instance(i2);
+                FSMatrixModel modelmatrix = instance.modelMatrix();
+                FSSchematics schematics = instance.schematics();
+                VLArrayFloat colorarray = instance.colors();
 
-                modelmatrix.getY(0).set(yv);
+                modelmatrix.getY(0).set(modelmatrix.getY(0).get() - Y_REDUCTION);
 
-                ybounce = schematics.modelHeight() * Y_BOUNCE_HEIGHT_MULTIPLIER;
-                yraisebase = 0;
+                float yraisebase = 0;
 
                 for(int i3 = 0; i3 < i; i3++){
                     yraisebase += Loader.layers[i3].instance(i2).schematics().modelHeight() * Y_BASE_HEIGHT_MULTIPLIER;
                 }
 
-                modelmatrix.addRowRotate(0, new VLV(90f), VLV.ZERO, VLV.ONE, VLV.ZERO);
-                modelmatrix.addRowRotate(0, new VLV(90f), VLV.ZERO, VLV.ZERO, VLV.ONE);
-                modelmatrix.addRowTranslation(VLV.ZERO, new VLVCurved(0f, yraisebase, CYCLES_RAISE_BASE_MAX, VLVariable.LOOP_NONE, VLVCurved.CURVE_DEC_COS_SQRT), VLV.ZERO);
-                modelmatrix.addRowTranslation(VLV.ZERO, new VLVCurved(0f, ybounce, CYCLES_BOUNCE, VLVariable.LOOP_RETURN_ONCE, VLVCurved.CURVE_DEC_COS_SQRT), VLV.ZERO);
+                float ybounce = schematics.modelHeight() * Y_BOUNCE_HEIGHT_MULTIPLIER;
 
-                colormatrix = new VLVMatrix(3, 0);
-                colormatrix.addRow(4, 0);
-                colormatrix.addRow(4, 0);
-                colormatrix.addRow(4, 0);
-                colormatrix.addColumn(ROW_COLOR_STANDBY, new VLVCurved(colors[i][0], COLOR_STANDBY[0], CYCLES_STANDBY, VLVariable.LOOP_NONE, VLVCurved.CURVE_DEC_COS_SQRT));
-                colormatrix.addColumn(ROW_COLOR_STANDBY, new VLVCurved(colors[i][1], COLOR_STANDBY[1], CYCLES_STANDBY, VLVariable.LOOP_NONE, VLVCurved.CURVE_DEC_COS_SQRT));
-                colormatrix.addColumn(ROW_COLOR_STANDBY, new VLVCurved(colors[i][2], COLOR_STANDBY[2], CYCLES_STANDBY, VLVariable.LOOP_NONE, VLVCurved.CURVE_DEC_COS_SQRT));
-                colormatrix.addColumn(ROW_COLOR_STANDBY, new VLVCurved(colors[i][3], COLOR_STANDBY[3], CYCLES_STANDBY, VLVariable.LOOP_NONE, VLVCurved.CURVE_DEC_COS_SQRT));
-                colormatrix.addColumn(ROW_COLOR_BLINK, new VLVCurved(colors[i][0], COLOR_BLINK[0], CYCLES_BLINK, VLVariable.LOOP_RETURN_ONCE, VLVCurved.CURVE_DEC_COS_SQRT));
-                colormatrix.addColumn(ROW_COLOR_BLINK, new VLVCurved(colors[i][1], COLOR_BLINK[1], CYCLES_BLINK, VLVariable.LOOP_RETURN_ONCE, VLVCurved.CURVE_DEC_COS_SQRT));
-                colormatrix.addColumn(ROW_COLOR_BLINK, new VLVCurved(colors[i][2], COLOR_BLINK[2], CYCLES_BLINK, VLVariable.LOOP_RETURN_ONCE, VLVCurved.CURVE_DEC_COS_SQRT));
-                colormatrix.addColumn(ROW_COLOR_BLINK, new VLVCurved(colors[i][3], COLOR_BLINK[3], CYCLES_BLINK, VLVariable.LOOP_RETURN_ONCE, VLVCurved.CURVE_DEC_COS_SQRT));
-                colormatrix.addColumn(ROW_COLOR_DEACTIVATED, new VLVCurved(colors[i][0], COLOR_DEACTIVATED[0], CYCLES_DEACTIVATED, VLVariable.LOOP_NONE, VLVCurved.CURVE_DEC_COS_SQRT));
-                colormatrix.addColumn(ROW_COLOR_DEACTIVATED, new VLVCurved(colors[i][1], COLOR_DEACTIVATED[1], CYCLES_DEACTIVATED, VLVariable.LOOP_NONE, VLVCurved.CURVE_DEC_COS_SQRT));
-                colormatrix.addColumn(ROW_COLOR_DEACTIVATED, new VLVCurved(colors[i][2], COLOR_DEACTIVATED[2], CYCLES_DEACTIVATED, VLVariable.LOOP_NONE, VLVCurved.CURVE_DEC_COS_SQRT));
-                colormatrix.addColumn(ROW_COLOR_DEACTIVATED, new VLVCurved(colors[i][3], COLOR_DEACTIVATED[3], CYCLES_DEACTIVATED, VLVariable.LOOP_NONE, VLVCurved.CURVE_DEC_COS_SQRT));
+                VLVCurved translateraisey = new VLVCurved(0f, yraisebase, CYCLES_RAISE_BASE_MAX, VLVariable.LOOP_NONE, VLVCurved.CURVE_DEC_COS_SQRT);
+                VLVCurved translatebouncey = new VLVCurved(0f, ybounce, CYCLES_BOUNCE, VLVariable.LOOP_RETURN_ONCE, VLVCurved.CURVE_DEC_COS_SQRT);
 
-                texblinkvar = new VLVCurved(TEXCONTROL_IDLE, TEXCONTROL_ACTIVE, CYCLES_TEXCONTROL, VLVariable.LOOP_RETURN_ONCE, VLVCurved.CURVE_DEC_COS_SQRT);
+                VLVCurved standbyred = new VLVCurved(colors[i][0], COLOR_STANDBY[0], CYCLES_STANDBY, VLVariable.LOOP_NONE, VLVCurved.CURVE_DEC_COS_SQRT);
+                VLVCurved standbygreen = new VLVCurved(colors[i][1], COLOR_STANDBY[1], CYCLES_STANDBY, VLVariable.LOOP_NONE, VLVCurved.CURVE_DEC_COS_SQRT);
+                VLVCurved standbyblue = new VLVCurved(colors[i][2], COLOR_STANDBY[2], CYCLES_STANDBY, VLVariable.LOOP_NONE, VLVCurved.CURVE_DEC_COS_SQRT);
+                VLVCurved standbyalpha = new VLVCurved(colors[i][3], COLOR_STANDBY[3], CYCLES_STANDBY, VLVariable.LOOP_NONE, VLVCurved.CURVE_DEC_COS_SQRT);
 
-                colormatrix.SYNCER.add(new VLArray.DefinitionMatrix(instance.colors(), ROW_COLOR_STANDBY, 0));
-                colormatrix.SYNCER.add(new VLArray.DefinitionMatrix(instance.colors(), ROW_COLOR_BLINK, 0));
-                colormatrix.SYNCER.add(new VLArray.DefinitionMatrix(instance.colors(), ROW_COLOR_DEACTIVATED, 0));
+                VLVCurved blinkred = new VLVCurved(colors[i][0], COLOR_BLINK[0], CYCLES_BLINK, VLVariable.LOOP_RETURN_ONCE, VLVCurved.CURVE_DEC_COS_SQRT);
+                VLVCurved blinkgreen = new VLVCurved(colors[i][1], COLOR_BLINK[1], CYCLES_BLINK, VLVariable.LOOP_RETURN_ONCE, VLVCurved.CURVE_DEC_COS_SQRT);
+                VLVCurved blinkblue = new VLVCurved(colors[i][2], COLOR_BLINK[2], CYCLES_BLINK, VLVariable.LOOP_RETURN_ONCE, VLVCurved.CURVE_DEC_COS_SQRT);
+                VLVCurved blinkalpha = new VLVCurved(colors[i][3], COLOR_BLINK[3], CYCLES_BLINK, VLVariable.LOOP_RETURN_ONCE, VLVCurved.CURVE_DEC_COS_SQRT);
+
+                VLVCurved deactivatedred = new VLVCurved(colors[i][0], COLOR_DEACTIVATED[0], CYCLES_DEACTIVATED, VLVariable.LOOP_NONE, VLVCurved.CURVE_DEC_COS_SQRT);
+                VLVCurved deactivatedgreen = new VLVCurved(colors[i][1], COLOR_DEACTIVATED[1], CYCLES_DEACTIVATED, VLVariable.LOOP_NONE, VLVCurved.CURVE_DEC_COS_SQRT);
+                VLVCurved deactivatedblue = new VLVCurved(colors[i][2], COLOR_DEACTIVATED[2], CYCLES_DEACTIVATED, VLVariable.LOOP_NONE, VLVCurved.CURVE_DEC_COS_SQRT);
+                VLVCurved deactivatedalpha = new VLVCurved(colors[i][3], COLOR_DEACTIVATED[3], CYCLES_DEACTIVATED, VLVariable.LOOP_NONE, VLVCurved.CURVE_DEC_COS_SQRT);
+
+                VLVCurved texblinkvar = new VLVCurved(TEXCONTROL_IDLE, TEXCONTROL_ACTIVE, CYCLES_TEXCONTROL, VLVariable.LOOP_RETURN_ONCE, VLVCurved.CURVE_DEC_COS_SQRT);
+
+                VLVMatrix.Definition modeldef = new VLVMatrix.Definition(modelmatrix);
+                VLArray.DefinitionVLV colordefred = new VLArray.DefinitionVLV(colorarray,0);
+                VLArray.DefinitionVLV colordefgreen = new VLArray.DefinitionVLV(colorarray,1);
+                VLArray.DefinitionVLV colordefblue = new VLArray.DefinitionVLV(colorarray,2);
+                VLArray.DefinitionVLV colordefalpha = new VLArray.DefinitionVLV(colorarray,3);
+
+                translateraisey.SYNCER.add(modeldef);
+                translatebouncey.SYNCER.add(modeldef);
+
+                standbyred.SYNCER.add(colordefred);
+                standbygreen.SYNCER.add(colordefgreen);
+                standbyblue.SYNCER.add(colordefblue);
+                standbyalpha.SYNCER.add(colordefalpha);
+
+                blinkred.SYNCER.add(colordefred);
+                blinkgreen.SYNCER.add(colordefgreen);
+                blinkblue.SYNCER.add(colordefblue);
+                blinkalpha.SYNCER.add(colordefalpha);
+
+                deactivatedred.SYNCER.add(colordefred);
+                deactivatedgreen.SYNCER.add(colordefgreen);
+                deactivatedblue.SYNCER.add(colordefblue);
+                deactivatedalpha.SYNCER.add(colordefalpha);
+                
                 texblinkvar.SYNCER.add(new VLArray.DefinitionVLV(linkdata, i2));
 
-                modelmatrix.sync();
-                colormatrix.sync();
-                texblinkvar.sync();
-
-                runnerRaiseBase.add(new VLVRunner.Entry(modelmatrix, 0));
-                runnerStandby.add(new VLVRunner.Entry(colormatrix, 0, 0));
-                runnerBounce.add(new VLVRunner.Entry(modelmatrix, 0));
-                runnerBlink.add(new VLVRunner.Entry(colormatrix, 1, 0));
+                runnerRaiseBase.add(new VLVRunner.Entry(translateraisey, 0));
+                runnerStandby.add(new VLVRunner.Entry(standbyred, 0));
+                runnerStandby.add(new VLVRunner.Entry(standbygreen, 0));
+                runnerStandby.add(new VLVRunner.Entry(standbyblue, 0));
+                runnerStandby.add(new VLVRunner.Entry(standbyalpha, 0));
+                runnerBounce.add(new VLVRunner.Entry(translatebouncey, 0));
+                runnerBlink.add(new VLVRunner.Entry(blinkred, 0));
+                runnerBlink.add(new VLVRunner.Entry(blinkgreen, 0));
+                runnerBlink.add(new VLVRunner.Entry(blinkblue, 0));
+                runnerBlink.add(new VLVRunner.Entry(blinkalpha, 0));
                 runnerTextureBlink.add(new VLVRunner.Entry(texblinkvar, 0));
-                runnerDeactivate.add(new VLVRunner.Entry(colormatrix, 2, 0));
+                runnerDeactivate.add(new VLVRunner.Entry(deactivatedred, 0));
+                runnerDeactivate.add(new VLVRunner.Entry(deactivatedgreen, 0));
+                runnerDeactivate.add(new VLVRunner.Entry(deactivatedblue, 0));
+                runnerDeactivate.add(new VLVRunner.Entry(deactivatedalpha, 0));
+
+                modelmatrix.addRowRotate(0, new VLV(90f), VLV.ZERO, VLV.ONE, VLV.ZERO);
+                modelmatrix.addRowRotate(0, new VLV(90f), VLV.ZERO, VLV.ZERO, VLV.ONE);
+                modelmatrix.addRowTranslation(VLV.ZERO, translateraisey, VLV.ZERO);
+                modelmatrix.addRowTranslation(VLV.ZERO, translatebouncey, VLV.ZERO);
 
                 schematics.inputBounds().add(new FSBoundsCuboid(schematics, 50, 50f, 50f, FSBounds.MODE_X_OFFSET_VOLUMETRIC, FSBounds.MODE_Y_OFFSET_VOLUMETRIC, FSBounds.MODE_Z_OFFSET_VOLUMETRIC, 40f, 40f, 40f, FSBounds.MODE_X_VOLUMETRIC, FSBounds.MODE_Y_VOLUMETRIC, FSBounds.MODE_Z_VOLUMETRIC));
             }
-
-            main.add(runnerRaiseBase);
-            main.add(runnerBounce);
-            main.add(runnerBlink);
-            main.add(runnerTextureBlink);
-            main.add(runnerDeactivate);
-            main.add(runnerStandby);
 
             raise.add(runnerRaiseBase);
             standby.add(runnerStandby);
@@ -231,8 +232,14 @@ public final class Animations{
             layermanagers.add(reveal);
             layermanagers.add(deactivation);
 
-            managers.add(layermanagers);
+            rootmanager.add(layermanagers);
         }
+
+        rootmanager.sync();
+
+        VLVManager loadermanager = loader.vManager();
+        loadermanager.add(rootmanager);
+        loadermanager.add(controlmanager);
     }
 
     public static void rotateLightSource(){
@@ -243,7 +250,7 @@ public final class Animations{
             private float[] cache = new float[16];
 
             @Override
-            public void run(VLTask<VLVLinear> task, VLVRunner runner, VLVLinear var){
+            public void run(VLTask<VLVLinear> task, VLVLinear var){
                 float[] pos = Loader.lightPoint.position().provider();
 
                 Matrix.setIdentityM(cache, 0);
@@ -258,24 +265,23 @@ public final class Animations{
             }
         }));
 
-        VLVRunner controlproc = FSRenderer.getControlRunners();
-        controlproc.add(new VLVRunner.EntryVar(controllight, 0));
-        controlproc.start();
+        controlrunner.add(new VLVRunner.Entry(controllight, 0));
+        controlrunner.start();
     }
 
     public static void raiseBases(int layer){
-        VLVRunnerManager manager = managers.get(layer).get(RUNNER_RAISE_INDEX);
+        VLVRunnerManager manager = rootmanager.get(layer).get(RUNNER_RAISE_INDEX);
         manager.randomizeCycles(CYCLES_RAISE_BASE_MIN, CYCLES_RAISE_BASE_MAX, true, true);
         manager.randomizeDelays(CYCLES_RAISE_BASE_DELAY_MIN, CYCLES_RAISE_BASE_DELAY_MAX, true, false);
         manager.start();
     }
 
     public static void standBy(int layer){
-        managers.get(layer).get(RUNNER_STANDBY_INDEX).start();
+        rootmanager.get(layer).get(RUNNER_STANDBY_INDEX).start();
     }
 
     public static void unstandBy(int layer){
-        VLVRunnerManager manager = managers.get(layer).get(RUNNER_STANDBY_INDEX);
+        VLVRunnerManager manager = rootmanager.get(layer).get(RUNNER_STANDBY_INDEX);
         manager.reverse();
         manager.reset();
         manager.activ();
@@ -283,14 +289,14 @@ public final class Animations{
     }
 
     public static void reveal(int layer){
-        VLVRunnerManager manager = managers.get(layer).get(RUNNER_REVEAL_INDEX);
+        VLVRunnerManager manager = rootmanager.get(layer).get(RUNNER_REVEAL_INDEX);
         manager.randomizeCycles(CYCLES_REVEAL_MIN, CYCLES_REVEAL_MAX, false, true);
         manager.randomizeDelays(CYCLES_REVEAL_DELAY_MIN, CYCLES_REVEAL_DELAY_MAX, false, false);
         manager.start();
     }
 
     public static void lowerBases(int layer, final Runnable post){
-        VLVRunnerManager manager = managers.get(layer).get(RUNNER_RAISE_INDEX);
+        VLVRunnerManager manager = rootmanager.get(layer).get(RUNNER_RAISE_INDEX);
         manager.randomizeCycles(CYCLES_RAISE_BASE_MIN, CYCLES_RAISE_BASE_MAX, true, true);
         manager.randomizeDelays(CYCLES_RAISE_BASE_DELAY_MIN, CYCLES_RAISE_BASE_DELAY_MAX, true, false);
         manager.reverse();
@@ -307,7 +313,7 @@ public final class Animations{
     }
 
     public static void deactivatePiece(int layer, int instance){
-        VLVRunnerManager manager = managers.get(layer).get(RUNNER_DEACTIVATE_INDEX);
+        VLVRunnerManager manager = rootmanager.get(layer).get(RUNNER_DEACTIVATE_INDEX);
 
         int size = manager.size();
 
@@ -323,7 +329,7 @@ public final class Animations{
             runner.start();
         }
 
-        VLVRunnerManager managerreveal = managers.get(layer).get(RUNNER_REVEAL_INDEX);
+        VLVRunnerManager managerreveal = rootmanager.get(layer).get(RUNNER_REVEAL_INDEX);
         size = managerreveal.size();
 
         for(int i = 0; i < size; i++){
@@ -336,7 +342,7 @@ public final class Animations{
     }
 
     public static void reveal(int layer, int instance, final Runnable post){
-        VLVRunnerManager manager = managers.get(layer).get(RUNNER_REVEAL_INDEX);
+        VLVRunnerManager manager = rootmanager.get(layer).get(RUNNER_REVEAL_INDEX);
         int size = manager.size();
 
         VLVRunner runner;

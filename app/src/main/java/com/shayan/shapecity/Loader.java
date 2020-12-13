@@ -115,8 +115,7 @@ public final class Loader extends FSG{
 
         postFullSetup();
 
-        Animations.setupRunners(this);
-        Game.startGame();
+        Game.startGame(this);
     }
 
     @Override

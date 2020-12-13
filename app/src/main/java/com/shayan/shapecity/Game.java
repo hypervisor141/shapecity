@@ -88,7 +88,8 @@ public final class Game{
         textures = new FSTexture[]{ texArrayLayer1, texArrayLayer2, texArrayLayer3 };
     }
 
-    public static void startGame(){
+    public static void startGame(Loader loader){
+        Animations.setupRunners(loader);
         Animations.rotateLightSource();
         Camera.rotateCamera();
 

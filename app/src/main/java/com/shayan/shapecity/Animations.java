@@ -1,6 +1,7 @@
 package com.shayan.shapecity;
 
 import android.opengl.Matrix;
+import android.util.Log;
 
 import com.nurverek.firestorm.FSBounds;
 import com.nurverek.firestorm.FSBoundsCuboid;
@@ -46,11 +47,6 @@ public final class Animations{
 
     public static final float TEXCONTROL_IDLE = 0F;
     public static final float TEXCONTROL_ACTIVE = 1F;
-
-    private static final int RUNNER_RAISE_COUNT_PER_LAYER = 1;
-    private static final int RUNNER_STANDBY_COUNT_PER_LAYER = 1;
-    private static final int RUNNER_REVEAL_COUNT_PER_LAYER = 3;
-    private static final int RUNNER_DEACTIVATE_COUNT_PER_LAYER = 1;
 
     private static final int RUNNER_RAISE_INDEX = 0;
     private static final int RUNNER_STANDBY_INDEX = 1;
@@ -107,10 +103,10 @@ public final class Animations{
 
             VLVManager layermanager = new VLVManager(4, 0);
 
-            VLVManager raisemanager = new VLVManager(RUNNER_RAISE_COUNT_PER_LAYER * size, 0);
-            VLVManager standbymanager = new VLVManager(RUNNER_STANDBY_COUNT_PER_LAYER * size, 0);
-            VLVManager revealmanager = new VLVManager(RUNNER_REVEAL_COUNT_PER_LAYER * size, 0);
-            VLVManager deactivationmanager = new VLVManager(RUNNER_DEACTIVATE_COUNT_PER_LAYER * size, 0);
+            VLVManager raisemanager = new VLVManager(size, 0);
+            VLVManager standbymanager = new VLVManager(size, 0);
+            VLVManager revealmanager = new VLVManager(3 * size, 0);
+            VLVManager deactivationmanager = new VLVManager(size, 0);
 
             VLVRunner raiseBase = new VLVRunner(itemsize, 0);
             VLVRunner standby = new VLVRunner(itemsize * 4, 0);
@@ -206,7 +202,6 @@ public final class Animations{
             }
 
             raiseBase.connections(1, 0);
-            raiseBase.connections(1, 0);
             standby.connections(1, 0);
             blink.connections(1, 0);
             bounce.connections(1, 0);
@@ -220,12 +215,12 @@ public final class Animations{
             revealmanager.add(textureblink);
             deactivationmanager.add(deactivate);
 
+            deactivationmanager.deactivate();
+
             raisemanager.findEndPointIndex();
             standbymanager.findEndPointIndex();
             deactivationmanager.findEndPointIndex();
             revealmanager.findEndPointIndex();
-
-            deactivationmanager.deactivate();
 
             layermanager.add(raisemanager);
             layermanager.add(standbymanager);
@@ -235,7 +230,7 @@ public final class Animations{
             rootmanager.add(layermanager);
         }
 
-        rootmanager.sync();
+        rootmanager.targetSync();
 
         VLVManager loadermanager = loader.vManager();
         loadermanager.add(rootmanager);
@@ -272,7 +267,7 @@ public final class Animations{
     public static void raiseBases(int layer){
         VLVManager manager = (VLVManager)rootmanager.get(layer).get(RUNNER_RAISE_INDEX);
         manager.randomizeCycles(CYCLES_RAISE_BASE_MIN, CYCLES_RAISE_BASE_MAX, true);
-        manager.randomizeDelays(CYCLES_RAISE_BASE_DELAY_MIN, CYCLES_RAISE_BASE_DELAY_MAX, true);
+        manager.activate();
         manager.start();
     }
 
@@ -291,14 +286,13 @@ public final class Animations{
     public static void reveal(int layer){
         VLVManager manager = (VLVManager)rootmanager.get(layer).get(RUNNER_REVEAL_INDEX);
         manager.randomizeCycles(CYCLES_REVEAL_MIN, CYCLES_REVEAL_MAX, false);
-        manager.randomizeDelays(CYCLES_REVEAL_DELAY_MIN, CYCLES_REVEAL_DELAY_MAX, false);
+        manager.activate();
         manager.start();
     }
 
     public static void lowerBases(int layer, final Runnable post){
         VLVManager manager = (VLVManager)rootmanager.get(layer).get(RUNNER_RAISE_INDEX);
         manager.randomizeCycles(CYCLES_RAISE_BASE_MIN, CYCLES_RAISE_BASE_MAX, true);
-        manager.randomizeDelays(CYCLES_RAISE_BASE_DELAY_MIN, CYCLES_RAISE_BASE_DELAY_MAX, true);
         manager.reverse();
         manager.reset();
         manager.start();

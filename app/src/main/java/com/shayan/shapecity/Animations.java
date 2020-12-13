@@ -201,13 +201,6 @@ public final class Animations{
                 schematics.inputBounds().add(new FSBoundsCuboid(schematics, 50, 50f, 50f, FSBounds.MODE_X_OFFSET_VOLUMETRIC, FSBounds.MODE_Y_OFFSET_VOLUMETRIC, FSBounds.MODE_Z_OFFSET_VOLUMETRIC, 40f, 40f, 40f, FSBounds.MODE_X_VOLUMETRIC, FSBounds.MODE_Y_VOLUMETRIC, FSBounds.MODE_Z_VOLUMETRIC));
             }
 
-            raiseBase.connections(1, 0);
-            standby.connections(1, 0);
-            blink.connections(1, 0);
-            bounce.connections(1, 0);
-            textureblink.connections(1, 0);
-            deactivate.connections(1, 0);
-
             raisemanager.add(raiseBase);
             standbymanager.add(standby);
             revealmanager.add(blink);
@@ -217,11 +210,6 @@ public final class Animations{
 
             deactivationmanager.deactivate();
 
-            raisemanager.findEndPointIndex();
-            standbymanager.findEndPointIndex();
-            deactivationmanager.findEndPointIndex();
-            revealmanager.findEndPointIndex();
-
             layermanager.add(raisemanager);
             layermanager.add(standbymanager);
             layermanager.add(revealmanager);
@@ -230,6 +218,8 @@ public final class Animations{
             rootmanager.add(layermanager);
         }
 
+        rootmanager.findEndPointIndex();
+        rootmanager.connections(1, 1);
         rootmanager.targetSync();
 
         VLVManager loadermanager = loader.vManager();
@@ -347,6 +337,7 @@ public final class Animations{
 
             entry = runner.get(instance);
             entry.reset();
+            entry.activate();
 
             runner.start();
         }

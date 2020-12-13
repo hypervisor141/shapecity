@@ -42,7 +42,7 @@ public final class Game{
     public static FSTexture texArrayLayer2;
     public static FSTexture texArrayLayer3;
     public static FSTexture[] textures;
-    
+
     public static VLListInt activatedSymbols;
 
     public static void initialize(){
@@ -85,11 +85,7 @@ public final class Game{
 
         FSTools.checkGLError();
 
-        textures = new FSTexture[]{
-                texArrayLayer1,
-                texArrayLayer2,
-                texArrayLayer3
-        };
+        textures = new FSTexture[]{ texArrayLayer1, texArrayLayer2, texArrayLayer3 };
     }
 
     public static void startGame(){
@@ -145,13 +141,7 @@ public final class Game{
     private static void prepareMatchSymTextureForLayer(FSTexture texArrayLayer){
         Bitmap b = null;
 
-        int[] resources = new int[]{
-                R.drawable.circle,
-                R.drawable.hex,
-                R.drawable.square,
-                R.drawable.triangle,
-                R.drawable.rsquare
-        };
+        int[] resources = new int[]{ R.drawable.circle, R.drawable.hex, R.drawable.square, R.drawable.triangle, R.drawable.rsquare };
 
         int[] timespicked = new int[resources.length];
         Arrays.fill(timespicked, 0);
@@ -284,7 +274,7 @@ public final class Game{
                                         public void run(){
                                             int nextlayer = layer - 1;
 
-                                            Animations.deactivateLayer(layer);
+                                            Animations.removeDeactivationControl();
                                             Animations.unstandBy(nextlayer);
 
                                             activateMatchSymForLayer(nextlayer);

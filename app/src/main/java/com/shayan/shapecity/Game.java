@@ -253,7 +253,7 @@ public final class Game{
                                     enabledPieces[i] = false;
                                     activatedSymbols.set(i, -1);
 
-                                    Animations.deactivatePiece(layer, i);
+                                    Animations.deactivate(layer, i);
                                     linkdata.set(i, Animations.TEXCONTROL_ACTIVE);
 
                                     counter++;

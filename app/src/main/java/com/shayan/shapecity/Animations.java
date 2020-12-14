@@ -222,10 +222,10 @@ public final class Animations{
             VLVRunner dalpha = new VLVRunner(itemsize, 0);
 
             VLVManager deactivate = new VLVManager(4, 0);
-            deactivate.add(sbred);
-            deactivate.add(sbgreen);
-            deactivate.add(sbblue);
-            deactivate.add(sbalpha);
+            deactivate.add(dred);
+            deactivate.add(dgreen);
+            deactivate.add(dblue);
+            deactivate.add(dalpha);
 
             layermanager.add(deactivate);
 
@@ -247,6 +247,8 @@ public final class Animations{
                 dblue.add(new VLVRunnerEntry(deactivatedblue, 0));
                 dalpha.add(new VLVRunnerEntry(deactivatedalpha, 0));
             }
+
+            deactivate.deactivate();
 
             // texture blink
             VLVRunner texblink = new VLVRunner(itemsize, 0);
@@ -323,19 +325,26 @@ public final class Animations{
         VLVRunner texblink = getTexBlink(layer);
 
         VLVManager reveal = getReveal(layer);
+        VLVRunnerEntry entry;
 
         for(int i = 0; i < Game.enabledPieces.length; i++){
             if(Game.enabledPieces[i]){
-                bounce.get(i).randomizeCycles(CYCLES_REVEAL_MIN, CYCLES_REVEAL_MAX, false, false);
-                bounce.get(i).randomizeDelays(CYCLES_REVEAL_DELAY_MIN, CYCLES_REVEAL_DELAY_MAX, false, false);
+                entry = bounce.get(i);
+                entry.randomizeCycles(CYCLES_REVEAL_MIN, CYCLES_REVEAL_MAX, false, false);
+                entry.randomizeDelays(CYCLES_REVEAL_DELAY_MIN, CYCLES_REVEAL_DELAY_MAX, false, false);
+                entry.reset();
 
                 for(int i2 = 0; i2 < 4; i2++){
-                    blink.get(i2).get(i).randomizeCycles(CYCLES_REVEAL_MIN, CYCLES_REVEAL_MAX, false, false);
-                    blink.get(i2).get(i).randomizeDelays(CYCLES_REVEAL_DELAY_MIN, CYCLES_REVEAL_DELAY_MAX, false, false);
+                    entry = (VLVRunnerEntry)blink.get(i2).get(i);
+                    entry.randomizeCycles(CYCLES_REVEAL_MIN, CYCLES_REVEAL_MAX, false, false);
+                    entry.randomizeDelays(CYCLES_REVEAL_DELAY_MIN, CYCLES_REVEAL_DELAY_MAX, false, false);
+                    entry.reset();
                 }
 
-                texblink.get(i).randomizeCycles(CYCLES_REVEAL_MIN, CYCLES_REVEAL_MAX, false, false);
-                texblink.get(i).randomizeDelays(CYCLES_REVEAL_DELAY_MIN, CYCLES_REVEAL_DELAY_MAX, false, false);
+                entry = texblink.get(i);
+                entry.randomizeCycles(CYCLES_REVEAL_MIN, CYCLES_REVEAL_MAX, false, false);
+                entry.randomizeDelays(CYCLES_REVEAL_DELAY_MIN, CYCLES_REVEAL_DELAY_MAX, false, false);
+                entry.reset();
             }
         }
 
@@ -408,30 +417,34 @@ public final class Animations{
         });
     }
 
-    public static void deactivatePiece(int layer, int instance){
+    public static void deactivate(int layer, int instance){
         VLVManager manager = getDeactivate(layer);
 
-        for(int i = 0; i < 4; i++){
+        for(int i = 0; i < manager.size(); i++){
             VLVRunner runner = (VLVRunner)manager.get(i);
 
-            VLVRunnerEntry entry = runner.get(instance);
-            entry.reset();
-            entry.activate();
-
+            runner.get(instance).activate();
             runner.start();
         }
 
         VLVRunner bounce = getBounce(layer);
         VLVManager blink = getBlink(layer);
         VLVRunner texblink = getTexBlink(layer);
+        VLVariable var;
 
-        bounce.get(instance).deactivate();
+        var = ((VLVariable)((VLVRunnerEntry)bounce.get(instance)).target);
+        var.setLoop(VLVariable.LOOP_NONE);
 
         for(int i = 0; i < 4; i++){
             blink.get(i).get(instance).deactivate();
         }
 
-        texblink.get(instance).deactivate();
+        var = ((VLVariable)((VLVRunnerEntry)texblink.get(instance)).target);
+        var.setLoop(VLVariable.LOOP_NONE);
+
+        VLVManager reveal = getReveal(layer);
+        reveal.start();
+        reveal.targetSync();
     }
 
     public static void removeDeactivationControl(){

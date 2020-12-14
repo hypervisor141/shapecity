@@ -36,7 +36,7 @@ public final class Game{
     public static ByteBuffer PIXEL_BUFFER = null;
 
     protected static int[] symbols;
-    protected static boolean[] isactive;
+    public static boolean[] enabledPieces;
 
     public static FSTexture texArrayLayer1;
     public static FSTexture texArrayLayer2;
@@ -120,7 +120,7 @@ public final class Game{
         activatedSymbols = new VLListInt(Loader.LAYER_INSTANCE_COUNT, 0);
         activatedSymbols.virtualSize(Loader.LAYER_INSTANCE_COUNT);
 
-        isactive = new boolean[Loader.LAYER_INSTANCE_COUNT];
+        enabledPieces = new boolean[Loader.LAYER_INSTANCE_COUNT];
 
         Animations.raiseBases(1);
         Animations.raiseBases(2);
@@ -212,7 +212,7 @@ public final class Game{
         prepareMatchSymTextureForLayer(textures[layer]);
 
         Arrays.fill(activatedSymbols.array(), -1);
-        Arrays.fill(isactive, true);
+        Arrays.fill(enabledPieces, true);
 
         Animations.reveal(layer);
         Animations.revealRepeat(layer);
@@ -225,7 +225,7 @@ public final class Game{
             public void run(){
                 final int target = Input.closestPoint.instanceindex;
 
-                if(isactive[target]){
+                if(enabledPieces[target]){
                     activatedSymbols.set(target, symbols[target]);
 
                     Animations.revealResetTimer();
@@ -250,7 +250,7 @@ public final class Game{
 
                             for(int i = 0; i < activatedSymbols.size(); i++){
                                 if(activatedSymbols.get(i) == match){
-                                    isactive[i] = false;
+                                    enabledPieces[i] = false;
                                     activatedSymbols.set(i, -1);
 
                                     Animations.deactivatePiece(layer, i);
@@ -316,10 +316,10 @@ public final class Game{
     }
 
     private static boolean checkLayerFinished(){
-        int size = isactive.length;
+        int size = enabledPieces.length;
 
         for(int i = 0; i < size; i++){
-            if(isactive[i]){
+            if(enabledPieces[i]){
                 return false;
             }
         }

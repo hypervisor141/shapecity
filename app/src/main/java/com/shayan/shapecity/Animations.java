@@ -62,8 +62,8 @@ public final class Animations{
     private static final int CYCLES_LOWER_BASE_DELAY_MIN = 0;
     private static final int CYCLES_LOWER_BASE_DELAY_MAX = 50;
     private static final int CYCLES_BOUNCE = 200;
-    private static final int CYCLES_REVEAL_MIN = 60;
-    private static final int CYCLES_REVEAL_MAX = 100;
+    private static final int CYCLES_REVEAL_MIN = 45;
+    private static final int CYCLES_REVEAL_MAX = 80;
     private static final int CYCLES_REVEAL_DELAY_MIN = 0;
     private static final int CYCLES_REVEAL_DELAY_MAX = 30;
     private static final int CYCLES_REVEAL_REPEAT = 360;
@@ -72,8 +72,8 @@ public final class Animations{
     private static final int CYCLES_TEXCONTROL = 100;
 
     private static final float Y_REDUCTION = 0.5f;
-    private static final float Y_BOUNCE_HEIGHT_MULTIPLIER = 0.5f;
-    private static final float Y_BASE_HEIGHT_MULTIPLIER = 0.3f;
+    private static final float Y_BOUNCE_HEIGHT_MULTIPLIER = 0.4f;
+    private static final float Y_BASE_HEIGHT_MULTIPLIER = 0.4f;
 
     private static VLVManager rootmanager;
     private static VLVManager controlmanager;
@@ -249,6 +249,7 @@ public final class Animations{
                 dalpha.add(new VLVRunnerEntry(deactivatedalpha, 0));
             }
 
+            reveal.deactivate();
             deactivate.deactivate();
 
             // texture blink
@@ -405,6 +406,7 @@ public final class Animations{
             }
         }));
 
+        controlreveal.fastForward(CYCLES_REVEAL_REPEAT_FASTFORWARD_AFTER_INPUT);
         controlrunner.add(new VLVRunnerEntry(controlreveal, 0));
     }
 

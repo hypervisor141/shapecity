@@ -214,7 +214,6 @@ public final class Game{
         Arrays.fill(activatedSymbols.array(), -1);
         Arrays.fill(enabledPieces, true);
 
-        Animations.reveal(layer);
         Animations.revealRepeat(layer);
 
         final FSMesh layermesh = Loader.layers[layer];

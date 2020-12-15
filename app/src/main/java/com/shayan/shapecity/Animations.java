@@ -1,6 +1,7 @@
 package com.shayan.shapecity;
 
 import android.opengl.Matrix;
+import android.util.Log;
 
 import com.nurverek.firestorm.FSBounds;
 import com.nurverek.firestorm.FSBoundsCuboid;
@@ -324,57 +325,62 @@ public final class Animations{
         VLVManager blink = getBlink(layer);
         VLVRunner texblink = getTexBlink(layer);
 
-        VLVManager reveal = getReveal(layer);
         VLVRunnerEntry entry;
 
         for(int i = 0; i < Game.enabledPieces.length; i++){
-            if(Game.enabledPieces[i]){
-                entry = bounce.get(i);
+            entry = bounce.get(i);
+
+            if(!entry.active() && Game.enabledPieces[i] && Game.activatedSymbols.get(i) == -1){
                 entry.randomizeCycles(CYCLES_REVEAL_MIN, CYCLES_REVEAL_MAX, false, false);
                 entry.randomizeDelays(CYCLES_REVEAL_DELAY_MIN, CYCLES_REVEAL_DELAY_MAX, false, false);
-                entry.reset();
 
                 for(int i2 = 0; i2 < 4; i2++){
                     entry = (VLVRunnerEntry)blink.get(i2).get(i);
                     entry.randomizeCycles(CYCLES_REVEAL_MIN, CYCLES_REVEAL_MAX, false, false);
                     entry.randomizeDelays(CYCLES_REVEAL_DELAY_MIN, CYCLES_REVEAL_DELAY_MAX, false, false);
-                    entry.reset();
                 }
 
                 entry = texblink.get(i);
                 entry.randomizeCycles(CYCLES_REVEAL_MIN, CYCLES_REVEAL_MAX, false, false);
                 entry.randomizeDelays(CYCLES_REVEAL_DELAY_MIN, CYCLES_REVEAL_DELAY_MAX, false, false);
-                entry.reset();
             }
         }
 
-        reveal.start();
+        getReveal(layer).start();
     }
 
     public static void reveal(int layer, int instance, final Runnable post){
-        VLVManager reveal = getReveal(layer);
-
         VLVRunner bounce = getBounce(layer);
         VLVManager blink = getBlink(layer);
         VLVRunner texblink = getTexBlink(layer);
+        VLVRunnerEntry entry;
 
-        bounce.get(instance).randomizeCycles(CYCLES_REVEAL_MIN, CYCLES_REVEAL_MAX, false, false);
-        bounce.get(instance).randomizeDelays(CYCLES_REVEAL_DELAY_MIN, CYCLES_REVEAL_DELAY_MAX, false, false);
+        entry = bounce.get(instance);
+        entry.initialize(CYCLES_REVEAL_INPUT);
+        entry.delay(0);
+        entry.reset();
+        entry.activate();
 
         for(int i = 0; i < 4; i++){
-            blink.get(i).get(instance).randomizeCycles(CYCLES_REVEAL_MIN, CYCLES_REVEAL_MAX, false, false);
-            blink.get(i).get(instance).randomizeDelays(CYCLES_REVEAL_DELAY_MIN, CYCLES_REVEAL_DELAY_MAX, false, false);
+            entry = (VLVRunnerEntry)blink.get(i).get(instance);
+            entry.initialize(CYCLES_REVEAL_INPUT);
+            entry.delay(0);
+            entry.reset();
+            entry.activate();
         }
 
-        texblink.get(instance).randomizeCycles(CYCLES_REVEAL_MIN, CYCLES_REVEAL_MAX, false, false);
-        texblink.get(instance).randomizeDelays(CYCLES_REVEAL_DELAY_MIN, CYCLES_REVEAL_DELAY_MAX, false, false);
+        entry = texblink.get(instance);
+        entry.initialize(CYCLES_REVEAL_INPUT);
+        entry.delay(0);
+        entry.reset();
+        entry.activate();
 
         bounce.start();
         blink.start();
         texblink.start();
 
         if(post != null){
-            reveal.connect(new VLVConnection.EndPoint(){
+            bounce.connect(new VLVConnection.EndPoint(){
 
                 @Override
                 public void run(VLVConnection connections){
@@ -444,7 +450,6 @@ public final class Animations{
 
         VLVManager reveal = getReveal(layer);
         reveal.start();
-        reveal.targetSync();
     }
 
     public static void removeDeactivationControl(){

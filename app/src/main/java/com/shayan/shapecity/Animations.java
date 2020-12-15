@@ -442,16 +442,17 @@ public final class Animations{
 
         var = ((VLVariable)((VLVRunnerEntry)bounce.get(instance)).target);
         var.setLoop(VLVariable.LOOP_NONE);
+        var.activate();
 
         for(int i = 0; i < 4; i++){
-            blink.get(i).get(instance).deactivate();
+            var = ((VLVariable)((VLVRunnerEntry)blink.get(i).get(instance)).target);
+            var.setLoop(VLVariable.LOOP_NONE);
+            var.activate();
         }
 
         var = ((VLVariable)((VLVRunnerEntry)texblink.get(instance)).target);
         var.setLoop(VLVariable.LOOP_NONE);
-
-        VLVManager reveal = getReveal(layer);
-        reveal.start();
+        var.activate();
     }
 
     public static void removeDeactivationControl(){

@@ -3,6 +3,7 @@ package com.shayan.shapecity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.opengl.GLES32;
 import android.util.Log;
@@ -19,6 +20,7 @@ import com.nurverek.vanguard.VLListInt;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.FloatBuffer;
 import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Timer;
@@ -44,6 +46,7 @@ public final class Game{
     public static FSTexture texArrayLayer1;
     public static FSTexture texArrayLayer2;
     public static FSTexture texArrayLayer3;
+    public static FSTexture texCity;
     public static FSTexture[] textures;
 
     public static VLListInt activatedSymbols;
@@ -87,8 +90,24 @@ public final class Game{
         texArrayLayer3.unbind();
 
         FSTools.checkGLError();
-
         textures = new FSTexture[]{ texArrayLayer1, texArrayLayer2, texArrayLayer3 };
+
+        BitmapFactory.Options opts = new BitmapFactory.Options();
+        opts.inPreferredConfig = Bitmap.Config.ARGB_8888;
+        opts.outConfig = Bitmap.Config.ARGB_8888;
+        opts.inScaled = true;
+        opts.inMutable = true;
+
+        texCity = new FSTexture(new VLInt(GLES32.GL_TEXTURE_2D), new VLInt(Loader.TEXUNIT++));
+        texCity.bind();
+        texCity.image2D(0, BitmapFactory.decodeResource(FSControl.getContext().getResources(), R.drawable.city, opts));
+        texCity.minFilter(GLES32.GL_LINEAR);
+        texCity.magFilter(GLES32.GL_LINEAR);
+        texCity.wrapS(GLES32.GL_CLAMP_TO_EDGE);
+        texCity.wrapT(GLES32.GL_CLAMP_TO_EDGE);
+        texCity.unbind();
+
+        FSTools.checkGLError();
     }
 
     public static void startGame(Loader loader){

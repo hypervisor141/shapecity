@@ -25,11 +25,8 @@ public final class Loader extends FSG{
     private static final int DEBUG_PROGRAMS = FSControl.DEBUG_DISABLED;
 
     private static final FSLightMaterial MATERIAL_DEFAULT = new FSLightMaterial(new VLArrayFloat(new float[]{ 0.2f, 0.2f, 0.2f }), new VLFloat(32));
-
     private static final FSLightMaterial MATERIAL_GOLD = new FSLightMaterial(new VLArrayFloat(new float[]{ 0.24725f, 0.1995f, 0.0745f }), new VLArrayFloat(new float[]{ 0.75164f, 0.60648f, 0.22648f }), new VLArrayFloat(new float[]{ 0.628281f, 0.555802f, 0.366065f }), new VLFloat(32));
-
     private static final FSLightMaterial MATERIAL_OBSIDIAN = new FSLightMaterial(new VLArrayFloat(new float[]{ 0.05375f, 0.05f, 0.06625f }), new VLArrayFloat(new float[]{ 0.18275f, 0.17f, 0.22525f }), new VLArrayFloat(new float[]{ 0.332741f, 0.328634f, 0.346435f }), new VLFloat(256));
-
     private static final FSLightMaterial MATERIAL_WHITE_RUBBER = new FSLightMaterial(new VLArrayFloat(new float[]{ 0.05f, 0.05f, 0.05f }), new VLArrayFloat(new float[]{ 0.5f, 0.5f, 0.5f }), new VLArrayFloat(new float[]{ 0.7f, 0.7f, 0.7f }), new VLFloat(32));
 
     private static final int SHADOW_PROGRAMSET = 0;
@@ -39,21 +36,11 @@ public final class Loader extends FSG{
     private static final int SHADOWMAP_ORTHO_FAR = 1500;
 
     private static final VLInt SHADOW_POINT_PCF_SAMPLES = new VLInt(20);
-
     private static final FSBrightness BRIGHTNESS = new FSBrightness(new VLFloat(2f));
-    private static final FSGamma GAMMA = new FSGamma(new VLFloat(1.5f));
+    private static final FSGamma GAMMA = new FSGamma(new VLFloat(5.5f));
 
     private static int UBOBINDPOINT = 0;
     public static int TEXUNIT = 1;
-
-    private static ModDepthMap.Prepare moddepthprep;
-    private static ModDepthMap.SetupPoint moddepthsetup;
-    private static ModDepthMap.Finish moddepthfinish;
-    private static ModModel.UBO modmodelubo;
-    private static ModModel.Uniform modmodeluniform;
-    private static ModColor.Uniform modcoloruniform;
-    private static ModLight.Point modlightpoint;
-    private static ModNoLight modnolight;
 
     public static FSMesh layer1;
     public static FSMesh layer2;
@@ -114,7 +101,6 @@ public final class Loader extends FSG{
         ////////// POST
 
         postFullSetup();
-
         Game.startGame(this);
     }
 
@@ -144,20 +130,8 @@ public final class Loader extends FSG{
 
         lightPoint = new FSLightPoint(new FSAttenuation(new VLFloat(1.0F), new VLFloat(0.007F), new VLFloat(0.0002F)), new VLArrayFloat(new float[]{ -5F, 5F, 0F, 1.0F }));
 
-        shadowPoint = new FSShadowPoint(lightPoint, new VLInt(1024), new VLInt(1024), new VLFloat(0.05F), new VLFloat(0.1F), new VLFloat(1.1F), new VLFloat(1F), new VLFloat(150F));
-
+        shadowPoint = new FSShadowPoint(lightPoint, new VLInt(1024), new VLInt(1024), new VLFloat(0.001F), new VLFloat(0.1F), new VLFloat(1.1F), new VLFloat(1F), new VLFloat(150F));
         shadowPoint.initialize(new VLInt(TEXUNIT++));
-
-        int materialsize = MATERIAL_DEFAULT.getGLSLSize();
-
-        moddepthprep = new ModDepthMap.Prepare(shadowPoint.frameBuffer(), shadowPoint.width(), shadowPoint.height(), false);
-        moddepthsetup = new ModDepthMap.SetupPoint(shadowPoint, FSShadowPoint.SELECT_LIGHT_TRANSFORMS, lightPoint.position(), shadowPoint.zFar());
-        moddepthfinish = new ModDepthMap.Finish(shadowPoint.frameBuffer());
-        modlightpoint = new ModLight.Point(GAMMA, null, BRIGHTNESS, lightPoint, shadowPoint, materialsize);
-        modnolight = new ModNoLight(GAMMA, BRIGHTNESS);
-        modmodelubo = new ModModel.UBO(1, LAYER_INSTANCE_COUNT);
-        modmodeluniform = new ModModel.Uniform();
-        modcoloruniform = new ModColor.Uniform();
 
         BUFFER_ELEMENT_SHORT_DEFAULT = BUFFERMANAGER.add(new FSBufferManager.EntryShort(new FSVertexBuffer(GLES32.GL_ELEMENT_ARRAY_BUFFER, GLES32.GL_STATIC_DRAW), new VLBufferShort()));
         BUFFER_ARRAY_FLOAT_DEFAULT = BUFFERMANAGER.add(new FSBufferManager.EntryFloat(new FSVertexBuffer(GLES32.GL_ARRAY_BUFFER, GLES32.GL_STATIC_DRAW), new VLBufferFloat()));
@@ -200,11 +174,9 @@ public final class Loader extends FSG{
         for(int i = 0; i < LAYER_INSTANCE_COUNT; i++){
             layer1packs.add(layer1pack);
         }
-
         for(int i = 0; i < LAYER_INSTANCE_COUNT; i++){
             layer2packs.add(layer2pack);
         }
-
         for(int i = 0; i < LAYER_INSTANCE_COUNT; i++){
             layer3packs.add(layer3pack);
         }
@@ -247,16 +219,16 @@ public final class Loader extends FSG{
         assemblersingular.INSTANCE_SHARE_NORMALS = false;
         assemblersingular.LOAD_MODELS = true;
         assemblersingular.LOAD_POSITIONS = true;
-        assemblersingular.LOAD_COLORS = true;
-        assemblersingular.LOAD_TEXCOORDS = false;
+        assemblersingular.LOAD_COLORS = false;
+        assemblersingular.LOAD_TEXCOORDS = true;
         assemblersingular.LOAD_NORMALS = true;
         assemblersingular.LOAD_INDICES = true;
         assemblersingular.CONVERT_POSITIONS_TO_MODELARRAYS = true;
-        assemblersingular.ENABLE_COLOR_FILL = true;
+        assemblersingular.ENABLE_COLOR_FILL = false;
         assemblersingular.DRAW_MODE_INDEXED = true;
         assemblersingular.configure();
 
-        DataPack citypack = new DataPack(new VLArrayFloat(Animations.COLOR_WHITE), null, MATERIAL_WHITE_RUBBER, null);
+        DataPack citypack = new DataPack(null, Game.texCity, MATERIAL_WHITE_RUBBER, null);
         Registration cityreg = AUTOMATOR.addScannerSingle(assemblersingular, citypack, "city_cylinder", GLES32.GL_TRIANGLES);
 
         cityreg.addProgram(programDepthSingular);
@@ -298,35 +270,54 @@ public final class Loader extends FSG{
             layout = layerlayouts[i];
 
             int modelbuffer = BUFFERMANAGER.add(new FSBufferManager.EntryFloat(new FSVertexBuffer(GLES32.GL_UNIFORM_BUFFER, GLES32.GL_DYNAMIC_DRAW, UBOBINDPOINT++), new VLBufferFloat()));
-
             int texcontrolbuffer = BUFFERMANAGER.add(new FSBufferManager.EntryFloat(new FSVertexBuffer(GLES32.GL_UNIFORM_BUFFER, GLES32.GL_DYNAMIC_DRAW, UBOBINDPOINT++), new VLBufferFloat()));
-
             int colorbuffer = BUFFERMANAGER.add(new FSBufferManager.EntryFloat(new FSVertexBuffer(GLES32.GL_UNIFORM_BUFFER, GLES32.GL_DYNAMIC_DRAW, UBOBINDPOINT++), new VLBufferFloat()));
 
-            layout.add(BUFFERMANAGER, modelbuffer, 1).addElement(new FSBufferLayout.EntryElement(FSBufferLayout.ELEMENT_SEQUENTIAL_INSTANCED, ELEMENT_MODEL));
+            layout.add(BUFFERMANAGER, modelbuffer, 1)
+                    .addElement(new FSBufferLayout.EntryElement(FSBufferLayout.ELEMENT_SEQUENTIAL_INSTANCED, ELEMENT_MODEL));
 
-            layout.add(BUFFERMANAGER, colorbuffer, 1).addElement(new FSBufferLayout.EntryElement(FSBufferLayout.ELEMENT_SEQUENTIAL_INSTANCED, ELEMENT_COLOR));
+            layout.add(BUFFERMANAGER, colorbuffer, 1)
+                    .addElement(new FSBufferLayout.EntryElement(FSBufferLayout.ELEMENT_SEQUENTIAL_INSTANCED, ELEMENT_COLOR));
 
-            layout.add(BUFFERMANAGER, BUFFER_ARRAY_FLOAT_DEFAULT, 3).addElement(new FSBufferLayout.EntryElement(FSBufferLayout.ELEMENT_INTERLEAVED_SINGULAR, ELEMENT_POSITION)).addElement(new FSBufferLayout.EntryElement(FSBufferLayout.ELEMENT_INTERLEAVED_SINGULAR, ELEMENT_TEXCOORD)).addElement(new FSBufferLayout.EntryElement(FSBufferLayout.ELEMENT_INTERLEAVED_SINGULAR, ELEMENT_NORMAL));
+            layout.add(BUFFERMANAGER, BUFFER_ARRAY_FLOAT_DEFAULT, 3)
+                    .addElement(new FSBufferLayout.EntryElement(FSBufferLayout.ELEMENT_INTERLEAVED_SINGULAR, ELEMENT_POSITION))
+                    .addElement(new FSBufferLayout.EntryElement(FSBufferLayout.ELEMENT_INTERLEAVED_SINGULAR, ELEMENT_TEXCOORD))
+                    .addElement(new FSBufferLayout.EntryElement(FSBufferLayout.ELEMENT_INTERLEAVED_SINGULAR, ELEMENT_NORMAL));
 
-            layout.add(BUFFERMANAGER, BUFFER_ELEMENT_SHORT_DEFAULT, 1).addElement(new FSBufferLayout.EntryElement(FSBufferLayout.ELEMENT_SEQUENTIAL_INDICES, ELEMENT_INDEX));
+            layout.add(BUFFERMANAGER, BUFFER_ELEMENT_SHORT_DEFAULT, 1)
+                    .addElement(new FSBufferLayout.EntryElement(FSBufferLayout.ELEMENT_SEQUENTIAL_INDICES, ELEMENT_INDEX));
 
-            layout.add(BUFFERMANAGER, texcontrolbuffer, 1).addLink(new FSBufferLayout.EntryLink(FSBufferLayout.LINK_SEQUENTIAL_SINGULAR, 0, 0, 1, 1, 4));
+            layout.add(BUFFERMANAGER, texcontrolbuffer, 1)
+                    .addLink(new FSBufferLayout.EntryLink(FSBufferLayout.LINK_SEQUENTIAL_SINGULAR, 0, 0, 1, 1, 4));
         }
 
         int modelbuffer = BUFFERMANAGER.add(new FSBufferManager.EntryFloat(new FSVertexBuffer(GLES32.GL_ARRAY_BUFFER, GLES32.GL_DYNAMIC_DRAW), new VLBufferFloat()));
 
-        citylayout.add(BUFFERMANAGER, modelbuffer, 1).addElement(new FSBufferLayout.EntryElement(FSBufferLayout.ELEMENT_SEQUENTIAL_SINGULAR, ELEMENT_MODEL));
+        citylayout.add(BUFFERMANAGER, modelbuffer, 1)
+                .addElement(new FSBufferLayout.EntryElement(FSBufferLayout.ELEMENT_SEQUENTIAL_SINGULAR, ELEMENT_MODEL));
 
-        citylayout.add(BUFFERMANAGER, BUFFER_ARRAY_FLOAT_DEFAULT, 2).addElement(new FSBufferLayout.EntryElement(FSBufferLayout.ELEMENT_INTERLEAVED_SINGULAR, ELEMENT_POSITION)).addElement(new FSBufferLayout.EntryElement(FSBufferLayout.ELEMENT_INTERLEAVED_SINGULAR, ELEMENT_NORMAL));
+        citylayout.add(BUFFERMANAGER, BUFFER_ARRAY_FLOAT_DEFAULT, 3)
+                .addElement(new FSBufferLayout.EntryElement(FSBufferLayout.ELEMENT_INTERLEAVED_SINGULAR, ELEMENT_POSITION))
+                .addElement(new FSBufferLayout.EntryElement(FSBufferLayout.ELEMENT_INTERLEAVED_SINGULAR, ELEMENT_TEXCOORD))
+                .addElement(new FSBufferLayout.EntryElement(FSBufferLayout.ELEMENT_INTERLEAVED_SINGULAR, ELEMENT_NORMAL));
 
-        citylayout.add(BUFFERMANAGER, BUFFER_ELEMENT_SHORT_DEFAULT, 1).addElement(new FSBufferLayout.EntryElement(FSBufferLayout.ELEMENT_SEQUENTIAL_INDICES, ELEMENT_INDEX));
+        citylayout.add(BUFFERMANAGER, BUFFER_ELEMENT_SHORT_DEFAULT, 1)
+                .addElement(new FSBufferLayout.EntryElement(FSBufferLayout.ELEMENT_SEQUENTIAL_INDICES, ELEMENT_INDEX));
     }
 
     private void setupPrograms(){
         FSConfig drawlayers = new FSP.DrawElementsInstanced(FSConfig.POLICY_ALWAYS, 0);
         FSConfig drawsingular = new FSP.DrawElements(FSConfig.POLICY_ALWAYS, 0);
-        FSP.Modifier modcolorlayers = new ModColor.TextureAndUBO(1, LAYER_INSTANCE_COUNT, true, false);
+
+        FSP.Modifier modcolorlayers = new ModColor.TextureAndUBO(1, LAYER_INSTANCE_COUNT, true, false, true);
+        FSP.Modifier moddepthprep = new ModDepthMap.Prepare(shadowPoint.frameBuffer(), shadowPoint.width(), shadowPoint.height(), true);
+        FSP.Modifier moddepthsetup = new ModDepthMap.SetupPoint(shadowPoint, FSShadowPoint.SELECT_LIGHT_TRANSFORMS, lightPoint.position(), shadowPoint.zFar());
+        FSP.Modifier moddepthfinish = new ModDepthMap.Finish(shadowPoint.frameBuffer());
+        FSP.Modifier modlightpoint = new ModLight.Point(GAMMA, null, BRIGHTNESS, lightPoint, shadowPoint, MATERIAL_DEFAULT.getGLSLSize());
+        FSP.Modifier modnolight = new ModNoLight(GAMMA, BRIGHTNESS);
+        FSP.Modifier modmodelubo = new ModModel.UBO(1, LAYER_INSTANCE_COUNT);
+        FSP.Modifier modmodeluniform = new ModModel.Uniform();
+        FSP.Modifier modcolortex = new ModColor.Texture(false,false,1, false);
 
         programSet(SHADOW_PROGRAMSET).add(programDepthLayers);
         programSet(SHADOW_PROGRAMSET).add(programDepthSingular);
@@ -353,7 +344,7 @@ public final class Loader extends FSG{
         programDepthSingular.build();
 
         programMainSingular.modify(modmodeluniform, FSConfig.POLICY_ALWAYS);
-        programMainSingular.modify(modcoloruniform, FSConfig.POLICY_ALWAYS);
+        programMainSingular.modify(modcolortex, FSConfig.POLICY_ALWAYS);
         programMainSingular.modify(modlightpoint, FSConfig.POLICY_ALWAYS);
         programMainSingular.addMeshConfig(drawsingular);
         programMainSingular.build();

@@ -89,12 +89,14 @@ public final class ModColor{
 
         private boolean instanced;
         private boolean instancedcoords;
+        private boolean texturecontrol;
         private int instancecount;
 
-        public SetupTexture(boolean instanced, boolean instancedcoords, int instancecount){
+        public SetupTexture(boolean instanced, boolean instancedcoords, int instancecount, boolean texturecontrol){
             this.instanced = instanced;
             this.instancedcoords = instancedcoords;
             this.instancecount = instancecount;
+            this.texturecontrol = texturecontrol;
         }
 
         @Override
@@ -104,7 +106,6 @@ public final class ModColor{
 
             FSConfig unit = new FSP.TextureColorUnit(policy);
             FSConfig bind = new FSP.TextureColorBind(policy);
-            FSConfig texcontrol = new TexControlConfig("TEXCONTROL");
             FSConfig coords;
 
             if(instancedcoords && instanced){
@@ -112,18 +113,18 @@ public final class ModColor{
 
             }else{
                 coords = new FSP.AttribPointer(policy, FSG.ELEMENT_TEXCOORD, 0);
+
                 program.registerAttributeLocation(vertex, coords);
+                program.addSetupConfig(new FSP.AttribEnable(policy, coords.location()));
+                program.addPostDrawConfig(new FSP.AttribDisable(policy, coords.location()));
+            }
 
-                FSConfig enabletexcoords = new FSP.AttribEnable(policy, coords.location());
-                FSConfig disabletexcoords = new FSP.AttribDisable(policy, coords.location());
-
-                program.addSetupConfig(enabletexcoords);
-                program.addPostDrawConfig(disabletexcoords);
+            if(texturecontrol){
+                program.addMeshConfig(new TexControlConfig("TEXCONTROL"));
             }
 
             program.registerUniformLocation(fragment, unit);
 
-            program.addMeshConfig(texcontrol);
             program.addMeshConfig(bind);
             program.addMeshConfig(unit);
             program.addMeshConfig(coords);
@@ -147,16 +148,22 @@ public final class ModColor{
                 vertex.addAttribute(coords.location(), "vec2", "colortexcoords");
                 vertex.addPipedOutputField("vec2", "vcolortexcoord");
                 vertex.addMainCode("vcolortexcoord = colortexcoords;");
-                fragment.addUniform(unit.location(), "sampler2D", "colortexture");
+
+                fragment.addUniform(unit.location(), "mediump sampler2D", "colortexture");
                 fragment.addPipedInputField("vec2", "vcolortexcoord");
             }
 
-            vertex.addUniformBlock("std140", "TEXCONTROL", new String[]{ "float texcontrol[" + instancecount + "]" });
-            vertex.addPipedOutputField("float", "vtexcontrol");
-            vertex.addMainCode("vtexcontrol = texcontrol[gl_InstanceID];");
+            if(texturecontrol){
+                vertex.addUniformBlock("std140", "TEXCONTROL", new String[]{ "float texcontrol[" + instancecount + "]" });
+                vertex.addPipedOutputField("float", "vtexcontrol");
+                vertex.addMainCode("vtexcontrol = texcontrol[gl_InstanceID];");
 
-            fragment.addPipedInputField("float", "vtexcontrol");
-            fragment.addMainCode("vec4 colortex = texture(colortexture, vcolortexcoord) * vtexcontrol;");
+                fragment.addPipedInputField("float", "vtexcontrol");
+                fragment.addMainCode("vec4 colortex = texture(colortexture, vcolortexcoord) * vtexcontrol;");
+
+            }else{
+                fragment.addMainCode("vec4 colortex = texture(colortexture, vcolortexcoord);");
+            }
         }
     }
 
@@ -194,8 +201,8 @@ public final class ModColor{
 
         private SetupTexture setuptexture;
 
-        public Texture(boolean instanced, boolean instancedcoords, int instancecount){
-            setuptexture = new SetupTexture(instanced, instancedcoords, instancecount);
+        public Texture(boolean instanced, boolean instancedcoords, int instancecount, boolean texturecontrol){
+            setuptexture = new SetupTexture(instanced, instancedcoords, instancecount, texturecontrol);
         }
 
         @Override
@@ -210,9 +217,8 @@ public final class ModColor{
         private SetupTexture setuptexture;
         private SetupUBO setupubo;
 
-        public TextureAndUBO(int segments, int instancecount, boolean instancedtex, boolean instancedtexcoords){
-
-            setuptexture = new SetupTexture(instancedtex, instancedtexcoords, instancecount);
+        public TextureAndUBO(int segments, int instancecount, boolean instancedtex, boolean instancedtexcoords, boolean texturecontrol){
+            setuptexture = new SetupTexture(instancedtex, instancedtexcoords, instancecount, texturecontrol);
             setupubo = new SetupUBO(segments, instancecount);
         }
 
@@ -230,8 +236,8 @@ public final class ModColor{
         private SetupTexture setuptexture;
         private SetupUniform setupuniform;
 
-        public TextureAndUniform(boolean instancedtex, boolean instancedtexcoords, int instancecount){
-            setuptexture = new SetupTexture(instancedtex, instancedtexcoords, instancecount);
+        public TextureAndUniform(boolean instancedtex, boolean instancedtexcoords, int instancecount, boolean texturecontrol){
+            setuptexture = new SetupTexture(instancedtex, instancedtexcoords, instancecount, texturecontrol);
             setupuniform = new SetupUniform();
         }
 
@@ -269,11 +275,10 @@ public final class ModColor{
         private SetupUBO setupubo;
         private SetupTexture setuptexture;
 
-        public Combined(int segments, int instancecount, boolean instancedtex, boolean instancedtexcoords){
-
+        public Combined(int segments, int instancecount, boolean instancedtex, boolean instancedtexcoords, boolean texturecontrol){
             setupuniform = new SetupUniform();
             setupubo = new SetupUBO(segments, instancecount);
-            setuptexture = new SetupTexture(instancedtex, instancedtexcoords, instancecount);
+            setuptexture = new SetupTexture(instancedtex, instancedtexcoords, instancecount, texturecontrol);
         }
 
         @Override

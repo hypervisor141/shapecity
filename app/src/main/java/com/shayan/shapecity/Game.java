@@ -9,6 +9,7 @@ import android.util.Log;
 
 import com.nurverek.firestorm.FSControl;
 import com.nurverek.firestorm.FSMesh;
+import com.nurverek.firestorm.FSRenderer;
 import com.nurverek.firestorm.FSTexture;
 import com.nurverek.firestorm.FSTools;
 import com.nurverek.firestorm.Loader;
@@ -20,6 +21,8 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.security.SecureRandom;
 import java.util.Arrays;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public final class Game{
 

@@ -53,8 +53,8 @@ public final class Animations{
     private static final int CYCLES_DEACTIVATED = 60;
     private static final int CYCLES_STANDBY = 100;
     private static final int CYCLES_ROTATE = 30;
-    private static final int CYCLES_RAISE_BASE_MIN = 60;
-    private static final int CYCLES_RAISE_BASE_MAX = 100;
+    private static final int CYCLES_RAISE_BASE_MIN = 80;
+    private static final int CYCLES_RAISE_BASE_MAX = 120;
     private static final int CYCLES_RAISE_BASE_DELAY_MIN = 0;
     private static final int CYCLES_RAISE_BASE_DELAY_MAX = 40;
     private static final int CYCLES_LOWER_BASE_MIN = 60;
@@ -62,6 +62,7 @@ public final class Animations{
     private static final int CYCLES_LOWER_BASE_DELAY_MIN = 0;
     private static final int CYCLES_LOWER_BASE_DELAY_MAX = 50;
     private static final int CYCLES_BOUNCE = 200;
+    private static final int CYCLES_BOUNCE_REVERSE = 50;
     private static final int CYCLES_REVEAL_MIN = 45;
     private static final int CYCLES_REVEAL_MAX = 80;
     private static final int CYCLES_REVEAL_DELAY_MIN = 0;
@@ -73,7 +74,7 @@ public final class Animations{
 
     private static final float Y_REDUCTION = 0.5f;
     private static final float Y_BOUNCE_HEIGHT_MULTIPLIER = 0.4f;
-    private static final float Y_BASE_HEIGHT_MULTIPLIER = 0.4f;
+    private static final float Y_BASE_HEIGHT_MULTIPLIER = 0.3f;
 
     private static VLVManager rootmanager;
     private static VLVManager controlmanager;
@@ -123,7 +124,11 @@ public final class Animations{
                     yraisebase += Loader.layers[i3].instance(i2).schematics().modelHeight() * Y_BASE_HEIGHT_MULTIPLIER;
                 }
 
-                VLVCurved translateraisey = new VLVCurved(0f, yraisebase, CYCLES_RAISE_BASE_MAX, VLVariable.LOOP_NONE, VLVCurved.CURVE_ACC_DEC_CUBIC);
+                if(i == 0){
+                    yraisebase = 1.0F;
+                }
+
+                VLVCurved translateraisey = new VLVCurved(0f, yraisebase, CYCLES_RAISE_BASE_MAX, VLVariable.LOOP_NONE, VLVCurved.CURVE_DEC_SINE_SQRT);
                 translateraisey.SYNCER.add(new VLVMatrix.Definition(modelmatrix));
 
                 modelmatrix.addRowTranslation(VLV.ZERO, translateraisey, VLV.ZERO);
@@ -411,6 +416,11 @@ public final class Animations{
     }
 
     public static void lowerBases(int layer, final Runnable post){
+        VLVRunner bounce = getBounce(layer);
+        bounce.initialize(-CYCLES_BOUNCE_REVERSE);
+        bounce.activate();
+        bounce.start();
+
         VLVRunner runner = getRaise(layer);
         runner.randomizeCycles(CYCLES_RAISE_BASE_MIN, CYCLES_RAISE_BASE_MAX, true, false);
         runner.reverse();
@@ -421,6 +431,7 @@ public final class Animations{
             @Override
             public void run(VLVConnection connections){
                 post.run();
+                connections.removeCurrentConnection();
             }
         });
     }
@@ -444,15 +455,27 @@ public final class Animations{
         var.setLoop(VLVariable.LOOP_NONE);
         var.activate();
 
+        if(!var.isIncreasing()){
+            var.reverse();
+        }
+
         for(int i = 0; i < 4; i++){
             var = ((VLVariable)((VLVRunnerEntry)blink.get(i).get(instance)).target);
             var.setLoop(VLVariable.LOOP_NONE);
             var.activate();
+
+            if(!var.isIncreasing()){
+                var.reverse();
+            }
         }
 
         var = ((VLVariable)((VLVRunnerEntry)texblink.get(instance)).target);
         var.setLoop(VLVariable.LOOP_NONE);
         var.activate();
+
+        if(!var.isIncreasing()){
+            var.reverse();
+        }
     }
 
     public static void removeDeactivationControl(){

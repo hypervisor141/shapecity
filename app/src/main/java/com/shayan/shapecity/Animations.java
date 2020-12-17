@@ -30,25 +30,27 @@ public final class Animations{
 
     public static final float[] COLOR_WHITE = new float[]{ 1F, 1F, 1F, 1F };
     public static final float[] COLOR_WHITE_LESS = new float[]{ 0.8F, 0.8F, 0.8F, 1F };
-    public static final float[] COLOR_ORANGE = new float[]{ 1.0F, 0.7F, 0F, 1F };
+    public static final float[] COLOR_ORANGE = new float[]{ 1.0F, 0.8F, 0F, 1F };
     public static final float[] COLOR_OBSIDIAN = new float[]{ 0.4F, 0.4F, 0.4F, 1F };
     public static final float[] COLOR_OBSIDIAN_LESS = new float[]{ 0.15F, 0.15F, 0.15F, 1F };
     public static final float[] COLOR_OBSIDIAN_LESS2 = new float[]{ 0.1F, 0.1F, 0.1F, 1F };
     public static final float[] COLOR_OBSIDIAN_LESS3 = new float[]{ 0.05F, 0.05F, 0.05F, 1F };
     public static final float[] COLOR_GOLD = new float[]{ 0.83F, 0.68F, 0.21F, 1F };
-    public static final float[] COLOR_DARK_ORANGE = new float[]{ 1.0F, 0.4F, 0F, 1F };
+    public static final float[] COLOR_DARK_ORANGE = new float[]{ 1.0F, 0.3F, 0F, 1F };
+    public static final float[] COLOR_PURPLE = new float[]{ 0F, 0.137F, 0.220F, 1F };
 
-    public static final float[] COLOR_LAYER1 = COLOR_OBSIDIAN_LESS3;
-    public static final float[] COLOR_LAYER2 = COLOR_OBSIDIAN_LESS3;
-    public static final float[] COLOR_LAYER3 = COLOR_OBSIDIAN_LESS3;
-    private static final float[] COLOR_BLINK = COLOR_OBSIDIAN_LESS2;
-    private static final float[] COLOR_DEACTIVATED = COLOR_DARK_ORANGE;
-    public static final float[] COLOR_STANDBY = COLOR_WHITE_LESS;
+    public static final float[] COLOR_LAYER1 = COLOR_DARK_ORANGE;
+    public static final float[] COLOR_LAYER2 = COLOR_DARK_ORANGE;
+    public static final float[] COLOR_LAYER3 = COLOR_DARK_ORANGE;
+    public static final float[] COLOR_DISTRICTS = COLOR_ORANGE;
+    private static final float[] COLOR_BLINK = COLOR_ORANGE;
+    private static final float[] COLOR_DEACTIVATED = COLOR_PURPLE;
+    public static final float[] COLOR_STANDBY = COLOR_DARK_ORANGE;
 
     public static final float TEXCONTROL_IDLE = 0F;
     public static final float TEXCONTROL_ACTIVE = 1F;
 
-    private static final int CYCLES_LIGHT_ROTATION = 3600;
+    private static final int CYCLES_LIGHT_ROTATION = 1000;
     private static final int CYCLES_BLINK = 20;
     private static final int CYCLES_DEACTIVATED = 60;
     private static final int CYCLES_STANDBY = 100;
@@ -89,7 +91,7 @@ public final class Animations{
 
         controlmanager.add(controlrunner);
 
-        float[][] colors = new float[][]{ COLOR_LAYER1, COLOR_LAYER2, COLOR_LAYER3, };
+        float[][] colors = new float[][]{ COLOR_LAYER1, COLOR_LAYER2, COLOR_LAYER3 };
         int itemsize = Loader.LAYER_INSTANCE_COUNT * Loader.layers.length;
         int size = Loader.layers.length;
 
@@ -122,10 +124,6 @@ public final class Animations{
 
                 for(int i3 = 0; i3 < i; i3++){
                     yraisebase += Loader.layers[i3].instance(i2).schematics().modelHeight() * Y_BASE_HEIGHT_MULTIPLIER;
-                }
-
-                if(i == 0){
-                    yraisebase = 1.0F;
                 }
 
                 VLVCurved translateraisey = new VLVCurved(0f, yraisebase, CYCLES_RAISE_BASE_MAX, VLVariable.LOOP_NONE, VLVCurved.CURVE_DEC_SINE_SQRT);

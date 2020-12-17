@@ -15,6 +15,30 @@ import com.nurverek.vanguard.VLDebug;
 
 public final class ModColor{
 
+    private static final class SetupAttribute extends FSP.Modifier{
+
+        public SetupAttribute(){
+
+        }
+
+
+
+        @Override
+        protected void modify(FSP program, FSConfig.Policy policy){
+            FSShader vertex = program.vertexShader();
+            FSConfig color = new FSP.AttribPointer(policy, FSG.ELEMENT_COLOR, 0);
+
+            program.registerAttributeLocation(vertex, color);
+
+            vertex.addAttribute(color.location(), "vec4", "colorin");
+            vertex.addPipedOutputField("vec4", "colorvertex");
+            vertex.addMainCode("colorvertex = colorin;");
+
+            program.addMeshConfig(color);
+            program.fragmentShader().addPipedInputField("vec4", "colorvertex");
+        }
+    }
+
     private static final class SetupUniform extends FSP.Modifier{
 
         public SetupUniform(){
@@ -164,6 +188,21 @@ public final class ModColor{
             }else{
                 fragment.addMainCode("vec4 colortex = texture(colortexture, vcolortexcoord);");
             }
+        }
+    }
+
+    public static final class Attribute extends FSP.Modifier{
+
+        private SetupAttribute setupattribute;
+
+        public Attribute(){
+            setupattribute = new SetupAttribute();
+        }
+
+        @Override
+        protected void modify(FSP program, FSConfig.Policy policy){
+            program.modify(setupattribute, policy);
+            program.fragmentShader().addMainCode("vec4 vcolor = colorvertex;");
         }
     }
 

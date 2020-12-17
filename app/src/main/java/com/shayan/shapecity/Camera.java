@@ -23,14 +23,15 @@ public final class Camera{
     private static VLVRunner control;
 
     public static void rotateCamera(){
-        controlcamera = new VLVLinear(0, 360, 1250, VLVariable.LOOP_FORWARD, new VLTaskContinous(new VLTask.Task<VLVLinear>(){
+        controlcamera = new VLVLinear(0, 360, 2000, VLVariable.LOOP_FORWARD, new VLTaskContinous(new VLTask.Task<VLVLinear>(){
 
             private float[] cache = new float[16];
 
             @Override
             public void run(VLTask<VLVLinear> task, VLVLinear var){
                 FSViewConfig c = FSControl.getViewConfig();
-                c.eyePosition(0, 30F, 80F);
+//                c.eyePosition(0, 10F, 5F);
+                c.eyePosition(0, 40F, 80F);
 
                 float[] eyepos = c.eyePosition().provider();
 

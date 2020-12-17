@@ -21,21 +21,23 @@ public final class ModColor{
 
         }
 
-
-
         @Override
         protected void modify(FSP program, FSConfig.Policy policy){
             FSShader vertex = program.vertexShader();
-            FSConfig color = new FSP.AttribPointer(policy, FSG.ELEMENT_COLOR, 0);
 
-            program.registerAttributeLocation(vertex, color);
+            FSConfig colorattrib = new FSP.AttribPointer(policy, FSG.ELEMENT_COLOR, 0);
 
-            vertex.addAttribute(color.location(), "vec4", "colorin");
+            program.registerAttributeLocation(vertex, colorattrib);
+
+            vertex.addAttribute(colorattrib.location(), "vec4", "colorin");
             vertex.addPipedOutputField("vec4", "colorvertex");
             vertex.addMainCode("colorvertex = colorin;");
 
-            program.addMeshConfig(color);
             program.fragmentShader().addPipedInputField("vec4", "colorvertex");
+
+            program.addSetupConfig(new FSP.AttribEnable(colorattrib.location()));
+            program.addMeshConfig(colorattrib);
+            program.addPostDrawConfig(new FSP.AttribDisable(colorattrib.location()));
         }
     }
 

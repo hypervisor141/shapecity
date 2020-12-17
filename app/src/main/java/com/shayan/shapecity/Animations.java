@@ -274,13 +274,44 @@ public final class Animations{
         rootmanager.connections(1, 1);
         rootmanager.targetSync();
 
-        VLVManager loadermanager = loader.vManager();
-        loadermanager.add(rootmanager);
-        loadermanager.add(controlmanager);
+        size = Loader.districts.length;
+        VLVManager districtmanager = new VLVManager(size, 0);
 
         for(int i = 0; i < size; i++){
+            FSInstance district = Loader.districts[i].instance(0);
+            VLArrayFloat positions = district.positions();
 
+            int size2 = positions.size();
+
+            VLVCurved var = new VLVCurved(-8F - 10F, -8F + 10F, 100, VLVariable.LOOP_FORWARD_BACKWARD, VLVCurved.CURVE_DEC_SINE_SQRT);
+            VLVCurved var2 = new VLVCurved(-8F + 10F, -8F - 10F, 100, VLVariable.LOOP_FORWARD_BACKWARD, VLVCurved.CURVE_DEC_SINE_SQRT);
+
+            for(int i2 = 0; i2 < size2; i2++){
+                if(i2 % 4 == 1){
+                    continue;
+                }
+
+                if(i2 % 2 == 0){
+                    var.SYNCER.add(new VLArray.DefinitionVLV(positions, i2));
+
+                }else{
+                    var2.SYNCER.add(new VLArray.DefinitionVLV(positions, i2));
+                }
+            }
+
+            VLVRunner runner = new VLVRunner(size2,0);
+            runner.add(new VLVRunnerEntry(var, 0));
+            runner.add(new VLVRunnerEntry(var2, 0));
+
+            districtmanager.add(runner);
         }
+
+        districtmanager.start();
+
+        VLVManager loadermanager = loader.vManager();
+        loadermanager.add(rootmanager);
+        loadermanager.add(districtmanager);
+        loadermanager.add(controlmanager);
     }
 
     public static VLVRunner getRaise(int layer){

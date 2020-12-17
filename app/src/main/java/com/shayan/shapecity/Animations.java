@@ -42,8 +42,7 @@ public final class Animations{
     public static final float[] COLOR_LAYER1 = COLOR_DARK_ORANGE;
     public static final float[] COLOR_LAYER2 = COLOR_DARK_ORANGE;
     public static final float[] COLOR_LAYER3 = COLOR_DARK_ORANGE;
-    public static final float[] COLOR_DISTRICTS_1 = COLOR_DARK_ORANGE;
-    public static final float[] COLOR_DISTRICTS_2 = COLOR_PURPLE;
+    public static final float[] COLOR_DISTRICTS = COLOR_DARK_ORANGE;
     private static final float[] COLOR_BLINK = COLOR_ORANGE;
     private static final float[] COLOR_DEACTIVATED = COLOR_PURPLE;
     public static final float[] COLOR_STANDBY = COLOR_DARK_ORANGE;
@@ -283,19 +282,15 @@ public final class Animations{
 
             int size2 = positions.size();
 
-            VLVCurved var = new VLVCurved(-8F - 10F, -8F + 10F, 100, VLVariable.LOOP_FORWARD_BACKWARD, VLVCurved.CURVE_DEC_SINE_SQRT);
-            VLVCurved var2 = new VLVCurved(-8F + 10F, -8F - 10F, 100, VLVariable.LOOP_FORWARD_BACKWARD, VLVCurved.CURVE_DEC_SINE_SQRT);
+            VLVCurved var = new VLVCurved(-5F - 1F, -5F + 1F, 100, VLVariable.LOOP_FORWARD_BACKWARD, VLVCurved.CURVE_ACC_DEC_COS);
+            VLVCurved var2 = new VLVCurved(-5F + 1F, -5F - 1F, 100, VLVariable.LOOP_FORWARD_BACKWARD, VLVCurved.CURVE_ACC_DEC_COS);
 
-            for(int i2 = 0; i2 < size2; i2++){
-                if(i2 % 4 == 1){
-                    continue;
-                }
-
-                if(i2 % 2 == 0){
-                    var.SYNCER.add(new VLArray.DefinitionVLV(positions, i2));
+            for(int i2 = 0; i2 < size2; i2 += 4){
+                if(i2 / 4 % 2 == 0){
+                    var.SYNCER.add(new VLArray.DefinitionVLV(positions, i2 + 1));
 
                 }else{
-                    var2.SYNCER.add(new VLArray.DefinitionVLV(positions, i2));
+                    var2.SYNCER.add(new VLArray.DefinitionVLV(positions, i2 + 1));
                 }
             }
 

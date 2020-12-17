@@ -40,7 +40,8 @@ public final class Camera{
                 Matrix.multiplyMV(eyepos, 0, cache, 0, eyepos, 0);
 
                 c.eyePositionDivideByW();
-                c.lookAt(0f, 0f, 0f, 0f, 1f, 0f);
+//                c.lookAt(0f, 0f, 0f, 0f, 1f, 0f);
+                c.lookAt(-50f, 0f, -50f, 0f, 1f, 0f);
                 c.updateViewProjection();
             }
         }));

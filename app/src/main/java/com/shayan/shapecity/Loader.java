@@ -119,14 +119,6 @@ public final class Loader extends FSG{
     @Override
     public void update(int passindex, int programsetindex){
         BUFFERMANAGER.updateIfNeeded();
-
-        Log.d("wtf", ((VLVRunner)vManager().get(1).get(0)).get(0).target.get() + "");
-
-
-        StringBuilder builder = new StringBuilder();
-        district1.instance(0).bufferTracker().get(ELEMENT_POSITION).get(0).stringify(builder, 1000);
-        Log.d("wtf", builder.toString());
-        Log.d("wtf", district1.instance(0).bufferTracker().get(ELEMENT_POSITION).get(0).target().vertexbuffer.provider().SYNCER.size() + "");
     }
 
     private void addBasics(){
@@ -334,18 +326,10 @@ public final class Loader extends FSG{
             Random rand = new Random();
 
             for(int i2 = 0; i2 < colors.length; i2 += 4){
-                if(i2 / 4 % 2 == 0){
-                    colors[i2] = Animations.COLOR_DISTRICTS_1[0];
-                    colors[i2 + 1] = Animations.COLOR_DISTRICTS_1[1];
-                    colors[i2 + 2] = Animations.COLOR_DISTRICTS_1[2];
-                    colors[i2 + 3] = Animations.COLOR_DISTRICTS_1[3];
-
-                }else{
-                    colors[i2] = Animations.COLOR_DISTRICTS_2[0];
-                    colors[i2 + 1] = Animations.COLOR_DISTRICTS_2[1];
-                    colors[i2 + 2] = Animations.COLOR_DISTRICTS_2[2];
-                    colors[i2 + 3] = Animations.COLOR_DISTRICTS_2[3];
-                }
+                colors[i2] = Animations.COLOR_DISTRICTS[0];
+                colors[i2 + 1] = Animations.COLOR_DISTRICTS[1];
+                colors[i2 + 2] = Animations.COLOR_DISTRICTS[2];
+                colors[i2 + 3] = Animations.COLOR_DISTRICTS[3];
             }
 
             districts[i].instance(0).colors().provider(colors);

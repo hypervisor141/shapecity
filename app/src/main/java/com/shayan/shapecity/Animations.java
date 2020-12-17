@@ -42,7 +42,8 @@ public final class Animations{
     public static final float[] COLOR_LAYER1 = COLOR_DARK_ORANGE;
     public static final float[] COLOR_LAYER2 = COLOR_DARK_ORANGE;
     public static final float[] COLOR_LAYER3 = COLOR_DARK_ORANGE;
-    public static final float[] COLOR_DISTRICTS = COLOR_ORANGE;
+    public static final float[] COLOR_DISTRICTS_1 = COLOR_DARK_ORANGE;
+    public static final float[] COLOR_DISTRICTS_2 = COLOR_PURPLE;
     private static final float[] COLOR_BLINK = COLOR_ORANGE;
     private static final float[] COLOR_DEACTIVATED = COLOR_PURPLE;
     public static final float[] COLOR_STANDBY = COLOR_DARK_ORANGE;
@@ -276,6 +277,10 @@ public final class Animations{
         VLVManager loadermanager = loader.vManager();
         loadermanager.add(rootmanager);
         loadermanager.add(controlmanager);
+
+        for(int i = 0; i < size; i++){
+
+        }
     }
 
     public static VLVRunner getRaise(int layer){

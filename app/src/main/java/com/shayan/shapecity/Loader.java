@@ -98,7 +98,6 @@ public final class Loader extends FSG{
 
         ////////// BUFFER
 
-        preBufferAdjustments();
         createLinks();
         prepareBufferLayouts(layerlayouts, citylayout, districtslayouts);
 
@@ -143,7 +142,7 @@ public final class Loader extends FSG{
 
         lightPoint = new FSLightPoint(new FSAttenuation(new VLFloat(1.0F), new VLFloat(0.007F), new VLFloat(0.0002F)), new VLArrayFloat(new float[]{ 0F, 8F, -7F, 1.0F }));
 
-        shadowPoint = new FSShadowPoint(lightPoint, new VLInt(1024), new VLInt(1024), new VLFloat(0.005F), new VLFloat(0.005F), new VLFloat(1.1F), new VLFloat(1F), new VLFloat(150F));
+        shadowPoint = new FSShadowPoint(lightPoint, new VLInt(1024), new VLInt(1024), new VLFloat(0.005F), new VLFloat(0.005F), new VLFloat(1.1F), new VLFloat(1F), new VLFloat(50F));
         shadowPoint.initialize(new VLInt(TEXUNIT++));
 
         BUFFER_ELEMENT_SHORT_DEFAULT = BUFFERMANAGER.add(new FSBufferManager.EntryShort(new FSVertexBuffer(GLES32.GL_ELEMENT_ARRAY_BUFFER, GLES32.GL_STATIC_DRAW), new VLBufferShort()));
@@ -274,14 +273,14 @@ public final class Loader extends FSG{
         assemblersingular.LOAD_NORMALS = true;
         assemblersingular.LOAD_INDICES = true;
         assemblersingular.CONVERT_POSITIONS_TO_MODELARRAYS = true;
-        assemblersingular.ENABLE_COLOR_FILL = false;
+        assemblersingular.ENABLE_COLOR_FILL = true;
         assemblersingular.DRAW_MODE_INDEXED = true;
         assemblersingular.configure();
 
-        DataPack pack1 = new DataPack(new VLArrayFloat(null), null, MATERIAL_WHITE_RUBBER, null);
-        DataPack pack2 = new DataPack(new VLArrayFloat(null), null, MATERIAL_WHITE_RUBBER, null);
-        DataPack pack3 = new DataPack(new VLArrayFloat(null), null, MATERIAL_WHITE_RUBBER, null);
-        DataPack pack4 = new DataPack(new VLArrayFloat(null), null, MATERIAL_WHITE_RUBBER, null);
+        DataPack pack1 = new DataPack(new VLArrayFloat(Animations.COLOR_DISTRICTS), null, MATERIAL_WHITE_RUBBER, null);
+        DataPack pack2 = new DataPack(new VLArrayFloat(Animations.COLOR_DISTRICTS), null, MATERIAL_WHITE_RUBBER, null);
+        DataPack pack3 = new DataPack(new VLArrayFloat(Animations.COLOR_DISTRICTS), null, MATERIAL_WHITE_RUBBER, null);
+        DataPack pack4 = new DataPack(new VLArrayFloat(Animations.COLOR_DISTRICTS), null, MATERIAL_WHITE_RUBBER, null);
 
         Registration district1reg = AUTOMATOR.addScannerSingle(assemblersingular, pack1, "district.000_Cube.036", GLES32.GL_TRIANGLES);
         Registration district2reg = AUTOMATOR.addScannerSingle(assemblersingular, pack2, "district.001_Cube.037", GLES32.GL_TRIANGLES);
@@ -309,31 +308,6 @@ public final class Loader extends FSG{
                 district3reg.bufferLayout(),
                 district4reg.bufferLayout(),
         };
-    }
-
-    private void preBufferAdjustments(){
-        districts = new FSMesh[]{
-                district1,
-                district2,
-                district3,
-                district4
-        };
-
-        for(int i = 0; i < districts.length; i++){
-            int size = districts[i].instance(0).positions().size() / UNIT_SIZE_POSITION;
-
-            float[] colors = new float[size * UNIT_SIZE_COLOR];
-            Random rand = new Random();
-
-            for(int i2 = 0; i2 < colors.length; i2 += 4){
-                colors[i2] = Animations.COLOR_DISTRICTS[0];
-                colors[i2 + 1] = Animations.COLOR_DISTRICTS[1];
-                colors[i2 + 2] = Animations.COLOR_DISTRICTS[2];
-                colors[i2 + 3] = Animations.COLOR_DISTRICTS[3];
-            }
-
-            districts[i].instance(0).colors().provider(colors);
-        }
     }
 
     private void createLinks(){
@@ -402,7 +376,6 @@ public final class Loader extends FSG{
                 .addElement(new FSBufferLayout.EntryElement(FSBufferLayout.ELEMENT_SEQUENTIAL_INDICES, ELEMENT_INDEX));
 
         modelbuffer = BUFFERMANAGER.add(new FSBufferManager.EntryFloat(new FSVertexBuffer(GLES32.GL_ARRAY_BUFFER, GLES32.GL_DYNAMIC_DRAW), new VLBufferFloat()));
-        int pbuffer = BUFFERMANAGER.add(new FSBufferManager.EntryFloat(new FSVertexBuffer(GLES32.GL_ARRAY_BUFFER, GLES32.GL_DYNAMIC_DRAW), new VLBufferFloat()));
 
         for(int i = 0; i < districtslayouts.length; i++){
             layout = districtslayouts[i];
@@ -410,12 +383,8 @@ public final class Loader extends FSG{
             layout.add(BUFFERMANAGER, modelbuffer, 1)
                     .addElement(new FSBufferLayout.EntryElement(FSBufferLayout.ELEMENT_SEQUENTIAL_SINGULAR, ELEMENT_MODEL));
 
-            layout.add(BUFFERMANAGER, pbuffer, 1)
-                    .addElement(new FSBufferLayout.EntryElement(FSBufferLayout.ELEMENT_SEQUENTIAL_SINGULAR, ELEMENT_POSITION));
-
             layout.add(BUFFERMANAGER, BUFFER_ARRAY_FLOAT_DEFAULT, 3)
-//                    .addElement(new FSBufferLayout.EntryElement(FSBufferLayout.ELEMENT_INTERLEAVED_SINGULAR, ELEMENT_POSITION))
-                    .addElement(new FSBufferLayout.EntryElement(FSBufferLayout.ELEMENT_INTERLEAVED_SINGULAR, ELEMENT_COLOR))
+                    .addElement(new FSBufferLayout.EntryElement(FSBufferLayout.ELEMENT_INTERLEAVED_SINGULAR, ELEMENT_POSITION))
                     .addElement(new FSBufferLayout.EntryElement(FSBufferLayout.ELEMENT_INTERLEAVED_SINGULAR, ELEMENT_NORMAL));
 
             layout.add(BUFFERMANAGER, BUFFER_ELEMENT_SHORT_DEFAULT, 1)
@@ -436,7 +405,7 @@ public final class Loader extends FSG{
         FSP.Modifier modmodelubo = new ModModel.UBO(1, LAYER_INSTANCE_COUNT);
         FSP.Modifier modmodeluniform = new ModModel.Uniform();
         FSP.Modifier modcolortex = new ModColor.Texture(false,false,1, false);
-        FSP.Modifier modcolorattrib = new ModColor.Attribute();
+        FSP.Modifier modcoloruniform = new ModColor.Uniform();
 
         programSet(SHADOW_PROGRAMSET).add(programDepthLayers);
         programSet(SHADOW_PROGRAMSET).add(programDepthSingular);
@@ -470,14 +439,25 @@ public final class Loader extends FSG{
         programCity.build();
 
         programDistricts.modify(modmodeluniform, FSConfig.POLICY_ALWAYS);
-        programDistricts.modify(modcolorattrib, FSConfig.POLICY_ALWAYS);
+        programDistricts.modify(modcoloruniform, FSConfig.POLICY_ALWAYS);
         programDistricts.modify(modlightpoint, FSConfig.POLICY_ALWAYS);
         programDistricts.addMeshConfig(drawsingular);
         programDistricts.build();
     }
 
     private void postFullSetup(){
-        layers = new FSMesh[]{ layer1, layer2, layer3 };
+        layers = new FSMesh[]{
+                layer1,
+                layer2,
+                layer3
+        };
+
+        districts = new FSMesh[]{
+                district1,
+                district2,
+                district3,
+                district4
+        };
     }
 
     @Override

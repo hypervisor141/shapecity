@@ -42,7 +42,7 @@ public final class Animations{
     public static final float[] COLOR_LAYER1 = COLOR_DARK_ORANGE;
     public static final float[] COLOR_LAYER2 = COLOR_DARK_ORANGE;
     public static final float[] COLOR_LAYER3 = COLOR_DARK_ORANGE;
-    public static final float[] COLOR_DISTRICTS = COLOR_DARK_ORANGE;
+    public static final float[] COLOR_PILLARS = COLOR_DARK_ORANGE;
     private static final float[] COLOR_BLINK = COLOR_ORANGE;
     private static final float[] COLOR_DEACTIVATED = COLOR_PURPLE;
     public static final float[] COLOR_STANDBY = COLOR_DARK_ORANGE;
@@ -273,8 +273,39 @@ public final class Animations{
         rootmanager.connections(1, 1);
         rootmanager.targetSync();
 
+//        size = Loader.districts.length;
+//        VLVManager districtmanager = new VLVManager(size, 0);
+//
+//        for(int i = 0; i < size; i++){
+//            FSInstance district = Loader.districts[i].instance(0);
+//            VLArrayFloat positions = district.positions();
+//
+//            int size2 = positions.size();
+//
+//            VLVCurved var = new VLVCurved(-5F - 1F, -5F + 1F, 100, VLVariable.LOOP_FORWARD_BACKWARD, VLVCurved.CURVE_ACC_DEC_COS);
+//            VLVCurved var2 = new VLVCurved(-5F + 1F, -5F - 1F, 100, VLVariable.LOOP_FORWARD_BACKWARD, VLVCurved.CURVE_ACC_DEC_COS);
+//
+//            for(int i2 = 0; i2 < size2; i2 += 4){
+//                if(i2 / 4 % 2 == 0){
+//                    var.SYNCER.add(new VLArray.DefinitionVLV(positions, i2 + 1));
+//
+//                }else{
+//                    var2.SYNCER.add(new VLArray.DefinitionVLV(positions, i2 + 1));
+//                }
+//            }
+//
+//            VLVRunner runner = new VLVRunner(size2,0);
+//            runner.add(new VLVRunnerEntry(var, 0));
+//            runner.add(new VLVRunnerEntry(var2, 0));
+//
+//            districtmanager.add(runner);
+//        }
+//
+//        districtmanager.start();
+
         VLVManager loadermanager = loader.vManager();
         loadermanager.add(rootmanager);
+//        loadermanager.add(districtmanager);
         loadermanager.add(controlmanager);
     }
 

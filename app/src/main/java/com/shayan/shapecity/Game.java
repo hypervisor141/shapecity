@@ -3,14 +3,12 @@ package com.shayan.shapecity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.opengl.GLES32;
 import android.util.Log;
 
 import com.nurverek.firestorm.FSControl;
 import com.nurverek.firestorm.FSMesh;
-import com.nurverek.firestorm.FSRenderer;
 import com.nurverek.firestorm.FSTexture;
 import com.nurverek.firestorm.FSTools;
 import com.nurverek.firestorm.Loader;
@@ -20,11 +18,8 @@ import com.nurverek.vanguard.VLListInt;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.FloatBuffer;
 import java.security.SecureRandom;
 import java.util.Arrays;
-import java.util.Timer;
-import java.util.TimerTask;
 
 public final class Game{
 
@@ -46,7 +41,7 @@ public final class Game{
     public static FSTexture texArrayLayer1;
     public static FSTexture texArrayLayer2;
     public static FSTexture texArrayLayer3;
-    public static FSTexture texCity;
+    public static FSTexture texCenter;
     public static FSTexture[] textures;
 
     public static VLListInt activatedSymbols;
@@ -98,14 +93,14 @@ public final class Game{
         opts.inScaled = true;
         opts.inMutable = true;
 
-        texCity = new FSTexture(new VLInt(GLES32.GL_TEXTURE_2D), new VLInt(Loader.TEXUNIT++));
-        texCity.bind();
-        texCity.image2D(0, BitmapFactory.decodeResource(FSControl.getContext().getResources(), R.drawable.city, opts));
-        texCity.minFilter(GLES32.GL_LINEAR);
-        texCity.magFilter(GLES32.GL_LINEAR);
-        texCity.wrapS(GLES32.GL_CLAMP_TO_EDGE);
-        texCity.wrapT(GLES32.GL_CLAMP_TO_EDGE);
-        texCity.unbind();
+        texCenter = new FSTexture(new VLInt(GLES32.GL_TEXTURE_2D), new VLInt(Loader.TEXUNIT++));
+        texCenter.bind();
+        texCenter.image2D(0, BitmapFactory.decodeResource(FSControl.getContext().getResources(), R.drawable.center, opts));
+        texCenter.minFilter(GLES32.GL_LINEAR);
+        texCenter.magFilter(GLES32.GL_LINEAR);
+        texCenter.wrapS(GLES32.GL_CLAMP_TO_EDGE);
+        texCenter.wrapT(GLES32.GL_CLAMP_TO_EDGE);
+        texCenter.unbind();
 
         FSTools.checkGLError();
     }

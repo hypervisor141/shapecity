@@ -22,8 +22,8 @@ import java.util.Random;
 
 public final class Loader extends FSG{
 
-    private static final int DEBUG_AUTOMATOR = FSControl.DEBUG_FULL;
-    private static final int DEBUG_PROGRAMS = FSControl.DEBUG_FULL;
+    private static final int DEBUG_AUTOMATOR = FSControl.DEBUG_DISABLED;
+    private static final int DEBUG_PROGRAMS = FSControl.DEBUG_DISABLED;
 
     private static final FSLightMaterial MATERIAL_DEFAULT = new FSLightMaterial(new VLArrayFloat(new float[]{ 0.2f, 0.2f, 0.2f }), new VLFloat(32));
     private static final FSLightMaterial MATERIAL_GOLD = new FSLightMaterial(new VLArrayFloat(new float[]{ 0.24725f, 0.1995f, 0.0745f }), new VLArrayFloat(new float[]{ 0.75164f, 0.60648f, 0.22648f }), new VLArrayFloat(new float[]{ 0.628281f, 0.555802f, 0.366065f }), new VLFloat(32));
@@ -51,11 +51,12 @@ public final class Loader extends FSG{
 
     public static FSMesh[] layers;
 
-    private static FSP programDepthSingular;
+    private static FSP programDepthCenter;
     private static FSP programCenter;
     private static FSP programPillars;
+    private static FSP programDepthPillars;
     private static FSP programDepthLayers;
-    private static FSP programMainLayers;
+    private static FSP programLayers;
 
     private static int BUFFER_ELEMENT_SHORT_DEFAULT;
     private static int BUFFER_ARRAY_FLOAT_DEFAULT;
@@ -130,19 +131,57 @@ public final class Loader extends FSG{
         //        600 	1.0 	0.007 	0.0002
         //        3250 	1.0 	0.0014 	0.000007
 
-        programDepthSingular = new FSP(DEBUG_PROGRAMS);
+        programDepthCenter = new FSP(DEBUG_PROGRAMS);
+        programDepthPillars = new FSP(DEBUG_PROGRAMS);
         programCenter = new FSP(DEBUG_PROGRAMS);
         programPillars = new FSP(DEBUG_PROGRAMS);
         programDepthLayers = new FSP(DEBUG_PROGRAMS);
-        programMainLayers = new FSP(DEBUG_PROGRAMS);
+        programLayers = new FSP(DEBUG_PROGRAMS);
 
-        lightPoint = new FSLightPoint(new FSAttenuation(new VLFloat(1.0F), new VLFloat(0.007F), new VLFloat(0.0002F)), new VLArrayFloat(new float[]{ 0F, 8F, -7F, 1.0F }));
+        lightPoint = new FSLightPoint(new FSAttenuation(new VLFloat(1.0F), new VLFloat(0.007F), new VLFloat(0.0002F)), new VLArrayFloat(new float[]{ 0F, 25F, -7F, 1.0F }));
 
         shadowPoint = new FSShadowPoint(lightPoint, new VLInt(1024), new VLInt(1024), new VLFloat(0.005F), new VLFloat(0.005F), new VLFloat(1.1F), new VLFloat(1F), new VLFloat(150F));
         shadowPoint.initialize(new VLInt(TEXUNIT++));
 
         BUFFER_ELEMENT_SHORT_DEFAULT = BUFFERMANAGER.add(new FSBufferManager.EntryShort(new FSVertexBuffer(GLES32.GL_ELEMENT_ARRAY_BUFFER, GLES32.GL_STATIC_DRAW), new VLBufferShort()));
         BUFFER_ARRAY_FLOAT_DEFAULT = BUFFERMANAGER.add(new FSBufferManager.EntryFloat(new FSVertexBuffer(GLES32.GL_ARRAY_BUFFER, GLES32.GL_STATIC_DRAW), new VLBufferFloat()));
+    }
+
+    private FSBufferLayout registerCenter(){
+        Assembler assemblersingular = new Assembler();
+        assemblersingular.ENABLE_DATA_PACK = true;
+        assemblersingular.SYNC_MODELMATRIX_AND_MODELARRAY = true;
+        assemblersingular.SYNC_MODELARRAY_AND_SCHEMATICS = true;
+        assemblersingular.SYNC_MODELARRAY_AND_BUFFER = true;
+        assemblersingular.SYNC_POSITION_AND_BUFFER = true;
+        assemblersingular.SYNC_COLOR_AND_BUFFER = true;
+        assemblersingular.SYNC_TEXCOORD_AND_BUFFER = true;
+        assemblersingular.SYNC_NORMAL_AND_BUFFER = true;
+        assemblersingular.SYNC_INDICES_AND_BUFFER = true;
+        assemblersingular.INSTANCE_SHARE_POSITIONS = false;
+        assemblersingular.INSTANCE_SHARE_COLORS = false;
+        assemblersingular.INSTANCE_SHARE_TEXCOORDS = false;
+        assemblersingular.INSTANCE_SHARE_NORMALS = false;
+        assemblersingular.LOAD_MODELS = true;
+        assemblersingular.LOAD_POSITIONS = true;
+        assemblersingular.LOAD_COLORS = false;
+        assemblersingular.LOAD_TEXCOORDS = true;
+        assemblersingular.LOAD_NORMALS = true;
+        assemblersingular.LOAD_INDICES = true;
+        assemblersingular.CONVERT_POSITIONS_TO_MODELARRAYS = true;
+        assemblersingular.ENABLE_COLOR_FILL = false;
+        assemblersingular.DRAW_MODE_INDEXED = true;
+        assemblersingular.configure();
+
+        DataPack pack = new DataPack(null, Game.texCenter, MATERIAL_WHITE_RUBBER, null);
+        Registration reg = AUTOMATOR.addScannerSingle(assemblersingular, pack, "center_Cylinder.001", GLES32.GL_TRIANGLES);
+
+        reg.addProgram(programDepthCenter);
+        reg.addProgram(programCenter);
+
+        center = reg.mesh();
+
+        return reg.bufferLayout();
     }
 
     private FSBufferLayout[] registerLayers(){
@@ -197,9 +236,9 @@ public final class Loader extends FSG{
         reglayer2.addProgram(programDepthLayers);
         reglayer3.addProgram(programDepthLayers);
 
-        reglayer1.addProgram(programMainLayers);
-        reglayer2.addProgram(programMainLayers);
-        reglayer3.addProgram(programMainLayers);
+        reglayer1.addProgram(programLayers);
+        reglayer2.addProgram(programLayers);
+        reglayer3.addProgram(programLayers);
 
         layer1 = reglayer1.mesh();
         layer2 = reglayer2.mesh();
@@ -208,43 +247,6 @@ public final class Loader extends FSG{
         FSBufferLayout[] layerlayouts = new FSBufferLayout[]{ reglayer1.bufferLayout(), reglayer2.bufferLayout(), reglayer3.bufferLayout() };
 
         return layerlayouts;
-    }
-
-    private FSBufferLayout registerCenter(){
-        Assembler assemblersingular = new Assembler();
-        assemblersingular.ENABLE_DATA_PACK = true;
-        assemblersingular.SYNC_MODELMATRIX_AND_MODELARRAY = true;
-        assemblersingular.SYNC_MODELARRAY_AND_SCHEMATICS = true;
-        assemblersingular.SYNC_MODELARRAY_AND_BUFFER = true;
-        assemblersingular.SYNC_POSITION_AND_BUFFER = true;
-        assemblersingular.SYNC_COLOR_AND_BUFFER = true;
-        assemblersingular.SYNC_TEXCOORD_AND_BUFFER = true;
-        assemblersingular.SYNC_NORMAL_AND_BUFFER = true;
-        assemblersingular.SYNC_INDICES_AND_BUFFER = true;
-        assemblersingular.INSTANCE_SHARE_POSITIONS = false;
-        assemblersingular.INSTANCE_SHARE_COLORS = false;
-        assemblersingular.INSTANCE_SHARE_TEXCOORDS = false;
-        assemblersingular.INSTANCE_SHARE_NORMALS = false;
-        assemblersingular.LOAD_MODELS = true;
-        assemblersingular.LOAD_POSITIONS = true;
-        assemblersingular.LOAD_COLORS = false;
-        assemblersingular.LOAD_TEXCOORDS = true;
-        assemblersingular.LOAD_NORMALS = true;
-        assemblersingular.LOAD_INDICES = true;
-        assemblersingular.CONVERT_POSITIONS_TO_MODELARRAYS = true;
-        assemblersingular.ENABLE_COLOR_FILL = false;
-        assemblersingular.DRAW_MODE_INDEXED = true;
-        assemblersingular.configure();
-
-        DataPack pack = new DataPack(null, Game.texCenter, MATERIAL_WHITE_RUBBER, null);
-        Registration reg = AUTOMATOR.addScannerSingle(assemblersingular, pack, "center_Cylinder.001", GLES32.GL_TRIANGLES);
-
-        reg.addProgram(programDepthSingular);
-        reg.addProgram(programCenter);
-
-        center = reg.mesh();
-
-        return reg.bufferLayout();
     }
 
     private FSBufferLayout registerPillars(){
@@ -290,7 +292,7 @@ public final class Loader extends FSG{
         Registration pillarsreg = AUTOMATOR.addScannerInstanced(assemblersingular, new DataGroup(packs), "pillars", GLES32.GL_TRIANGLES, PILLAR_INSTANCE_COUNT);
         pillars = pillarsreg.mesh();
 
-        pillarsreg.addProgram(programDepthSingular);
+        pillarsreg.addProgram(programDepthPillars);
         pillarsreg.addProgram(programPillars);
 
         return pillarsreg.bufferLayout();
@@ -395,30 +397,22 @@ public final class Loader extends FSG{
         FSP.Modifier modcoloruniform = new ModColor.Uniform();
         FSP.Modifier modcolorunbo = new ModColor.UBO(1, PILLAR_INSTANCE_COUNT);
 
-        programSet(SHADOW_PROGRAMSET).add(programDepthLayers);
-        programSet(SHADOW_PROGRAMSET).add(programDepthSingular);
+        programDepthCenter.modify(moddepthprep, FSConfig.POLICY_ALWAYS);
+        programDepthCenter.modify(modmodeluniform, FSConfig.POLICY_ALWAYS);
+        programDepthCenter.modify(moddepthsetup, FSConfig.POLICY_ALWAYS);
+        programDepthCenter.addMeshConfig(drawsingular);
+        programDepthCenter.build();
 
-        programSet(MAIN_PROGRAMSET).add(programMainLayers);
-        programSet(MAIN_PROGRAMSET).add(programCenter);
-        programSet(MAIN_PROGRAMSET).add(programPillars);
-
-        programDepthLayers.modify(moddepthprep, FSConfig.POLICY_ALWAYS);
         programDepthLayers.modify(modmodelubo, FSConfig.POLICY_ALWAYS);
         programDepthLayers.modify(moddepthsetup, FSConfig.POLICY_ALWAYS);
         programDepthLayers.addMeshConfig(drawlayers);
         programDepthLayers.build();
 
-        programMainLayers.modify(modmodelubo, FSConfig.POLICY_ALWAYS);
-        programMainLayers.modify(modcolorlayers, FSConfig.POLICY_ALWAYS);
-        programMainLayers.modify(modlightpoint, FSConfig.POLICY_ALWAYS);
-        programMainLayers.addMeshConfig(drawlayers);
-        programMainLayers.build();
-
-        programDepthSingular.modify(modmodeluniform, FSConfig.POLICY_ALWAYS);
-        programDepthSingular.modify(moddepthsetup, FSConfig.POLICY_ALWAYS);
-        programDepthSingular.modify(moddepthfinish, FSConfig.POLICY_ALWAYS);
-        programDepthSingular.addMeshConfig(drawsingular);
-        programDepthSingular.build();
+        programDepthPillars.modify(modmodelubo2, FSConfig.POLICY_ALWAYS);
+        programDepthPillars.modify(moddepthsetup, FSConfig.POLICY_ALWAYS);
+        programDepthPillars.modify(moddepthfinish, FSConfig.POLICY_ALWAYS);
+        programDepthPillars.addMeshConfig(drawsingular);
+        programDepthPillars.build();
 
         programCenter.modify(modmodeluniform, FSConfig.POLICY_ALWAYS);
         programCenter.modify(modcolortex, FSConfig.POLICY_ALWAYS);
@@ -426,11 +420,25 @@ public final class Loader extends FSG{
         programCenter.addMeshConfig(drawsingular);
         programCenter.build();
 
+        programLayers.modify(modmodelubo, FSConfig.POLICY_ALWAYS);
+        programLayers.modify(modcolorlayers, FSConfig.POLICY_ALWAYS);
+        programLayers.modify(modlightpoint, FSConfig.POLICY_ALWAYS);
+        programLayers.addMeshConfig(drawlayers);
+        programLayers.build();
+
         programPillars.modify(modmodelubo2, FSConfig.POLICY_ALWAYS);
         programPillars.modify(modcolorunbo, FSConfig.POLICY_ALWAYS);
         programPillars.modify(modlightpoint, FSConfig.POLICY_ALWAYS);
         programPillars.addMeshConfig(drawsingular);
         programPillars.build();
+
+        programSet(SHADOW_PROGRAMSET).add(programDepthCenter);
+        programSet(SHADOW_PROGRAMSET).add(programDepthLayers);
+        programSet(SHADOW_PROGRAMSET).add(programDepthPillars);
+
+        programSet(MAIN_PROGRAMSET).add(programCenter);
+        programSet(MAIN_PROGRAMSET).add(programLayers);
+        programSet(MAIN_PROGRAMSET).add(programPillars);
     }
 
     private void postFullSetup(){

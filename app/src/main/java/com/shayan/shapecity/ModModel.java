@@ -1,5 +1,7 @@
 package com.shayan.shapecity;
 
+import android.util.Log;
+
 import com.nurverek.firestorm.FSConfig;
 import com.nurverek.firestorm.FSG;
 import com.nurverek.firestorm.FSP;

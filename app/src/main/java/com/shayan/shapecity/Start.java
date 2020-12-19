@@ -19,7 +19,7 @@ import com.nurverek.firestorm.Loader;
 
 public class Start extends FSActivity{
 
-    protected static final float[] BG_COLOR = new float[]{ 0.1f, 0.1f, 0.1f, 1f }; //grey
+    protected static final float[] BG_COLOR = new float[]{ 0.8f, 0.8f, 0.8f, 1f };
 
     protected static Runnable POSTPERMISSIONS;
     private static String CROPPED_PIC_LOCATION;

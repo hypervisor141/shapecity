@@ -1,7 +1,6 @@
 package com.shayan.shapecity;
 
 import android.opengl.Matrix;
-import android.util.Log;
 
 import com.nurverek.firestorm.FSBounds;
 import com.nurverek.firestorm.FSBoundsCuboid;
@@ -26,10 +25,13 @@ import com.nurverek.vanguard.VLVRunner;
 import com.nurverek.vanguard.VLVRunnerEntry;
 import com.nurverek.vanguard.VLVariable;
 
+import java.util.Random;
+
 public final class Animations{
 
     public static final float[] COLOR_WHITE = new float[]{ 1F, 1F, 1F, 1F };
     public static final float[] COLOR_WHITE_LESS = new float[]{ 0.8F, 0.8F, 0.8F, 1F };
+    public static final float[] COLOR_WHITE_LESS2 = new float[]{ 0.6F, 0.6F, 0.6F, 1F };
     public static final float[] COLOR_ORANGE = new float[]{ 1.0F, 0.8F, 0F, 1F };
     public static final float[] COLOR_OBSIDIAN = new float[]{ 0.4F, 0.4F, 0.4F, 1F };
     public static final float[] COLOR_OBSIDIAN_LESS = new float[]{ 0.15F, 0.15F, 0.15F, 1F };
@@ -39,10 +41,12 @@ public final class Animations{
     public static final float[] COLOR_DARK_ORANGE = new float[]{ 1.0F, 0.3F, 0F, 1F };
     public static final float[] COLOR_PURPLE = new float[]{ 0F, 0.137F, 0.220F, 1F };
 
+    public static final float[] COLOR_BASE = COLOR_OBSIDIAN;
+    public static final float[] COLOR_BASE_LINING = COLOR_DARK_ORANGE;
     public static final float[] COLOR_LAYER1 = COLOR_DARK_ORANGE;
     public static final float[] COLOR_LAYER2 = COLOR_DARK_ORANGE;
     public static final float[] COLOR_LAYER3 = COLOR_DARK_ORANGE;
-    public static final float[] COLOR_PILLARS = COLOR_DARK_ORANGE;
+    public static final float[] COLOR_PILLARS = COLOR_OBSIDIAN_LESS2;
     private static final float[] COLOR_BLINK = COLOR_ORANGE;
     private static final float[] COLOR_DEACTIVATED = COLOR_PURPLE;
     public static final float[] COLOR_STANDBY = COLOR_DARK_ORANGE;
@@ -273,39 +277,29 @@ public final class Animations{
         rootmanager.connections(1, 1);
         rootmanager.targetSync();
 
-//        size = Loader.districts.length;
-//        VLVManager districtmanager = new VLVManager(size, 0);
-//
-//        for(int i = 0; i < size; i++){
-//            FSInstance district = Loader.districts[i].instance(0);
-//            VLArrayFloat positions = district.positions();
-//
-//            int size2 = positions.size();
-//
-//            VLVCurved var = new VLVCurved(-5F - 1F, -5F + 1F, 100, VLVariable.LOOP_FORWARD_BACKWARD, VLVCurved.CURVE_ACC_DEC_COS);
-//            VLVCurved var2 = new VLVCurved(-5F + 1F, -5F - 1F, 100, VLVariable.LOOP_FORWARD_BACKWARD, VLVCurved.CURVE_ACC_DEC_COS);
-//
-//            for(int i2 = 0; i2 < size2; i2 += 4){
-//                if(i2 / 4 % 2 == 0){
-//                    var.SYNCER.add(new VLArray.DefinitionVLV(positions, i2 + 1));
-//
-//                }else{
-//                    var2.SYNCER.add(new VLArray.DefinitionVLV(positions, i2 + 1));
-//                }
-//            }
-//
-//            VLVRunner runner = new VLVRunner(size2,0);
-//            runner.add(new VLVRunnerEntry(var, 0));
-//            runner.add(new VLVRunnerEntry(var2, 0));
-//
-//            districtmanager.add(runner);
-//        }
-//
-//        districtmanager.start();
+        size = Loader.pillars.size();
+        VLVRunner pillarrunner = new VLVRunner(size, 0);
+
+        Random random = new Random(System.currentTimeMillis());
+
+        for(int i = 0; i < size; i++){
+            FSInstance pillar = Loader.pillars.instance(i);
+            FSMatrixModel model = pillar.modelMatrix();
+
+            float currenty = model.getY(0).get();
+
+            VLVCurved var = new VLVCurved(currenty - 3F, currenty + 3F, 150 + random.nextInt(250), VLVariable.LOOP_FORWARD_BACKWARD, VLVCurved.CURVE_ACC_DEC_COS);
+            var.SYNCER.add(new VLVMatrix.Definition(model));
+            pillarrunner.add(new VLVRunnerEntry(var, 0));
+
+            model.setY(0, var);
+        }
+
+        pillarrunner.start();
 
         VLVManager loadermanager = loader.vManager();
         loadermanager.add(rootmanager);
-//        loadermanager.add(districtmanager);
+        loadermanager.add(pillarrunner);
         loadermanager.add(controlmanager);
     }
 

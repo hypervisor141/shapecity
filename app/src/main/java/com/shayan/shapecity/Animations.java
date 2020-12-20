@@ -1,7 +1,5 @@
 package com.shayan.shapecity;
 
-import android.opengl.Matrix;
-
 import com.nurverek.firestorm.FSBounds;
 import com.nurverek.firestorm.FSBoundsCuboid;
 import com.nurverek.firestorm.FSInstance;
@@ -12,13 +10,11 @@ import com.nurverek.firestorm.Loader;
 import com.nurverek.vanguard.VLArray;
 import com.nurverek.vanguard.VLArrayFloat;
 import com.nurverek.vanguard.VLTask;
-import com.nurverek.vanguard.VLTaskContinous;
 import com.nurverek.vanguard.VLTaskTargetValue;
 import com.nurverek.vanguard.VLV;
 import com.nurverek.vanguard.VLVConnection;
 import com.nurverek.vanguard.VLVControl;
 import com.nurverek.vanguard.VLVCurved;
-import com.nurverek.vanguard.VLVLinear;
 import com.nurverek.vanguard.VLVManager;
 import com.nurverek.vanguard.VLVMatrix;
 import com.nurverek.vanguard.VLVRunner;
@@ -38,18 +34,18 @@ public final class Animations{
     public static final float[] COLOR_OBSIDIAN_LESS2 = new float[]{ 0.1F, 0.1F, 0.1F, 1F };
     public static final float[] COLOR_OBSIDIAN_LESS3 = new float[]{ 0.05F, 0.05F, 0.05F, 1F };
     public static final float[] COLOR_GOLD = new float[]{ 0.83F, 0.68F, 0.21F, 1F };
-    public static final float[] COLOR_DARK_ORANGE = new float[]{ 1.0F, 0.3F, 0F, 1F };
+    public static final float[] COLOR_RED = new float[]{ 1.0F, 0.3F, 0F, 1F };
     public static final float[] COLOR_PURPLE = new float[]{ 0F, 0.137F, 0.220F, 1F };
 
-    public static final float[] COLOR_BASE = COLOR_OBSIDIAN;
-    public static final float[] COLOR_BASE_LINING = COLOR_DARK_ORANGE;
-    public static final float[] COLOR_LAYER1 = COLOR_DARK_ORANGE;
-    public static final float[] COLOR_LAYER2 = COLOR_DARK_ORANGE;
-    public static final float[] COLOR_LAYER3 = COLOR_DARK_ORANGE;
+    public static final float[] COLOR_BASE = COLOR_WHITE;
+    public static final float[] COLOR_BASE_LINING = COLOR_ORANGE;
+    public static final float[] COLOR_LAYER1 = COLOR_RED;
+    public static final float[] COLOR_LAYER2 = COLOR_RED;
+    public static final float[] COLOR_LAYER3 = COLOR_RED;
     public static final float[] COLOR_PILLARS = COLOR_OBSIDIAN_LESS2;
     private static final float[] COLOR_BLINK = COLOR_ORANGE;
     private static final float[] COLOR_DEACTIVATED = COLOR_PURPLE;
-    public static final float[] COLOR_STANDBY = COLOR_DARK_ORANGE;
+    public static final float[] COLOR_STANDBY = COLOR_RED;
 
     public static final float TEXCONTROL_IDLE = 0F;
     public static final float TEXCONTROL_ACTIVE = 1F;
@@ -287,7 +283,7 @@ public final class Animations{
 
             float currenty = model.getY(0).get();
 
-            VLVCurved var = new VLVCurved(currenty + -250F, currenty + 300F, 150 + random.nextInt(250), VLVariable.LOOP_FORWARD_BACKWARD, VLVCurved.CURVE_ACC_DEC_COS);
+            VLVCurved var = new VLVCurved(currenty - 3F, currenty + (i % 10 == 0 ? 100F : 3F), 1250 + random.nextInt(250), VLVariable.LOOP_FORWARD_BACKWARD, VLVCurved.CURVE_ACC_DEC_COS);
             var.SYNCER.add(new VLVMatrix.Definition(model));
             pillarrunner.add(new VLVRunnerEntry(var, 0));
 

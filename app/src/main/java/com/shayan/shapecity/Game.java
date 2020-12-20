@@ -106,8 +106,11 @@ public final class Game{
     }
 
     public static void startGame(Loader loader){
-        Animations.setupRunners(loader);
-        Animations.rotateLightSource();
+        Animations.initialize(loader);
+
+        Light.rotateDirectLight();
+        Light.rotatePointLight();
+
         Camera.rotateCamera();
 
         RANDOM.setSeed(System.currentTimeMillis());

@@ -54,7 +54,6 @@ public final class Animations{
     public static final float TEXCONTROL_IDLE = 0F;
     public static final float TEXCONTROL_ACTIVE = 1F;
 
-    private static final int CYCLES_LIGHT_ROTATION = 1000;
     private static final int CYCLES_BLINK = 20;
     private static final int CYCLES_DEACTIVATED = 60;
     private static final int CYCLES_STANDBY = 100;
@@ -84,11 +83,11 @@ public final class Animations{
 
     private static VLVManager rootmanager;
     private static VLVManager controlmanager;
-    private static VLVRunner controlrunner;
-    private static VLVControl controlreveal;
-    private static VLVLinear controllight;
+    protected static VLVRunner controlrunner;
 
-    public static void setupRunners(Loader loader){
+    private static VLVControl controlreveal;
+
+    public static void initialize(Loader loader){
         rootmanager = new VLVManager(3, 0);
         controlmanager = new VLVManager(1, 0);
         controlrunner = new VLVRunner(3, 0);
@@ -288,7 +287,7 @@ public final class Animations{
 
             float currenty = model.getY(0).get();
 
-            VLVCurved var = new VLVCurved(currenty - 3F, currenty + 3F, 150 + random.nextInt(250), VLVariable.LOOP_FORWARD_BACKWARD, VLVCurved.CURVE_ACC_DEC_COS);
+            VLVCurved var = new VLVCurved(currenty + -250F, currenty + 300F, 150 + random.nextInt(250), VLVariable.LOOP_FORWARD_BACKWARD, VLVCurved.CURVE_ACC_DEC_COS);
             var.SYNCER.add(new VLVMatrix.Definition(model));
             pillarrunner.add(new VLVRunnerEntry(var, 0));
 
@@ -505,32 +504,7 @@ public final class Animations{
         controlrunner.remove(controlrunner.size() - 1);
     }
 
-    public static void rotateLightSource(){
-        final float[] orgpos = Loader.lightPoint.position().provider().clone();
 
-        controllight = new VLVLinear(0, 360, CYCLES_LIGHT_ROTATION, VLVariable.LOOP_FORWARD, new VLTaskContinous(new VLTask.Task<VLVLinear>(){
-
-            private float[] cache = new float[16];
-
-            @Override
-            public void run(VLTask<VLVLinear> task, VLVLinear var){
-                float[] pos = Loader.lightPoint.position().provider();
-
-                Matrix.setIdentityM(cache, 0);
-                Matrix.rotateM(cache, 0, var.get(), 0f, 1f, 0f);
-                Matrix.multiplyMV(pos, 0, cache, 0, orgpos, 0);
-
-                pos[0] /= pos[3];
-                pos[1] /= pos[3];
-                pos[2] /= pos[3];
-
-                Loader.shadowPoint.updateLightVP();
-            }
-        }));
-
-        controlrunner.add(new VLVRunnerEntry(controllight, 0));
-        controlrunner.start();
-    }
 
     public static void destroy(){
 

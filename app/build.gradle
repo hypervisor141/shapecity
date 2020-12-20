@@ -9,8 +9,8 @@ android{
         applicationId "com.shayan.shapecity"
         minSdkVersion 24
         targetSdkVersion 30
-        versionCode 3360
-        versionName "1.4.2"
+        versionCode 4000
+        versionName "2.2.1"
     }
 
     buildTypes{

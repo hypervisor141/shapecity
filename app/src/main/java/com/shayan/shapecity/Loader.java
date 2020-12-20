@@ -56,10 +56,10 @@ public final class Loader extends FSG{
 
     private static FSP programCenterDepth;
     private static FSP programCenter;
-    private static FSP programBaseDepth;
-    private static FSP programBase;
     private static FSP programLayersDepth;
     private static FSP programLayers;
+    private static FSP programBaseDepth;
+    private static FSP programBase;
     private static FSP programPillarsDepth;
     private static FSP programPillars;
 
@@ -69,11 +69,51 @@ public final class Loader extends FSG{
     public static final int LAYER_INSTANCE_COUNT = 24;
     public static final int PILLAR_INSTANCE_COUNT = 252;
 
+    public static FSLightDirect lightDirect;
     public static FSLightPoint lightPoint;
+
+    public static FSShadowDirect shadowDirect;
     public static FSShadowPoint shadowPoint;
 
     public Loader(){
         super(2, 50, 10);
+    }
+
+    private void addBasics(){
+        //        7 	1.0 	0.7 	1.8
+        //        13 	1.0 	0.35 	0.44
+        //        20 	1.0 	0.22 	0.20
+        //        32 	1.0 	0.14 	0.07
+        //        50 	1.0 	0.09 	0.032
+        //        65 	1.0 	0.07 	0.017
+        //        100 	1.0 	0.045 	0.0075
+        //        160 	1.0 	0.027 	0.0028
+        //        200 	1.0 	0.022 	0.0019
+        //        325 	1.0 	0.014 	0.0007
+        //        600 	1.0 	0.007 	0.0002
+        //        3250 	1.0 	0.0014 	0.000007
+
+        programCenterDepth = new FSP(DEBUG_MODE_PROGRAMS);
+        programLayersDepth = new FSP(DEBUG_MODE_PROGRAMS);
+        programBaseDepth = new FSP(DEBUG_MODE_PROGRAMS);
+        programPillarsDepth = new FSP(DEBUG_MODE_PROGRAMS);
+
+        programCenter = new FSP(DEBUG_MODE_PROGRAMS);
+        programLayers = new FSP(DEBUG_MODE_PROGRAMS);
+        programBase = new FSP(DEBUG_MODE_PROGRAMS);
+        programPillars = new FSP(DEBUG_MODE_PROGRAMS);
+
+        lightPoint = new FSLightPoint(new FSAttenuation(new VLFloat(1.0F), new VLFloat(0.007F), new VLFloat(0.0002F)), new VLArrayFloat(new float[]{ 0F, 20F, -10F, 1.0F }));
+        lightDirect = new FSLightDirect(new VLArrayFloat(new float[]{ 0F, 500F, 1000F, 1.0F }), new VLArrayFloat(new float[]{ 0F, 0F, 0F, 1.0F }));
+
+        shadowDirect = new FSShadowDirect(lightDirect, new VLInt(1024), new VLInt(1024), new VLFloat(0.0001F), new VLFloat(0.0005F), new VLFloat(1.1F));
+        shadowDirect.initialize(new VLInt(TEXUNIT++));
+
+        shadowPoint = new FSShadowPoint(lightPoint, new VLInt(1024), new VLInt(1024), new VLFloat(0.005F), new VLFloat(0.005F), new VLFloat(1.1F), new VLFloat(1F), new VLFloat(300F));
+        shadowPoint.initialize(new VLInt(TEXUNIT++));
+
+        BUFFER_ELEMENT_SHORT_DEFAULT = BUFFERMANAGER.add(new FSBufferManager.EntryShort(new FSVertexBuffer(GLES32.GL_ELEMENT_ARRAY_BUFFER, GLES32.GL_STATIC_DRAW), new VLBufferShort()));
+        BUFFER_ARRAY_FLOAT_DEFAULT = BUFFERMANAGER.add(new FSBufferManager.EntryFloat(new FSVertexBuffer(GLES32.GL_ARRAY_BUFFER, GLES32.GL_STATIC_DRAW), new VLBufferFloat()));
     }
 
     @Override
@@ -92,11 +132,11 @@ public final class Loader extends FSG{
 
         ////////// BUILD
 
-        FSBufferLayout[] layerlayouts = registerLayers();
         FSBufferLayout centerlayout = registerCenter();
-        FSBufferLayout pillarslayout = registerPillars();
+        FSBufferLayout[] layerlayouts = registerLayers();
         FSBufferLayout baselayout = registerBase();
         FSBufferLayout baselininglayout = registerBaseLining();
+        FSBufferLayout pillarslayout = registerPillars();
 
         AUTOMATOR.build(DEBUG_MODE_AUTOMATOR);
 
@@ -186,39 +226,6 @@ public final class Loader extends FSG{
     @Override
     public void update(int passindex, int programsetindex){
         BUFFERMANAGER.updateIfNeeded();
-    }
-
-    private void addBasics(){
-        //        7 	1.0 	0.7 	1.8
-        //        13 	1.0 	0.35 	0.44
-        //        20 	1.0 	0.22 	0.20
-        //        32 	1.0 	0.14 	0.07
-        //        50 	1.0 	0.09 	0.032
-        //        65 	1.0 	0.07 	0.017
-        //        100 	1.0 	0.045 	0.0075
-        //        160 	1.0 	0.027 	0.0028
-        //        200 	1.0 	0.022 	0.0019
-        //        325 	1.0 	0.014 	0.0007
-        //        600 	1.0 	0.007 	0.0002
-        //        3250 	1.0 	0.0014 	0.000007
-
-        programCenterDepth = new FSP(DEBUG_MODE_PROGRAMS);
-        programBaseDepth = new FSP(DEBUG_MODE_PROGRAMS);
-        programLayersDepth = new FSP(DEBUG_MODE_PROGRAMS);
-        programPillarsDepth = new FSP(DEBUG_MODE_PROGRAMS);
-
-        programCenter = new FSP(DEBUG_MODE_PROGRAMS);
-        programBase = new FSP(DEBUG_MODE_PROGRAMS);
-        programLayers = new FSP(DEBUG_MODE_PROGRAMS);
-        programPillars = new FSP(DEBUG_MODE_PROGRAMS);
-
-        lightPoint = new FSLightPoint(new FSAttenuation(new VLFloat(1.0F), new VLFloat(0.007F), new VLFloat(0.0002F)), new VLArrayFloat(new float[]{ 0F, 20F, -10F, 1.0F }));
-
-        shadowPoint = new FSShadowPoint(lightPoint, new VLInt(1024), new VLInt(1024), new VLFloat(0.005F), new VLFloat(0.005F), new VLFloat(1.1F), new VLFloat(1F), new VLFloat(300F));
-        shadowPoint.initialize(new VLInt(TEXUNIT++));
-
-        BUFFER_ELEMENT_SHORT_DEFAULT = BUFFERMANAGER.add(new FSBufferManager.EntryShort(new FSVertexBuffer(GLES32.GL_ELEMENT_ARRAY_BUFFER, GLES32.GL_STATIC_DRAW), new VLBufferShort()));
-        BUFFER_ARRAY_FLOAT_DEFAULT = BUFFERMANAGER.add(new FSBufferManager.EntryFloat(new FSVertexBuffer(GLES32.GL_ARRAY_BUFFER, GLES32.GL_STATIC_DRAW), new VLBufferFloat()));
     }
 
     private FSBufferLayout registerCenter(){
@@ -429,8 +436,15 @@ public final class Loader extends FSG{
         config.configure();
 
         VLListType<DataPack> packs = new VLListType<>(PILLAR_INSTANCE_COUNT, 0);
+        Random random = new Random();
 
         for(int i = 0; i < PILLAR_INSTANCE_COUNT; i++){
+            float[] color = new float[]{
+                    random.nextFloat(),
+                    random.nextFloat(),
+                    random.nextFloat(),
+                    random.nextFloat(),
+            };
             packs.add(new DataPack(new VLArrayFloat(Animations.COLOR_PILLARS), null, MATERIAL_WHITE_RUBBER, null));
         }
 
@@ -468,10 +482,18 @@ public final class Loader extends FSG{
     }
 
     private void setupPrograms(){
-        FSP.Modifier moddepthprep = new ModDepthMap.Prepare(shadowPoint.frameBuffer(), shadowPoint.width(), shadowPoint.height(), true);
-        FSP.Modifier moddepthsetup = new ModDepthMap.SetupPoint(shadowPoint, FSShadowPoint.SELECT_LIGHT_TRANSFORMS, lightPoint.position(), shadowPoint.zFar());
-        FSP.Modifier moddepthfinish = new ModDepthMap.Finish(shadowPoint.frameBuffer());
+        FSP.Modifier moddepthinitpoint = new ModDepthMap.Prepare(shadowPoint.frameBuffer(), shadowPoint.width(), shadowPoint.height(), true);
+        FSP.Modifier moddepthinitdirect = new ModDepthMap.Prepare(shadowDirect.frameBuffer(), shadowDirect.width(), shadowDirect.height(), true);
+
+        FSP.Modifier moddepthsetuppoint = new ModDepthMap.SetupPoint(shadowPoint, FSShadowPoint.SELECT_LIGHT_TRANSFORMS, lightPoint.position(), shadowPoint.zFar());
+        FSP.Modifier moddepthsetupdirect = new ModDepthMap.SetupDirect(shadowDirect.lightViewProjection());
+
+        FSP.Modifier moddepthfinishpoint = new ModDepthMap.Finish(shadowPoint.frameBuffer());
+        FSP.Modifier moddepthfinishdirect = new ModDepthMap.Finish(shadowPoint.frameBuffer());
+
         FSP.Modifier modlightpoint = new ModLight.Point(GAMMA, null, BRIGHTNESS, lightPoint, shadowPoint, MATERIAL_DEFAULT.getGLSLSize());
+        FSP.Modifier modlightdirect = new ModLight.Direct(GAMMA, BRIGHTNESS, lightDirect, shadowDirect, MATERIAL_DEFAULT.getGLSLSize());
+
         FSP.Modifier modmodeluniform = new ModModel.Uniform();
         FSP.Modifier modmodelubo = new ModModel.UBO(1, LAYER_INSTANCE_COUNT);
         FSP.Modifier modmodelubo2 = new ModModel.UBO(1, PILLAR_INSTANCE_COUNT);
@@ -483,32 +505,33 @@ public final class Loader extends FSG{
         FSConfig draw = new FSP.DrawElements(FSConfig.POLICY_ALWAYS, 0);
         FSConfig drawinstanced = new FSP.DrawElementsInstanced(FSConfig.POLICY_ALWAYS, 0);
 
-        programCenterDepth.modify(moddepthprep, FSConfig.POLICY_ALWAYS);
+        programCenterDepth.modify(moddepthinitpoint, FSConfig.POLICY_ALWAYS);
         programCenterDepth.modify(modmodeluniform, FSConfig.POLICY_ALWAYS);
-        programCenterDepth.modify(moddepthsetup, FSConfig.POLICY_ALWAYS);
+        programCenterDepth.modify(moddepthsetuppoint, FSConfig.POLICY_ALWAYS);
         programCenterDepth.addMeshConfig(draw);
         programCenterDepth.build();
 
         programSet(SHADOW_PROGRAMSET).add(programCenterDepth);
 
-        programBaseDepth.modify(moddepthprep, FSConfig.POLICY_ALWAYS);
-        programBaseDepth.modify(modmodeluniform, FSConfig.POLICY_ALWAYS);
-        programBaseDepth.modify(moddepthsetup, FSConfig.POLICY_ALWAYS);
-        programBaseDepth.addMeshConfig(draw);
-        programBaseDepth.build();
-
-        programSet(SHADOW_PROGRAMSET).add(programBaseDepth);
-
         programLayersDepth.modify(modmodelubo, FSConfig.POLICY_ALWAYS);
-        programLayersDepth.modify(moddepthsetup, FSConfig.POLICY_ALWAYS);
+        programLayersDepth.modify(moddepthsetuppoint, FSConfig.POLICY_ALWAYS);
+        programLayersDepth.modify(moddepthfinishpoint, FSConfig.POLICY_ALWAYS);
         programLayersDepth.addMeshConfig(drawinstanced);
         programLayersDepth.build();
 
         programSet(SHADOW_PROGRAMSET).add(programLayersDepth);
 
+        programBaseDepth.modify(moddepthinitdirect, FSConfig.POLICY_ALWAYS);
+        programBaseDepth.modify(modmodeluniform, FSConfig.POLICY_ALWAYS);
+        programBaseDepth.modify(moddepthsetupdirect, FSConfig.POLICY_ALWAYS);
+        programBaseDepth.addMeshConfig(draw);
+        programBaseDepth.build();
+
+        programSet(SHADOW_PROGRAMSET).add(programBaseDepth);
+
         programPillarsDepth.modify(modmodelubo2, FSConfig.POLICY_ALWAYS);
-        programPillarsDepth.modify(moddepthsetup, FSConfig.POLICY_ALWAYS);
-        programPillarsDepth.modify(moddepthfinish, FSConfig.POLICY_ALWAYS);
+        programPillarsDepth.modify(moddepthsetupdirect, FSConfig.POLICY_ALWAYS);
+        programPillarsDepth.modify(moddepthfinishdirect, FSConfig.POLICY_ALWAYS);
         programPillarsDepth.addMeshConfig(draw);
         programPillarsDepth.build();
 
@@ -522,14 +545,6 @@ public final class Loader extends FSG{
 
         programSet(MAIN_PROGRAMSET).add(programCenter);
 
-        programBase.modify(modmodeluniform, FSConfig.POLICY_ALWAYS);
-        programBase.modify(modcoloruniform, FSConfig.POLICY_ALWAYS);
-        programBase.modify(modlightpoint, FSConfig.POLICY_ALWAYS);
-        programBase.addMeshConfig(draw);
-        programBase.build();
-
-        programSet(MAIN_PROGRAMSET).add(programBase);
-
         programLayers.modify(modmodelubo, FSConfig.POLICY_ALWAYS);
         programLayers.modify(modcolorlayers, FSConfig.POLICY_ALWAYS);
         programLayers.modify(modlightpoint, FSConfig.POLICY_ALWAYS);
@@ -538,9 +553,17 @@ public final class Loader extends FSG{
 
         programSet(MAIN_PROGRAMSET).add(programLayers);
 
+        programBase.modify(modmodeluniform, FSConfig.POLICY_ALWAYS);
+        programBase.modify(modcoloruniform, FSConfig.POLICY_ALWAYS);
+        programBase.modify(modlightdirect, FSConfig.POLICY_ALWAYS);
+        programBase.addMeshConfig(draw);
+        programBase.build();
+
+        programSet(MAIN_PROGRAMSET).add(programBase);
+
         programPillars.modify(modmodelubo2, FSConfig.POLICY_ALWAYS);
         programPillars.modify(modcolorpillars, FSConfig.POLICY_ALWAYS);
-        programPillars.modify(modlightpoint, FSConfig.POLICY_ALWAYS);
+        programPillars.modify(modlightdirect, FSConfig.POLICY_ALWAYS);
         programPillars.addMeshConfig(drawinstanced);
         programPillars.build();
 

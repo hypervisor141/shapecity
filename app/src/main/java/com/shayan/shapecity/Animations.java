@@ -6,7 +6,6 @@ import com.nurverek.firestorm.FSInstance;
 import com.nurverek.firestorm.FSMatrixModel;
 import com.nurverek.firestorm.FSMesh;
 import com.nurverek.firestorm.FSSchematics;
-import com.nurverek.firestorm.Loader;
 import com.nurverek.vanguard.VLArray;
 import com.nurverek.vanguard.VLArrayFloat;
 import com.nurverek.vanguard.VLTask;
@@ -20,8 +19,6 @@ import com.nurverek.vanguard.VLVMatrix;
 import com.nurverek.vanguard.VLVRunner;
 import com.nurverek.vanguard.VLVRunnerEntry;
 import com.nurverek.vanguard.VLVariable;
-
-import java.util.Random;
 
 public final class Animations{
 
@@ -91,11 +88,11 @@ public final class Animations{
         controlmanager.add(controlrunner);
 
         float[][] colors = new float[][]{ COLOR_LAYER1, COLOR_LAYER2, COLOR_LAYER3 };
-        int itemsize = Loader.LAYER_INSTANCE_COUNT * Loader.layers.length;
-        int size = Loader.layers.length;
+        int itemsize = Layers.INSTANCE_COUNT * Layers.layers.length;
+        int size = Layers.layers.length;
 
         for(int i = 0; i < size; i++){
-            FSMesh layer = Loader.layers[i];
+            FSMesh layer = Layers.layers[i];
             VLArrayFloat linkdata = ((ModColor.TextureControlLink)layer.link(0)).data;
             VLVManager layermanager = new VLVManager(4, 0);
 
@@ -122,7 +119,7 @@ public final class Animations{
                 float yraisebase = 0;
 
                 for(int i3 = 0; i3 < i; i3++){
-                    yraisebase += Loader.layers[i3].instance(i2).schematics().modelHeight() * Y_BASE_HEIGHT_MULTIPLIER;
+                    yraisebase += Layers.layers[i3].instance(i2).schematics().modelHeight() * Y_BASE_HEIGHT_MULTIPLIER;
                 }
 
                 VLVCurved translateraisey = new VLVCurved(0f, yraisebase, CYCLES_RAISE_BASE_MAX, VLVariable.LOOP_NONE, VLVCurved.CURVE_DEC_SINE_SQRT);
@@ -272,29 +269,8 @@ public final class Animations{
         rootmanager.connections(1, 1);
         rootmanager.targetSync();
 
-        size = Loader.pillars.size();
-        VLVRunner pillarrunner = new VLVRunner(size, 0);
-
-        Random random = new Random(System.currentTimeMillis());
-
-        for(int i = 0; i < size; i++){
-            FSInstance pillar = Loader.pillars.instance(i);
-            FSMatrixModel model = pillar.modelMatrix();
-
-            float currenty = model.getY(0).get();
-
-            VLVCurved var = new VLVCurved(currenty - 3F, currenty + (i % 10 == 0 ? 100F : 3F), 1250 + random.nextInt(250), VLVariable.LOOP_FORWARD_BACKWARD, VLVCurved.CURVE_ACC_DEC_COS);
-            var.SYNCER.add(new VLVMatrix.Definition(model));
-            pillarrunner.add(new VLVRunnerEntry(var, 0));
-
-            model.setY(0, var);
-        }
-
-        pillarrunner.start();
-
         VLVManager loadermanager = loader.vManager();
         loadermanager.add(rootmanager);
-        loadermanager.add(pillarrunner);
         loadermanager.add(controlmanager);
     }
 

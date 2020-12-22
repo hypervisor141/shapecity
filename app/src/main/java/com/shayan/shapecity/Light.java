@@ -2,7 +2,6 @@ package com.shayan.shapecity;
 
 import android.opengl.Matrix;
 
-import com.nurverek.firestorm.Loader;
 import com.nurverek.vanguard.VLTask;
 import com.nurverek.vanguard.VLTaskContinous;
 import com.nurverek.vanguard.VLVLinear;
@@ -32,7 +31,7 @@ public final class Light{
                 pos[1] /= pos[3];
                 pos[2] /= pos[3];
 
-                Loader.shadowPoint.updateLightVP();
+//                Loader.shadowPoint.updateLightVP();
             }
         }));
 
@@ -59,8 +58,8 @@ public final class Light{
 
                 float orthoframe = 300F;
 
-                Loader.shadowDirect.light().updateDirection();
-                Loader.shadowDirect.updateLightProjection(0F,1F, 0F, -orthoframe, orthoframe, -orthoframe, orthoframe, 400F, 1000F);
+//                Loader.shadowDirect.light().updateDirection();
+//                Loader.shadowDirect.updateLightProjection(0F,1F, 0F, -orthoframe, orthoframe, -orthoframe, orthoframe, 400F, 1000F);
             }
         }));
 

@@ -7,9 +7,10 @@ import com.nurverek.firestorm.FSControl;
 import com.nurverek.firestorm.FSG;
 import com.nurverek.firestorm.FSGamma;
 import com.nurverek.firestorm.FSP;
+import com.nurverek.firestorm.FSPMod;
 import com.nurverek.firestorm.FSShader;
 
-public class ModSkyBox extends FSP.Modifier{
+public class ModSkyBox implements FSPMod{
 
     private FSGamma gamma;
     private FSBrightness brightness;
@@ -20,18 +21,18 @@ public class ModSkyBox extends FSP.Modifier{
     }
 
     @Override
-    protected void modify(FSP program, FSConfig.Policy policy){
+    public void modify(FSP program){
         FSShader vertex = program.vertexShader();
         FSShader fragment = program.fragmentShader();
 
-        FSConfig position = new FSP.AttribPointer(policy, FSG.ELEMENT_POSITION, 0);
-        FSConfig vp = new FSP.UniformMatrix4fvd(policy, FSControl.getViewConfig().viewProjectionMatrix(), 0, 1);
-        FSConfig skyboxtexunit = new FSP.TextureColorUnit(policy);
-        FSConfig skyboxtexbind = new FSP.TextureColorBind(policy);
-        FSConfig depthoff = new FSP.DepthMask(policy, false);
-        FSConfig depthon = new FSP.DepthMask(policy, true);
-        FSConfig bright = new FSConfigDynamic<>(brightness);
-        FSConfig gam = new FSConfigDynamic<FSGamma>(gamma);
+        FSConfig position = new FSP.AttribPointer(FSConfig.POLICY_ALWAYS, FSG.ELEMENT_POSITION, 0);
+        FSConfig vp = new FSP.UniformMatrix4fvd(FSConfig.POLICY_ALWAYS, FSControl.getViewConfig().viewProjectionMatrix(), 0, 1);
+        FSConfig skyboxtexunit = new FSP.TextureColorUnit(FSConfig.POLICY_ALWAYS);
+        FSConfig skyboxtexbind = new FSP.TextureColorBind(FSConfig.POLICY_ALWAYS);
+        FSConfig depthoff = new FSP.DepthMask(FSConfig.POLICY_ALWAYS, false);
+        FSConfig depthon = new FSP.DepthMask(FSConfig.POLICY_ALWAYS, true);
+        FSConfig bright = new FSConfigDynamic<>(FSConfig.POLICY_ALWAYS, brightness);
+        FSConfig gam = new FSConfigDynamic<FSGamma>(FSConfig.POLICY_ALWAYS, gamma);
 
         program.registerAttributeLocation(vertex, position);
         program.registerUniformLocation(vertex, vp);
@@ -39,8 +40,8 @@ public class ModSkyBox extends FSP.Modifier{
         program.registerUniformLocation(fragment, skyboxtexunit);
         program.registerUniformLocation(fragment, bright);
 
-        FSConfig enableposition = new FSP.AttribEnable(policy, position.location());
-        FSConfig disableposition = new FSP.AttribDisable(policy, position.location());
+        FSConfig enableposition = new FSP.AttribEnable(FSConfig.POLICY_ALWAYS, position.location());
+        FSConfig disableposition = new FSP.AttribDisable(FSConfig.POLICY_ALWAYS, position.location());
 
         program.addSetupConfig(vp);
         program.addSetupConfig(gam);

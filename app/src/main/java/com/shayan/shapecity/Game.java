@@ -11,7 +11,6 @@ import com.nurverek.firestorm.FSControl;
 import com.nurverek.firestorm.FSMesh;
 import com.nurverek.firestorm.FSTexture;
 import com.nurverek.firestorm.FSTools;
-import com.nurverek.firestorm.Loader;
 import com.nurverek.vanguard.VLArrayFloat;
 import com.nurverek.vanguard.VLInt;
 import com.nurverek.vanguard.VLListInt;
@@ -49,39 +48,39 @@ public final class Game{
     public static void initialize(){
         texArrayLayer1 = new FSTexture(new VLInt(GLES32.GL_TEXTURE_2D_ARRAY), new VLInt(Loader.TEXUNIT++));
         texArrayLayer1.bind();
-        texArrayLayer1.storage3D(1, GLES32.GL_RGBA8, LAYER_PIECE_TEXTURE_DIMENSION, LAYER_PIECE_TEXTURE_DIMENSION, Loader.LAYER_INSTANCE_COUNT);
+        texArrayLayer1.storage3D(1, GLES32.GL_RGBA8, LAYER_PIECE_TEXTURE_DIMENSION, LAYER_PIECE_TEXTURE_DIMENSION, Layers.INSTANCE_COUNT);
         texArrayLayer1.minFilter(GLES32.GL_LINEAR);
         texArrayLayer1.magFilter(GLES32.GL_LINEAR);
         texArrayLayer1.wrapS(GLES32.GL_CLAMP_TO_EDGE);
         texArrayLayer1.wrapT(GLES32.GL_CLAMP_TO_EDGE);
         texArrayLayer1.baseLevel(0);
-        texArrayLayer1.maxLevel(Loader.LAYER_INSTANCE_COUNT - 1);
+        texArrayLayer1.maxLevel(Layers.INSTANCE_COUNT - 1);
         texArrayLayer1.unbind();
 
         FSTools.checkGLError();
 
         texArrayLayer2 = new FSTexture(new VLInt(GLES32.GL_TEXTURE_2D_ARRAY), new VLInt(Loader.TEXUNIT++));
         texArrayLayer2.bind();
-        texArrayLayer2.storage3D(1, GLES32.GL_RGBA8, LAYER_PIECE_TEXTURE_DIMENSION, LAYER_PIECE_TEXTURE_DIMENSION, Loader.LAYER_INSTANCE_COUNT);
+        texArrayLayer2.storage3D(1, GLES32.GL_RGBA8, LAYER_PIECE_TEXTURE_DIMENSION, LAYER_PIECE_TEXTURE_DIMENSION, Layers.INSTANCE_COUNT);
         texArrayLayer2.minFilter(GLES32.GL_LINEAR);
         texArrayLayer2.magFilter(GLES32.GL_LINEAR);
         texArrayLayer2.wrapS(GLES32.GL_CLAMP_TO_EDGE);
         texArrayLayer2.wrapT(GLES32.GL_CLAMP_TO_EDGE);
         texArrayLayer2.baseLevel(0);
-        texArrayLayer2.maxLevel(Loader.LAYER_INSTANCE_COUNT - 1);
+        texArrayLayer2.maxLevel(Layers.INSTANCE_COUNT - 1);
         texArrayLayer2.unbind();
 
         FSTools.checkGLError();
 
         texArrayLayer3 = new FSTexture(new VLInt(GLES32.GL_TEXTURE_2D_ARRAY), new VLInt(Loader.TEXUNIT++));
         texArrayLayer3.bind();
-        texArrayLayer3.storage3D(1, GLES32.GL_RGBA8, LAYER_PIECE_TEXTURE_DIMENSION, LAYER_PIECE_TEXTURE_DIMENSION, Loader.LAYER_INSTANCE_COUNT);
+        texArrayLayer3.storage3D(1, GLES32.GL_RGBA8, LAYER_PIECE_TEXTURE_DIMENSION, LAYER_PIECE_TEXTURE_DIMENSION, Layers.INSTANCE_COUNT);
         texArrayLayer3.minFilter(GLES32.GL_LINEAR);
         texArrayLayer3.magFilter(GLES32.GL_LINEAR);
         texArrayLayer3.wrapS(GLES32.GL_CLAMP_TO_EDGE);
         texArrayLayer3.wrapT(GLES32.GL_CLAMP_TO_EDGE);
         texArrayLayer3.baseLevel(0);
-        texArrayLayer3.maxLevel(Loader.LAYER_INSTANCE_COUNT - 1);
+        texArrayLayer3.maxLevel(Layers.INSTANCE_COUNT - 1);
         texArrayLayer3.unbind();
 
         FSTools.checkGLError();
@@ -137,10 +136,10 @@ public final class Game{
     }
 
     private static void startMatchSymbolsGame(){
-        activatedSymbols = new VLListInt(Loader.LAYER_INSTANCE_COUNT, 0);
-        activatedSymbols.virtualSize(Loader.LAYER_INSTANCE_COUNT);
+        activatedSymbols = new VLListInt(Layers.INSTANCE_COUNT, 0);
+        activatedSymbols.virtualSize(Layers.INSTANCE_COUNT);
 
-        enabledPieces = new boolean[Loader.LAYER_INSTANCE_COUNT];
+        enabledPieces = new boolean[Layers.INSTANCE_COUNT];
 
         Animations.raiseBases(1);
         Animations.raiseBases(2);
@@ -180,13 +179,13 @@ public final class Game{
         opts.inMutable = true;
 
         int choice = 0;
-        int requiredchoices = Loader.LAYER_INSTANCE_COUNT / GAME_MATCHSYM_PICK_LIMIT;
+        int requiredchoices = Layers.INSTANCE_COUNT / GAME_MATCHSYM_PICK_LIMIT;
         int index = 0;
 
         PIXEL_BUFFER = null;
         texArrayLayer.bind();
 
-        symbols = new int[Loader.LAYER_INSTANCE_COUNT];
+        symbols = new int[Layers.INSTANCE_COUNT];
         Arrays.fill(symbols, -1);
 
         for(int i = 0; i < requiredchoices; i++){
@@ -211,10 +210,10 @@ public final class Game{
             b.recycle();
 
             for(int i2 = 0; i2 < GAME_MATCHSYM_PICK_LIMIT; i2++){
-                index = RANDOM.nextInt(Loader.LAYER_INSTANCE_COUNT);
+                index = RANDOM.nextInt(Layers.INSTANCE_COUNT);
 
                 while(symbols[index] != -1){
-                    index = RANDOM.nextInt(Loader.LAYER_INSTANCE_COUNT);
+                    index = RANDOM.nextInt(Layers.INSTANCE_COUNT);
                 }
 
                 symbols[index] = choice;
@@ -236,7 +235,7 @@ public final class Game{
 
         Animations.revealRepeat(layer);
 
-        final FSMesh layermesh = Loader.layers[layer];
+        final FSMesh layermesh = Layers.layers[layer];
 
         Input.activateInputListeners(layermesh, new Runnable(){
 

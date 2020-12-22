@@ -1,5 +1,7 @@
 package com.shayan.shapecity;
 
+import android.opengl.GLES32;
+
 import com.nurverek.firestorm.FSBrightness;
 import com.nurverek.firestorm.FSConfig;
 import com.nurverek.firestorm.FSConfigDynamic;
@@ -7,9 +9,10 @@ import com.nurverek.firestorm.FSControl;
 import com.nurverek.firestorm.FSG;
 import com.nurverek.firestorm.FSGamma;
 import com.nurverek.firestorm.FSP;
+import com.nurverek.firestorm.FSPMod;
 import com.nurverek.firestorm.FSShader;
 
-public class ModNoLight extends FSP.Modifier{
+public class ModNoLight implements FSPMod{
 
     private FSGamma gamma;
     private FSBrightness brightness;
@@ -20,14 +23,14 @@ public class ModNoLight extends FSP.Modifier{
     }
 
     @Override
-    protected void modify(FSP program, FSConfig.Policy policy){
+    public void modify(FSP program){
         FSShader vertex = program.vertexShader();
         FSShader fragment = program.fragmentShader();
 
-        FSConfig model = new FSP.UniformMatrix4fve(policy,0, FSG.ELEMENT_MODEL, 0, 1);
-        FSConfig position = new FSP.AttribPointer(policy, FSG.ELEMENT_POSITION, 0);
-        FSConfig color = new FSP.Uniform4fve(policy, 0, FSG.ELEMENT_COLOR, 0, 1);
-        FSConfig vp = new FSP.UniformMatrix4fvd(policy, FSControl.getViewConfig().viewProjectionMatrix(), 0, 1);
+        FSConfig model = new FSP.UniformMatrix4fve(FSConfig.POLICY_ALWAYS,0, FSG.ELEMENT_MODEL, 0, 1);
+        FSConfig position = new FSP.AttribPointer(FSConfig.POLICY_ALWAYS, FSG.ELEMENT_POSITION, 0);
+        FSConfig color = new FSP.Uniform4fve(FSConfig.POLICY_ALWAYS, 0, FSG.ELEMENT_COLOR, 0, 1);
+        FSConfig vp = new FSP.UniformMatrix4fvd(FSConfig.POLICY_ALWAYS, FSControl.getViewConfig().viewProjectionMatrix(), 0, 1);
         FSConfig bright = new FSConfigDynamic<>(brightness);
         FSConfig gam = new FSConfigDynamic<>(gamma);
 
@@ -38,8 +41,8 @@ public class ModNoLight extends FSP.Modifier{
         program.registerUniformLocation(fragment, gam);
         program.registerUniformLocation(fragment, bright);
 
-        FSConfig enableposition = new FSP.AttribEnable(policy, position.location());
-        FSConfig disableposition = new FSP.AttribDisable(policy, position.location());
+        FSConfig enableposition = new FSP.AttribEnable(FSConfig.POLICY_ALWAYS, position.location());
+        FSConfig disableposition = new FSP.AttribDisable(FSConfig.POLICY_ALWAYS, position.location());
 
         program.addSetupConfig(vp);
         program.addSetupConfig(gam);

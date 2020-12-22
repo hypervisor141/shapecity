@@ -11,6 +11,7 @@ import com.nurverek.firestorm.FSLightDirect;
 import com.nurverek.firestorm.FSLightMaterial;
 import com.nurverek.firestorm.FSLightPoint;
 import com.nurverek.firestorm.FSP;
+import com.nurverek.firestorm.FSPMod;
 import com.nurverek.firestorm.FSShader;
 import com.nurverek.firestorm.FSShadowDirect;
 import com.nurverek.firestorm.FSShadowPoint;
@@ -18,7 +19,7 @@ import com.nurverek.vanguard.VLInt;
 
 public final class ModLight{
 
-    public static final class Direct extends FSP.Modifier{
+    public static final class Direct implements FSPMod{
 
         private FSGamma gamma;
         private FSBrightness brightness;
@@ -35,15 +36,15 @@ public final class ModLight{
         }
 
         @Override
-        protected void modify(FSP program, FSConfig.Policy policy){
+        public void modify(FSP program){
             FSShader vertex = program.vertexShader();
             FSShader fragment = program.fragmentShader();
 
-            FSConfig positions = new FSP.AttribPointer(policy, FSG.ELEMENT_POSITION, 0);
-            FSConfig normals = new FSP.AttribPointer(policy, FSG.ELEMENT_NORMAL, 0);
-            FSConfig vp = new FSP.UniformMatrix4fvd(policy, FSControl.getViewConfig().viewProjectionMatrix(), 0, 1);
-            FSConfig material = new FSP.MaterialDynamic(policy, materialglslsize);
-            FSConfig cameraPos = new FSP.Uniform3fvd(policy, FSControl.getViewConfig().eyePosition(),0, 1);
+            FSConfig positions = new FSP.AttribPointer(FSConfig.POLICY_ALWAYS, FSG.ELEMENT_POSITION, 0);
+            FSConfig normals = new FSP.AttribPointer(FSConfig.POLICY_ALWAYS, FSG.ELEMENT_NORMAL, 0);
+            FSConfig vp = new FSP.UniformMatrix4fvd(FSConfig.POLICY_ALWAYS, FSControl.getViewConfig().viewProjectionMatrix(), 0, 1);
+            FSConfig material = new FSP.MaterialDynamic(FSConfig.POLICY_ALWAYS, materialglslsize);
+            FSConfig cameraPos = new FSP.Uniform3fvd(FSConfig.POLICY_ALWAYS, FSControl.getViewConfig().eyePosition(),0, 1);
             FSConfig bright = new FSConfigDynamic<>(brightness);
             FSConfig gam = new FSConfigDynamic<FSGamma>(gamma);
             FSConfig light = new FSConfigDynamic<FSLightDirect>(lightsource);
@@ -57,10 +58,10 @@ public final class ModLight{
             program.registerUniformLocation(fragment, material);
             program.registerUniformLocation(fragment, cameraPos);
 
-            FSConfig enableposition = new FSP.AttribEnable(policy, positions.location());
-            FSConfig disableposition = new FSP.AttribDisable(policy, positions.location());
-            FSConfig enablenormals = new FSP.AttribEnable(policy, normals.location());
-            FSConfig disablenormals = new FSP.AttribDisable(policy, normals.location());
+            FSConfig enableposition = new FSP.AttribEnable(FSConfig.POLICY_ALWAYS, positions.location());
+            FSConfig disableposition = new FSP.AttribDisable(FSConfig.POLICY_ALWAYS, positions.location());
+            FSConfig enablenormals = new FSP.AttribEnable(FSConfig.POLICY_ALWAYS, normals.location());
+            FSConfig disablenormals = new FSP.AttribDisable(FSConfig.POLICY_ALWAYS, normals.location());
 
             program.addSetupConfig(vp);
             program.addSetupConfig(bright);
@@ -103,9 +104,9 @@ public final class ModLight{
 
             if(directshadow != null){
                 FSConfig shadow = new FSConfigDynamicSelective(directshadow, FSShadowDirect.SELECT_STRUCT_DATA);
-                FSConfig shadowlightvp = new FSP.UniformMatrix4fvd(policy, directshadow.lightViewProjection(), 0, 1);
-                FSConfig shadowbind = new FSP.TextureBind(policy, directshadow.texture());
-                FSConfig shadowunit = new FSP.Uniform1i(policy, directshadow.texture().unit());
+                FSConfig shadowlightvp = new FSP.UniformMatrix4fvd(FSConfig.POLICY_ALWAYS, directshadow.lightViewProjection(), 0, 1);
+                FSConfig shadowbind = new FSP.TextureBind(FSConfig.POLICY_ALWAYS, directshadow.texture());
+                FSConfig shadowunit = new FSP.Uniform1i(FSConfig.POLICY_ALWAYS, directshadow.texture().unit());
 
                 program.registerUniformLocation(fragment, shadow);
                 program.registerUniformLocation(vertex, shadowlightvp);
@@ -140,7 +141,7 @@ public final class ModLight{
         }
     }
 
-    public static final class Point extends FSP.Modifier{
+    public static final class Point implements FSPMod{
 
         private FSGamma gamma;
         private FSBrightness brightness;
@@ -159,16 +160,16 @@ public final class ModLight{
         }
 
         @Override
-        protected void modify(FSP program, FSConfig.Policy policy){
+        public void modify(FSP program){
             FSShader vertex = program.vertexShader();
             FSShader fragment = program.fragmentShader();
 
-            FSConfig positions = new FSP.AttribPointer(policy, FSG.ELEMENT_POSITION, 0);
-            FSConfig vp = new FSP.UniformMatrix4fvd(policy, FSControl.getViewConfig().viewProjectionMatrix(), 0, 1);
-            FSConfig normals = new FSP.AttribPointer(policy, FSG.ELEMENT_NORMAL, 0);
-            FSConfig material = new FSP.MaterialDynamic(policy, materialglslsize);
-            FSConfig cameraPos = new FSP.Uniform3fvd(policy, FSControl.getViewConfig().eyePosition(),0, 1);
-            FSConfig shadowbind = new FSP.TextureBind(policy, pointshadow.texture());
+            FSConfig positions = new FSP.AttribPointer(FSConfig.POLICY_ALWAYS, FSG.ELEMENT_POSITION, 0);
+            FSConfig vp = new FSP.UniformMatrix4fvd(FSConfig.POLICY_ALWAYS, FSControl.getViewConfig().viewProjectionMatrix(), 0, 1);
+            FSConfig normals = new FSP.AttribPointer(FSConfig.POLICY_ALWAYS, FSG.ELEMENT_NORMAL, 0);
+            FSConfig material = new FSP.MaterialDynamic(FSConfig.POLICY_ALWAYS, materialglslsize);
+            FSConfig cameraPos = new FSP.Uniform3fvd(FSConfig.POLICY_ALWAYS, FSControl.getViewConfig().eyePosition(),0, 1);
+            FSConfig shadowbind = new FSP.TextureBind(FSConfig.POLICY_ALWAYS, pointshadow.texture());
             FSConfig bright = new FSConfigDynamic<FSBrightness>(brightness);
             FSConfig gam = new FSConfigDynamic<FSGamma>(gamma);
             FSConfig light = new FSConfigDynamic<FSLightPoint>(lightsource);
@@ -182,10 +183,10 @@ public final class ModLight{
             program.registerUniformLocation(fragment, material);
             program.registerUniformLocation(fragment, cameraPos);
 
-            FSConfig enableposition = new FSP.AttribEnable(policy, positions.location());
-            FSConfig disableposition = new FSP.AttribDisable(policy, positions.location());
-            FSConfig enablenormals = new FSP.AttribEnable(policy, normals.location());
-            FSConfig disablenormals = new FSP.AttribDisable(policy, normals.location());
+            FSConfig enableposition = new FSP.AttribEnable(FSConfig.POLICY_ALWAYS, positions.location());
+            FSConfig disableposition = new FSP.AttribDisable(FSConfig.POLICY_ALWAYS, positions.location());
+            FSConfig enablenormals = new FSP.AttribEnable(FSConfig.POLICY_ALWAYS, normals.location());
+            FSConfig disablenormals = new FSP.AttribDisable(FSConfig.POLICY_ALWAYS, normals.location());
 
             program.addSetupConfig(vp);
             program.addSetupConfig(gam);
@@ -231,7 +232,7 @@ public final class ModLight{
             
             if(pointshadow != null){
                 FSConfig shadowdata = new FSConfigDynamicSelective(pointshadow, FSShadowDirect.SELECT_STRUCT_DATA);
-                FSConfig shadowunit = new FSP.Uniform1i(policy, pointshadow.texture().unit());
+                FSConfig shadowunit = new FSP.Uniform1i(FSConfig.POLICY_ALWAYS, pointshadow.texture().unit());
 
                 program.registerUniformLocation(fragment, shadowdata);
                 program.registerUniformLocation(fragment, shadowunit);
@@ -245,7 +246,7 @@ public final class ModLight{
                 fragment.addUniform(shadowunit.location(), "samplerCube", "shadowmap");
 
                 if(samples != null){
-                    FSConfig softsamples = new FSConfigDynamic(policy, new FSP.Uniform1i(samples));
+                    FSConfig softsamples = new FSConfigDynamic(FSConfig.POLICY_ALWAYS, new FSP.Uniform1i(samples));
                     program.registerUniformLocation(fragment, softsamples);
                     program.addSetupConfig(softsamples);
 

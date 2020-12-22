@@ -10,6 +10,7 @@ import com.nurverek.firestorm.FSFrameBuffer;
 import com.nurverek.firestorm.FSG;
 import com.nurverek.firestorm.FSMesh;
 import com.nurverek.firestorm.FSP;
+import com.nurverek.firestorm.FSPMod;
 import com.nurverek.firestorm.FSRenderer;
 import com.nurverek.firestorm.FSShader;
 import com.nurverek.firestorm.FSViewConfig;
@@ -20,7 +21,7 @@ import com.nurverek.vanguard.VLInt;
 
 public final class ModDepthMap{
 
-    public static final class Prepare extends FSP.Modifier{
+    public static final class Prepare implements FSPMod{
 
         private FSFrameBuffer framebuffer;
         private VLInt width;
@@ -35,10 +36,10 @@ public final class ModDepthMap{
         }
 
         @Override
-        protected void modify(FSP program, FSConfig.Policy policy){
+        public void modify(FSP program){
             final boolean cull = cullfrontface;
 
-            program.addSetupConfig(new FSConfig(policy){
+            program.addSetupConfig(new FSConfig(FSConfig.POLICY_ALWAYS){
 
                 @Override
                 public void configure(FSP program, FSMesh mesh, int meshindex, int passindex){
@@ -70,7 +71,7 @@ public final class ModDepthMap{
         }
     }
 
-    public static final class SetupDirect extends FSP.Modifier{
+    public static final class SetupDirect implements FSPMod{
 
         private VLArrayFloat lightViewProjection;
 
@@ -79,17 +80,17 @@ public final class ModDepthMap{
         }
 
         @Override
-        protected void modify(FSP program, FSConfig.Policy policy){
+        public void modify(FSP program){
             FSShader vertex = program.vertexShader();
 
-            FSConfig position = new FSP.AttribPointer(policy, FSG.ELEMENT_POSITION, 0);
-            FSConfig lighttransform = new FSP.UniformMatrix4fvd(policy, lightViewProjection, 0, 1);
+            FSConfig position = new FSP.AttribPointer(FSConfig.POLICY_ALWAYS, FSG.ELEMENT_POSITION, 0);
+            FSConfig lighttransform = new FSP.UniformMatrix4fvd(FSConfig.POLICY_ALWAYS, lightViewProjection, 0, 1);
             
             program.registerAttributeLocation(vertex, position);
             program.registerUniformLocation(vertex, lighttransform);
 
-            FSConfig positionenable = new FSP.AttribEnable(policy, position.location());
-            FSConfig positiondisable = new FSP.AttribEnable(policy, position.location());
+            FSConfig positionenable = new FSP.AttribEnable(FSConfig.POLICY_ALWAYS, position.location());
+            FSConfig positiondisable = new FSP.AttribEnable(FSConfig.POLICY_ALWAYS, position.location());
 
             program.addSetupConfig(positionenable);
             program.addSetupConfig(lighttransform);
@@ -104,7 +105,7 @@ public final class ModDepthMap{
         }
     }
 
-    public static final class SetupPoint extends FSP.Modifier{
+    public static final class SetupPoint implements FSPMod{
 
         private FSConfigSelective transformsrc;
         private VLArrayFloat cubeposition;
@@ -119,23 +120,23 @@ public final class ModDepthMap{
         }
 
         @Override
-        protected void modify(FSP program, FSConfig.Policy policy){
+        public void modify(FSP program){
             FSShader vertex = program.vertexShader();
             FSShader fragment = program.fragmentShader();
             FSShader geomtry = program.initializeGeometryShader();
 
             FSConfig transforms = new FSConfigDynamicSelective(transformsrc, selection);
-            FSConfig position = new FSP.AttribPointer(policy, FSG.ELEMENT_POSITION, 0);
-            FSConfig far = new FSP.Uniform1f(policy, zfar);
-            FSConfig cubepos = new FSP.Uniform3fvd(policy, cubeposition, 0, 1);
+            FSConfig position = new FSP.AttribPointer(FSConfig.POLICY_ALWAYS, FSG.ELEMENT_POSITION, 0);
+            FSConfig far = new FSP.Uniform1f(FSConfig.POLICY_ALWAYS, zfar);
+            FSConfig cubepos = new FSP.Uniform3fvd(FSConfig.POLICY_ALWAYS, cubeposition, 0, 1);
 
             program.registerAttributeLocation(vertex, position);
             program.registerUniformArrayLocation(geomtry, 6, transforms);
             program.registerUniformLocation(fragment, far);
             program.registerUniformLocation(fragment, cubepos);
 
-            FSConfig enableposition = new FSP.AttribEnable(policy, position.location());
-            FSConfig disableposition = new FSP.AttribDisable(policy, position.location());
+            FSConfig enableposition = new FSP.AttribEnable(FSConfig.POLICY_ALWAYS, position.location());
+            FSConfig disableposition = new FSP.AttribDisable(FSConfig.POLICY_ALWAYS, position.location());
 
             program.addSetupConfig(transforms);
             program.addSetupConfig(far);
@@ -180,7 +181,7 @@ public final class ModDepthMap{
         }
     }
 
-    public static final class Finish extends FSP.Modifier{
+    public static final class Finish implements FSPMod{
 
         private FSFrameBuffer framebuffer;
 
@@ -189,8 +190,8 @@ public final class ModDepthMap{
         }
 
         @Override
-        protected void modify(FSP program, FSConfig.Policy policy){
-            program.addPostDrawConfig(new FSConfig(policy){
+        public void modify(FSP program){
+            program.addPostDrawConfig(new FSConfig(FSConfig.POLICY_ALWAYS){
 
                 @Override
                 public void configure(FSP program, FSMesh mesh, int meshindex, int passindex){

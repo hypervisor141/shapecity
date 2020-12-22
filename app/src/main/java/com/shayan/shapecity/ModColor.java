@@ -8,6 +8,7 @@ import com.nurverek.firestorm.FSG;
 import com.nurverek.firestorm.FSLinkBufferedType;
 import com.nurverek.firestorm.FSMesh;
 import com.nurverek.firestorm.FSP;
+import com.nurverek.firestorm.FSPMod;
 import com.nurverek.firestorm.FSShader;
 import com.nurverek.firestorm.FSVertexBuffer;
 import com.nurverek.vanguard.VLArrayFloat;
@@ -15,17 +16,17 @@ import com.nurverek.vanguard.VLDebug;
 
 public final class ModColor{
 
-    private static final class SetupAttribute extends FSP.Modifier{
+    private static final class SetupAttribute implements FSPMod{
 
         public SetupAttribute(){
 
         }
 
         @Override
-        protected void modify(FSP program, FSConfig.Policy policy){
+        public void modify(FSP program){
             FSShader vertex = program.vertexShader();
 
-            FSConfig colorattrib = new FSP.AttribPointer(policy, FSG.ELEMENT_COLOR, 0);
+            FSConfig colorattrib = new FSP.AttribPointer(FSConfig.POLICY_ALWAYS, FSG.ELEMENT_COLOR, 0);
 
             program.registerAttributeLocation(vertex, colorattrib);
 
@@ -41,16 +42,16 @@ public final class ModColor{
         }
     }
 
-    private static final class SetupUniform extends FSP.Modifier{
+    private static final class SetupUniform implements FSPMod{
 
         public SetupUniform(){
 
         }
 
         @Override
-        protected void modify(FSP program, FSConfig.Policy policy){
+        public void modify(FSP program){
             FSShader fragment = program.fragmentShader();
-            FSConfig color = new FSP.Uniform4fve(policy, 0, FSG.ELEMENT_COLOR, 0, 1);
+            FSConfig color = new FSP.Uniform4fve(FSConfig.POLICY_ALWAYS, 0, FSG.ELEMENT_COLOR, 0, 1);
 
             program.registerUniformLocation(fragment, color);
 
@@ -59,7 +60,7 @@ public final class ModColor{
         }
     }
 
-    private static final class SetupUBO extends FSP.Modifier{
+    private static final class SetupUBO implements FSPMod{
 
         private int segments;
         private int instancecount;
@@ -70,19 +71,19 @@ public final class ModColor{
         }
 
         @Override
-        protected void modify(FSP program, FSConfig.Policy policy){
+        public void modify(FSP program){
             FSShader vertex = program.vertexShader();
             FSShader fragment = program.fragmentShader();
 
             if(segments == 1){
-                program.addMeshConfig(new FSP.UniformBlockElement(policy, FSG.ELEMENT_COLOR, "COLORS", 0));
+                program.addMeshConfig(new FSP.UniformBlockElement(FSConfig.POLICY_ALWAYS, FSG.ELEMENT_COLOR, "COLORS", 0));
 
                 vertex.addUniformBlock("std140", "COLORS", "vec4 colors[" + instancecount + "]");
                 vertex.addMainCode("colorubo = colors[gl_InstanceID];");
 
             }else if(segments == 2){
-                program.addMeshConfig(new FSP.UniformBlockElement(policy, FSG.ELEMENT_COLOR, "COLORS1", 0));
-                program.addMeshConfig(new FSP.UniformBlockElement(policy, FSG.ELEMENT_COLOR, "COLORS2", 1));
+                program.addMeshConfig(new FSP.UniformBlockElement(FSConfig.POLICY_ALWAYS, FSG.ELEMENT_COLOR, "COLORS1", 0));
+                program.addMeshConfig(new FSP.UniformBlockElement(FSConfig.POLICY_ALWAYS, FSG.ELEMENT_COLOR, "COLORS2", 1));
 
                 vertex.addUniformBlock("std140", "COLORS1", "vec2 colors1[" + instancecount + "]");
                 vertex.addUniformBlock("std140", "COLORS2", "vec2 colors2[" + instancecount + "]");
@@ -90,10 +91,10 @@ public final class ModColor{
                 vertex.addMainCode("colorubo = vec4(colors1[gl_InstanceID], colors2[gl_InstanceID]);");
 
             }else if(segments == 4){
-                program.addMeshConfig(new FSP.UniformBlockElement(policy, FSG.ELEMENT_COLOR, "COLORS1", 0));
-                program.addMeshConfig(new FSP.UniformBlockElement(policy, FSG.ELEMENT_COLOR, "COLORS2", 1));
-                program.addMeshConfig(new FSP.UniformBlockElement(policy, FSG.ELEMENT_COLOR, "COLORS3", 2));
-                program.addMeshConfig(new FSP.UniformBlockElement(policy, FSG.ELEMENT_COLOR, "COLORS4", 3));
+                program.addMeshConfig(new FSP.UniformBlockElement(FSConfig.POLICY_ALWAYS, FSG.ELEMENT_COLOR, "COLORS1", 0));
+                program.addMeshConfig(new FSP.UniformBlockElement(FSConfig.POLICY_ALWAYS, FSG.ELEMENT_COLOR, "COLORS2", 1));
+                program.addMeshConfig(new FSP.UniformBlockElement(FSConfig.POLICY_ALWAYS, FSG.ELEMENT_COLOR, "COLORS3", 2));
+                program.addMeshConfig(new FSP.UniformBlockElement(FSConfig.POLICY_ALWAYS, FSG.ELEMENT_COLOR, "COLORS4", 3));
 
                 vertex.addUniformBlock("std140", "COLORS1", "vec1 colors1[" + instancecount + "]");
                 vertex.addUniformBlock("std140", "COLORS2", "vec1 colors2[" + instancecount + "]");
@@ -111,7 +112,7 @@ public final class ModColor{
         }
     }
 
-    private static final class SetupTexture extends FSP.Modifier{
+    private static final class SetupTexture implements FSPMod{
 
         private boolean instanced;
         private boolean instancedcoords;
@@ -126,23 +127,23 @@ public final class ModColor{
         }
 
         @Override
-        protected void modify(FSP program, FSConfig.Policy policy){
+        public void modify(FSP program){
             FSShader vertex = program.vertexShader();
             FSShader fragment = program.fragmentShader();
 
-            FSConfig unit = new FSP.TextureColorUnit(policy);
-            FSConfig bind = new FSP.TextureColorBind(policy);
+            FSConfig unit = new FSP.TextureColorUnit(FSConfig.POLICY_ALWAYS);
+            FSConfig bind = new FSP.TextureColorBind(FSConfig.POLICY_ALWAYS);
             FSConfig coords;
 
             if(instancedcoords && instanced){
                 coords = new FSP.UniformBlockElement(FSG.ELEMENT_TEXCOORD, "TEXCOORDS", 0);
 
             }else{
-                coords = new FSP.AttribPointer(policy, FSG.ELEMENT_TEXCOORD, 0);
+                coords = new FSP.AttribPointer(FSConfig.POLICY_ALWAYS, FSG.ELEMENT_TEXCOORD, 0);
 
                 program.registerAttributeLocation(vertex, coords);
-                program.addSetupConfig(new FSP.AttribEnable(policy, coords.location()));
-                program.addPostDrawConfig(new FSP.AttribDisable(policy, coords.location()));
+                program.addSetupConfig(new FSP.AttribEnable(FSConfig.POLICY_ALWAYS, coords.location()));
+                program.addPostDrawConfig(new FSP.AttribDisable(FSConfig.POLICY_ALWAYS, coords.location()));
             }
 
             if(texturecontrol){
@@ -193,7 +194,7 @@ public final class ModColor{
         }
     }
 
-    public static final class Attribute extends FSP.Modifier{
+    public static final class Attribute implements FSPMod{
 
         private SetupAttribute setupattribute;
 
@@ -202,13 +203,13 @@ public final class ModColor{
         }
 
         @Override
-        protected void modify(FSP program, FSConfig.Policy policy){
-            program.modify(setupattribute, policy);
+        public void modify(FSP program){
+            program.modify(setupattribute, FSConfig.POLICY_ALWAYS);
             program.fragmentShader().addMainCode("vec4 vcolor = colorvertex;");
         }
     }
 
-    public static final class UBO extends FSP.Modifier{
+    public static final class UBO implements FSPMod{
 
         private SetupUBO setupubo;
 
@@ -217,13 +218,13 @@ public final class ModColor{
         }
 
         @Override
-        protected void modify(FSP program, FSConfig.Policy policy){
-            program.modify(setupubo, policy);
+        public void modify(FSP program){
+            program.modify(setupubo, FSConfig.POLICY_ALWAYS);
             program.fragmentShader().addMainCode("vec4 vcolor = colorubo;");
         }
     }
 
-    public static final class Uniform extends FSP.Modifier{
+    public static final class Uniform implements FSPMod{
 
         private SetupUniform setupuniform;
 
@@ -232,13 +233,13 @@ public final class ModColor{
         }
 
         @Override
-        protected void modify(FSP program, FSConfig.Policy policy){
-            program.modify(setupuniform, policy);
+        public void modify(FSP program){
+            program.modify(setupuniform, FSConfig.POLICY_ALWAYS);
             program.fragmentShader().addMainCode("vec4 vcolor = coloruni;");
         }
     }
 
-    public static final class Texture extends FSP.Modifier{
+    public static final class Texture implements FSPMod{
 
         private SetupTexture setuptexture;
 
@@ -247,13 +248,13 @@ public final class ModColor{
         }
 
         @Override
-        protected void modify(FSP program, FSConfig.Policy policy){
-            program.modify(setuptexture, policy);
+        public void modify(FSP program){
+            program.modify(setuptexture, FSConfig.POLICY_ALWAYS);
             program.fragmentShader().addMainCode("vec4 vcolor = colortex;");
         }
     }
 
-    public static final class TextureAndUBO extends FSP.Modifier{
+    public static final class TextureAndUBO implements FSPMod{
 
         private SetupTexture setuptexture;
         private SetupUBO setupubo;
@@ -264,15 +265,15 @@ public final class ModColor{
         }
 
         @Override
-        protected void modify(FSP program, FSConfig.Policy policy){
-            program.modify(setuptexture, policy);
-            program.modify(setupubo, policy);
+        public void modify(FSP program){
+            program.modify(setuptexture, FSConfig.POLICY_ALWAYS);
+            program.modify(setupubo, FSConfig.POLICY_ALWAYS);
 
             program.fragmentShader().addMainCode("vec4 vcolor = colortex + colorubo;");
         }
     }
 
-    public static final class TextureAndUniform extends FSP.Modifier{
+    public static final class TextureAndUniform implements FSPMod{
 
         private SetupTexture setuptexture;
         private SetupUniform setupuniform;
@@ -283,15 +284,15 @@ public final class ModColor{
         }
 
         @Override
-        protected void modify(FSP program, FSConfig.Policy policy){
-            program.modify(setuptexture, policy);
-            program.modify(setupuniform, policy);
+        public void modify(FSP program){
+            program.modify(setuptexture, FSConfig.POLICY_ALWAYS);
+            program.modify(setupuniform, FSConfig.POLICY_ALWAYS);
 
             program.fragmentShader().addMainCode("vec4 vcolor = colortex * coloruni;");
         }
     }
 
-    public static final class UniformAndUBO extends FSP.Modifier{
+    public static final class UniformAndUBO implements FSPMod{
 
         private SetupUniform setupuniform;
         private SetupUBO setupubo;
@@ -302,15 +303,15 @@ public final class ModColor{
         }
 
         @Override
-        protected void modify(FSP program, FSConfig.Policy policy){
-            program.modify(setupuniform, policy);
-            program.modify(setupubo, policy);
+        public void modify(FSP program){
+            program.modify(setupuniform, FSConfig.POLICY_ALWAYS);
+            program.modify(setupubo, FSConfig.POLICY_ALWAYS);
 
             program.fragmentShader().addMainCode("vec4 vcolor = coloruni * colorubo;");
         }
     }
 
-    public static final class Combined extends FSP.Modifier{
+    public static final class Combined implements FSPMod{
 
         private SetupUniform setupuniform;
         private SetupUBO setupubo;
@@ -323,10 +324,10 @@ public final class ModColor{
         }
 
         @Override
-        protected void modify(FSP program, FSConfig.Policy policy){
-            program.modify(setupuniform, policy);
-            program.modify(setupubo, policy);
-            program.modify(setuptexture, policy);
+        public void modify(FSP program){
+            program.modify(setupuniform, FSConfig.POLICY_ALWAYS);
+            program.modify(setupubo, FSConfig.POLICY_ALWAYS);
+            program.modify(setuptexture, FSConfig.POLICY_ALWAYS);
 
             program.fragmentShader().addMainCode("vec4 vcolor = coloruni * colorubo * colortex;");
         }
@@ -341,7 +342,7 @@ public final class ModColor{
         }
 
         @Override
-        protected void programBuilt(FSP program){
+        public void programBuilt(FSP program){
             location(program.getUniformBlockIndex(name));
         }
 

@@ -169,7 +169,6 @@ public final class ModLight{
             FSConfig normals = new FSP.AttribPointer(FSConfig.POLICY_ALWAYS, FSG.ELEMENT_NORMAL, 0);
             FSConfig material = new FSP.MaterialDynamic(FSConfig.POLICY_ALWAYS, materialglslsize);
             FSConfig cameraPos = new FSP.Uniform3fvd(FSConfig.POLICY_ALWAYS, FSControl.getViewConfig().eyePosition(),0, 1);
-            FSConfig shadowbind = new FSP.TextureBind(FSConfig.POLICY_ALWAYS, pointshadow.texture());
             FSConfig bright = new FSConfigDynamic<FSBrightness>(brightness);
             FSConfig gam = new FSConfigDynamic<FSGamma>(gamma);
             FSConfig light = new FSConfigDynamic<FSLightPoint>(lightsource);
@@ -193,7 +192,6 @@ public final class ModLight{
             program.addSetupConfig(bright);
             program.addSetupConfig(light);
             program.addSetupConfig(cameraPos);
-            program.addSetupConfig(shadowbind);
             program.addSetupConfig(enableposition);
             program.addSetupConfig(enablenormals);
 
@@ -231,12 +229,14 @@ public final class ModLight{
             fragment.addMainCode("vec3 lightdir = normalize(light.position - fragPos);");
             
             if(pointshadow != null){
+                FSConfig shadowbind = new FSP.TextureBind(FSConfig.POLICY_ALWAYS, pointshadow.texture());
                 FSConfig shadowdata = new FSConfigDynamicSelective(pointshadow, FSShadowDirect.SELECT_STRUCT_DATA);
                 FSConfig shadowunit = new FSP.Uniform1i(FSConfig.POLICY_ALWAYS, pointshadow.texture().unit());
 
                 program.registerUniformLocation(fragment, shadowdata);
                 program.registerUniformLocation(fragment, shadowunit);
 
+                program.addSetupConfig(shadowbind);
                 program.addSetupConfig(shadowdata);
                 program.addSetupConfig(shadowunit);
 

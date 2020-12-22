@@ -5,46 +5,25 @@ import android.opengl.GLES32;
 import com.nurverek.firestorm.FSActivity;
 import com.nurverek.firestorm.FSAttenuation;
 import com.nurverek.firestorm.FSBrightness;
-import com.nurverek.firestorm.FSBufferLayout;
 import com.nurverek.firestorm.FSBufferManager;
 import com.nurverek.firestorm.FSConfig;
 import com.nurverek.firestorm.FSControl;
 import com.nurverek.firestorm.FSG;
+import com.nurverek.firestorm.FSGAutomator;
 import com.nurverek.firestorm.FSGamma;
 import com.nurverek.firestorm.FSLightDirect;
 import com.nurverek.firestorm.FSLightMaterial;
 import com.nurverek.firestorm.FSLightPoint;
-import com.nurverek.firestorm.FSLinkType;
-import com.nurverek.firestorm.FSMesh;
 import com.nurverek.firestorm.FSP;
-import com.nurverek.firestorm.FSPMod;
-import com.nurverek.firestorm.FSShadowDirect;
-import com.nurverek.firestorm.FSShadowPoint;
 import com.nurverek.firestorm.FSVertexBuffer;
 import com.nurverek.vanguard.VLArrayFloat;
 import com.nurverek.vanguard.VLBufferFloat;
 import com.nurverek.vanguard.VLBufferShort;
 import com.nurverek.vanguard.VLFloat;
-import com.nurverek.vanguard.VLInt;
-import com.nurverek.vanguard.VLListType;
 
 import java.nio.ByteOrder;
-import java.util.Arrays;
 
 public final class Loader extends FSG{
-
-    //        7 	1.0 	0.7 	1.8
-    //        13 	1.0 	0.35 	0.44
-    //        20 	1.0 	0.22 	0.20
-    //        32 	1.0 	0.14 	0.07
-    //        50 	1.0 	0.09 	0.032
-    //        65 	1.0 	0.07 	0.017
-    //        100 	1.0 	0.045 	0.0075
-    //        160 	1.0 	0.027 	0.0028
-    //        200 	1.0 	0.022 	0.0019
-    //        325 	1.0 	0.014 	0.0007
-    //        600 	1.0 	0.007 	0.0002
-    //        3250 	1.0 	0.0014 	0.000007
 
     public static final int DEBUG_MODE_AUTOMATOR = FSControl.DEBUG_DISABLED;
     public static final int DEBUG_MODE_PROGRAMS = FSControl.DEBUG_DISABLED;
@@ -65,8 +44,10 @@ public final class Loader extends FSG{
     public static FSLightDirect lightDirect;
     public static FSLightPoint lightPoint;
 
-//    public static FSShadowDirect shadowDirect;
-//    public static FSShadowPoint shadowPoint;
+    public static Layer layer1;
+    public static Layer layer2;
+    public static Layer layer3;
+    public static Layer[] layers;
 
     public Loader(){
         super(2, 50, 10);
@@ -84,35 +65,43 @@ public final class Loader extends FSG{
         lightPoint = new FSLightPoint(new FSAttenuation(new VLFloat(1.0F), new VLFloat(0.007F), new VLFloat(0.0002F)), new VLArrayFloat(new float[]{ 0F, 15F, -15F, 1.0F }));
         lightDirect = new FSLightDirect(new VLArrayFloat(new float[]{ 0F, 400F, 600F, 1.0F }), new VLArrayFloat(new float[]{ 0F, 0F, 0F, 1.0F }));
 
-//        shadowPoint = new FSShadowPoint(lightPoint, new VLInt(1024), new VLInt(1024), new VLFloat(0.005F), new VLFloat(0.005F), new VLFloat(1.1F), new VLFloat(1F), new VLFloat(50));
-//        shadowDirect = new FSShadowDirect(lightDirect, new VLInt(2048), new VLInt(2048), new VLFloat(0.0001F), new VLFloat(0.01F), new VLFloat(1.2F));
-//
-//        shadowPoint.initialize(new VLInt(TEXUNIT++));
-//        shadowDirect.initialize(new VLInt(TEXUNIT++));
+        FSBufferManager manager = bufferManager();
+        BUFFER_ELEMENT_SHORT_DEFAULT = manager.add(new FSBufferManager.EntryShort(new FSVertexBuffer(GLES32.GL_ELEMENT_ARRAY_BUFFER, GLES32.GL_STATIC_DRAW), new VLBufferShort()));
+        BUFFER_ARRAY_FLOAT_DEFAULT = manager.add(new FSBufferManager.EntryFloat(new FSVertexBuffer(GLES32.GL_ARRAY_BUFFER, GLES32.GL_STATIC_DRAW), new VLBufferFloat()));
 
-        BUFFER_ELEMENT_SHORT_DEFAULT = BUFFERMANAGER.add(new FSBufferManager.EntryShort(new FSVertexBuffer(GLES32.GL_ELEMENT_ARRAY_BUFFER, GLES32.GL_STATIC_DRAW), new VLBufferShort()));
-        BUFFER_ARRAY_FLOAT_DEFAULT = BUFFERMANAGER.add(new FSBufferManager.EntryFloat(new FSVertexBuffer(GLES32.GL_ARRAY_BUFFER, GLES32.GL_STATIC_DRAW), new VLBufferFloat()));
+        FSP program = new FSP(DEBUG_MODE_PROGRAMS);
+        program.modify(new ModModel.UBO(1, Layer.INSTANCE_COUNT), FSConfig.POLICY_ALWAYS);
+        program.modify(new ModColor.TextureAndUBO(1, Layer.INSTANCE_COUNT, true, false, true), FSConfig.POLICY_ALWAYS);
+        program.modify(new ModLight.Point(Loader.GAMMA, null, Loader.BRIGHTNESS, Loader.lightPoint, null, Loader.MATERIAL_WHITE_RUBBER.getGLSLSize()), FSConfig.POLICY_ALWAYS);
+        program.addMeshConfig(new FSP.DrawElementsInstanced(FSConfig.POLICY_ALWAYS, 0));
+        program.build();
+
+        programSet(Loader.MAIN_PROGRAMSET).add(program);
+
+        layer1 = new Layer(program, "layer1");
+        layer2 = new Layer(program, "layer2");
+        layer3 = new Layer(program, "layer3");
+
+        layers = new Layer[]{
+                layer1,
+                layer2,
+                layer3,
+        };
 
         Game.initialize();
 
-        Layers.register(this);
-
-        AUTOMATOR.build(DEBUG_MODE_AUTOMATOR);
-
-        Layers.makeLinks();
-
-        AUTOMATOR.buffer(DEBUG_MODE_AUTOMATOR);
-
-        Layers.program(this);
-
-        AUTOMATOR.program(DEBUG_MODE_AUTOMATOR);
+        FSGAutomator automator = automator();
+        automator.register(layer1);
+        automator.register(layer2);
+        automator.register(layer3);
+        automator.run(DEBUG_MODE_AUTOMATOR);
 
         Game.startGame(this);
     }
 
     @Override
     public void update(int passindex, int programsetindex){
-        BUFFERMANAGER.updateIfNeeded();
+        bufferManager().updateIfNeeded();
     }
 
     @Override

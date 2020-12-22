@@ -21,22 +21,21 @@ import com.nurverek.vanguard.VLListType;
 
 import java.util.Arrays;
 
-public final class PuzzleLayer extends FSGBluePrint{
+public final class Layer extends FSGBluePrint{
 
-    public final int INSTANCE_COUNT = 24;
+    public static final int INSTANCE_COUNT = 24;
 
     public FSP program;
     public FSMesh mesh;
     public String name;
 
-    public PuzzleLayer(String name){
+    public Layer(FSP program, String name){
+        this.program = program;
         this.name = name;
     }
 
     @Override
     public FSGScanner register(FSG gen){
-        FSGAutomator automator = gen.automator();
-
         FSGAssembler config = new FSGAssembler();
         config.SYNC_MODELMATRIX_AND_MODELARRAY = true;
         config.SYNC_MODELARRAY_AND_SCHEMATICS = true;
@@ -121,12 +120,6 @@ public final class PuzzleLayer extends FSGBluePrint{
 
     @Override
     public void program(FSG gen, FSMesh mesh){
-        program.modify(new ModModel.UBO(1, INSTANCE_COUNT), FSConfig.POLICY_ALWAYS);
-        program.modify(new ModColor.TextureAndUBO(1, INSTANCE_COUNT, true, false, true), FSConfig.POLICY_ALWAYS);
-        program.modify(new ModLight.Point(Loader.GAMMA, null, Loader.BRIGHTNESS, Loader.lightPoint, null, Loader.MATERIAL_WHITE_RUBBER.getGLSLSize()), FSConfig.POLICY_ALWAYS);
-        program.addMeshConfig(new FSP.DrawElementsInstanced(FSConfig.POLICY_ALWAYS, 0));
-        program.build();
-
-        gen.programSet(Loader.MAIN_PROGRAMSET).add(program);
+        program.addMesh(mesh);
     }
 }

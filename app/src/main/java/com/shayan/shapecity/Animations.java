@@ -88,11 +88,12 @@ public final class Animations{
         controlmanager.add(controlrunner);
 
         float[][] colors = new float[][]{ COLOR_LAYER1, COLOR_LAYER2, COLOR_LAYER3 };
-        int itemsize = Layers.INSTANCE_COUNT * Layers.layers.length;
-        int size = Layers.layers.length;
+
+        int size = Loader.layers.length;
+        int itemsize = Layer.INSTANCE_COUNT * size;
 
         for(int i = 0; i < size; i++){
-            FSMesh layer = Layers.layers[i];
+            FSMesh layer = Loader.layers[i].mesh();
             VLArrayFloat linkdata = ((ModColor.TextureControlLink)layer.link(0)).data;
             VLVManager layermanager = new VLVManager(4, 0);
 
@@ -119,7 +120,7 @@ public final class Animations{
                 float yraisebase = 0;
 
                 for(int i3 = 0; i3 < i; i3++){
-                    yraisebase += Layers.layers[i3].instance(i2).schematics().modelHeight() * Y_BASE_HEIGHT_MULTIPLIER;
+                    yraisebase += Loader.layers[i3].mesh().instance(i2).schematics().modelHeight() * Y_BASE_HEIGHT_MULTIPLIER;
                 }
 
                 VLVCurved translateraisey = new VLVCurved(0f, yraisebase, CYCLES_RAISE_BASE_MAX, VLVariable.LOOP_NONE, VLVCurved.CURVE_DEC_SINE_SQRT);

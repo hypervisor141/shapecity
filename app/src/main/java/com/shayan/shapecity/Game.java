@@ -23,87 +23,17 @@ import java.util.Arrays;
 
 public final class Game{
 
-    private static final int GAME_MATCH_SYMBOLS = 124;
-    private static final int GAME_MATCH_COLORS = 125;
-    private static final int GAME_MATCH_ROTATION = 126;
+    private static final int GAME_MATCH_SYMBOLS = 0;
+    private static final int GAME_MATCH_COLORS = 1;
+    private static final int GAME_MATCH_ROTATION = 2;
 
-    private static final int GAME_MATCHSYM_PICK_LIMIT = 2;
-    private static final int GAME_MATCHSYM_REPEAT_ICON_LIMIT = 4;
+    public static final int GAME_MATCHSYM_PICK_LIMIT = 2;
+    public static final int GAME_MATCHSYM_REPEAT_ICON_LIMIT = 4;
 
-    private static final int LAYER_PIECE_TEXTURE_DIMENSION = 512;
-
-    protected static final SecureRandom RANDOM = new SecureRandom();
-    public static ByteBuffer PIXEL_BUFFER = null;
-
-    protected static int[] symbols;
     public static boolean[] enabledPieces;
 
-    public static FSTexture texArrayLayer1;
-    public static FSTexture texArrayLayer2;
-    public static FSTexture texArrayLayer3;
-    public static FSTexture texCenter;
-    public static FSTexture[] textures;
-
     public static VLListInt activatedSymbols;
-
-    public static void initialize(){
-        texArrayLayer1 = new FSTexture(new VLInt(GLES32.GL_TEXTURE_2D_ARRAY), new VLInt(Loader.TEXUNIT++));
-        texArrayLayer1.bind();
-        texArrayLayer1.storage3D(1, GLES32.GL_RGBA8, LAYER_PIECE_TEXTURE_DIMENSION, LAYER_PIECE_TEXTURE_DIMENSION, Layer.INSTANCE_COUNT);
-        texArrayLayer1.minFilter(GLES32.GL_LINEAR);
-        texArrayLayer1.magFilter(GLES32.GL_LINEAR);
-        texArrayLayer1.wrapS(GLES32.GL_CLAMP_TO_EDGE);
-        texArrayLayer1.wrapT(GLES32.GL_CLAMP_TO_EDGE);
-        texArrayLayer1.baseLevel(0);
-        texArrayLayer1.maxLevel(Layer.INSTANCE_COUNT - 1);
-        texArrayLayer1.unbind();
-
-        FSTools.checkGLError();
-
-        texArrayLayer2 = new FSTexture(new VLInt(GLES32.GL_TEXTURE_2D_ARRAY), new VLInt(Loader.TEXUNIT++));
-        texArrayLayer2.bind();
-        texArrayLayer2.storage3D(1, GLES32.GL_RGBA8, LAYER_PIECE_TEXTURE_DIMENSION, LAYER_PIECE_TEXTURE_DIMENSION, Layer.INSTANCE_COUNT);
-        texArrayLayer2.minFilter(GLES32.GL_LINEAR);
-        texArrayLayer2.magFilter(GLES32.GL_LINEAR);
-        texArrayLayer2.wrapS(GLES32.GL_CLAMP_TO_EDGE);
-        texArrayLayer2.wrapT(GLES32.GL_CLAMP_TO_EDGE);
-        texArrayLayer2.baseLevel(0);
-        texArrayLayer2.maxLevel(Layer.INSTANCE_COUNT - 1);
-        texArrayLayer2.unbind();
-
-        FSTools.checkGLError();
-
-        texArrayLayer3 = new FSTexture(new VLInt(GLES32.GL_TEXTURE_2D_ARRAY), new VLInt(Loader.TEXUNIT++));
-        texArrayLayer3.bind();
-        texArrayLayer3.storage3D(1, GLES32.GL_RGBA8, LAYER_PIECE_TEXTURE_DIMENSION, LAYER_PIECE_TEXTURE_DIMENSION, Layer.INSTANCE_COUNT);
-        texArrayLayer3.minFilter(GLES32.GL_LINEAR);
-        texArrayLayer3.magFilter(GLES32.GL_LINEAR);
-        texArrayLayer3.wrapS(GLES32.GL_CLAMP_TO_EDGE);
-        texArrayLayer3.wrapT(GLES32.GL_CLAMP_TO_EDGE);
-        texArrayLayer3.baseLevel(0);
-        texArrayLayer3.maxLevel(Layer.INSTANCE_COUNT - 1);
-        texArrayLayer3.unbind();
-
-        FSTools.checkGLError();
-        textures = new FSTexture[]{ texArrayLayer1, texArrayLayer2, texArrayLayer3 };
-
-        BitmapFactory.Options opts = new BitmapFactory.Options();
-        opts.inPreferredConfig = Bitmap.Config.ARGB_8888;
-        opts.outConfig = Bitmap.Config.ARGB_8888;
-        opts.inScaled = true;
-        opts.inMutable = true;
-
-        texCenter = new FSTexture(new VLInt(GLES32.GL_TEXTURE_2D), new VLInt(Loader.TEXUNIT++));
-        texCenter.bind();
-        texCenter.image2D(0, BitmapFactory.decodeResource(FSControl.getContext().getResources(), R.drawable.center, opts));
-        texCenter.minFilter(GLES32.GL_LINEAR);
-        texCenter.magFilter(GLES32.GL_LINEAR);
-        texCenter.wrapS(GLES32.GL_CLAMP_TO_EDGE);
-        texCenter.wrapT(GLES32.GL_CLAMP_TO_EDGE);
-        texCenter.unbind();
-
-        FSTools.checkGLError();
-    }
+    private static int[] symbols;
 
     public static void startGame(Loader loader){
         Animations.initialize(loader);
@@ -113,9 +43,9 @@ public final class Game{
 
         Camera.rotateCamera();
 
-        RANDOM.setSeed(System.currentTimeMillis());
+        Loader.RANDOM.setSeed(System.currentTimeMillis());
 
-        int choice = 124 + RANDOM.nextInt(3);
+        int choice = Loader.RANDOM.nextInt(3);
         choice = GAME_MATCH_SYMBOLS;
 
         switch(choice){
@@ -159,77 +89,8 @@ public final class Game{
 
     }
 
-    private static void prepareMatchSymTextureForLayer(FSTexture texArrayLayer){
-        Bitmap b = null;
-
-        int[] resources = new int[]{ R.drawable.circle, R.drawable.hex, R.drawable.square, R.drawable.triangle, R.drawable.rsquare };
-
-        int[] timespicked = new int[resources.length];
-        Arrays.fill(timespicked, 0);
-
-        Paint paint = new Paint();
-        paint.setAntiAlias(true);
-        paint.setDither(true);
-
-        Context cxt = FSControl.getContext();
-
-        BitmapFactory.Options opts = new BitmapFactory.Options();
-        opts.inPreferredConfig = Bitmap.Config.ARGB_8888;
-        opts.outConfig = Bitmap.Config.ARGB_8888;
-        opts.inScaled = true;
-        opts.inMutable = true;
-
-        int choice = 0;
-        int requiredchoices = Layer.INSTANCE_COUNT / GAME_MATCHSYM_PICK_LIMIT;
-        int index = 0;
-
-        PIXEL_BUFFER = null;
-        texArrayLayer.bind();
-
-        symbols = new int[Layer.INSTANCE_COUNT];
-        Arrays.fill(symbols, -1);
-
-        for(int i = 0; i < requiredchoices; i++){
-            choice = RANDOM.nextInt(resources.length);
-
-            while(timespicked[choice] >= GAME_MATCHSYM_REPEAT_ICON_LIMIT){
-                choice = RANDOM.nextInt(resources.length);
-            }
-
-            timespicked[choice]++;
-
-            b = BitmapFactory.decodeResource(cxt.getResources(), resources[choice], opts);
-
-            if(PIXEL_BUFFER == null){
-                PIXEL_BUFFER = ByteBuffer.allocate(b.getAllocationByteCount());
-                PIXEL_BUFFER.order(ByteOrder.nativeOrder());
-            }
-
-            PIXEL_BUFFER.position(0);
-
-            b.copyPixelsToBuffer(PIXEL_BUFFER);
-            b.recycle();
-
-            for(int i2 = 0; i2 < GAME_MATCHSYM_PICK_LIMIT; i2++){
-                index = RANDOM.nextInt(Layer.INSTANCE_COUNT);
-
-                while(symbols[index] != -1){
-                    index = RANDOM.nextInt(Layer.INSTANCE_COUNT);
-                }
-
-                symbols[index] = choice;
-
-                PIXEL_BUFFER.position(0);
-                texArrayLayer.subImage3D(0, 0, 0, index, LAYER_PIECE_TEXTURE_DIMENSION, LAYER_PIECE_TEXTURE_DIMENSION, 1, GLES32.GL_RGBA, GLES32.GL_UNSIGNED_BYTE, PIXEL_BUFFER);
-            }
-        }
-
-        FSTools.checkGLError();
-        texArrayLayer.unbind();
-    }
-
     private static void activateMatchSymForLayer(final int layer){
-        prepareMatchSymTextureForLayer(textures[layer]);
+        symbols = Loader.layers[layer].prepareMatchSymTexture();
 
         Arrays.fill(activatedSymbols.array(), -1);
         Arrays.fill(enabledPieces, true);
@@ -359,11 +220,5 @@ public final class Game{
         }
 
         return activecount;
-    }
-
-    public static void destroy(){
-        texArrayLayer1.destroy();
-        texArrayLayer2.destroy();
-        texArrayLayer3.destroy();
     }
 }

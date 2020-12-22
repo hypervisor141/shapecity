@@ -30,8 +30,7 @@ public final class Camera{
             @Override
             public void run(VLTask<VLVLinear> task, VLVLinear var){
                 FSViewConfig c = FSControl.getViewConfig();
-                c.eyePosition(0, 30F, 30F);
-//                c.eyePosition(0, 500F, 300F);
+                c.eyePosition(0, 4F, 1F);
 
                 float[] eyepos = c.eyePosition().provider();
 
@@ -40,7 +39,7 @@ public final class Camera{
                 Matrix.multiplyMV(eyepos, 0, cache, 0, eyepos, 0);
 
                 c.eyePositionDivideByW();
-                c.lookAt(0f, 8f, 0f, 0f, 1f, 0f);
+                c.lookAt(0f, 2.5f, 0f, 0f, 1f, 0f);
                 c.updateViewProjection();
             }
         }));

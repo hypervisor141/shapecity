@@ -22,6 +22,7 @@ import com.nurverek.vanguard.VLBufferShort;
 import com.nurverek.vanguard.VLFloat;
 
 import java.nio.ByteOrder;
+import java.security.SecureRandom;
 
 public final class Loader extends FSG{
 
@@ -33,13 +34,15 @@ public final class Loader extends FSG{
     public static final FSLightMaterial MATERIAL_WHITE_RUBBER = new FSLightMaterial(new VLArrayFloat(new float[]{ 0.05f, 0.05f, 0.05f }), new VLArrayFloat(new float[]{ 0.5f, 0.5f, 0.5f }), new VLArrayFloat(new float[]{ 0.7f, 0.7f, 0.7f }), new VLFloat(16));
 
     public static final int MAIN_PROGRAMSET = 0;
-    public static final FSBrightness BRIGHTNESS = new FSBrightness(new VLFloat(2f));
-    public static final FSGamma GAMMA = new FSGamma(new VLFloat(1.5f));
+    public static final FSBrightness BRIGHTNESS = new FSBrightness(new VLFloat(2F));
+    public static final FSGamma GAMMA = new FSGamma(new VLFloat(1.15F));
 
     public static int BUFFER_ELEMENT_SHORT_DEFAULT;
     public static int BUFFER_ARRAY_FLOAT_DEFAULT;
     public static int UBOBINDPOINT = 0;
     public static int TEXUNIT = 1;
+
+    public static final SecureRandom RANDOM = new SecureRandom();
 
     public static FSLightDirect lightDirect;
     public static FSLightPoint lightPoint;
@@ -62,7 +65,7 @@ public final class Loader extends FSG{
             throw new RuntimeException(ex.getMessage());
         }
 
-        lightPoint = new FSLightPoint(new FSAttenuation(new VLFloat(1.0F), new VLFloat(0.007F), new VLFloat(0.0002F)), new VLArrayFloat(new float[]{ 0F, 15F, -15F, 1.0F }));
+        lightPoint = new FSLightPoint(new FSAttenuation(new VLFloat(1.0F), new VLFloat(0.007F), new VLFloat(0.0002F)), new VLArrayFloat(new float[]{ 0F, 5F, -5F, 1.0F }));
         lightDirect = new FSLightDirect(new VLArrayFloat(new float[]{ 0F, 400F, 600F, 1.0F }), new VLArrayFloat(new float[]{ 0F, 0F, 0F, 1.0F }));
 
         FSBufferManager manager = bufferManager();
@@ -78,17 +81,15 @@ public final class Loader extends FSG{
 
         programSet(Loader.MAIN_PROGRAMSET).add(program);
 
-        layer1 = new Layer(program, "layer1");
-        layer2 = new Layer(program, "layer2");
-        layer3 = new Layer(program, "layer3");
+        layer1 = new Layer(program, "pieces1.");
+        layer2 = new Layer(program, "pieces2.");
+        layer3 = new Layer(program, "pieces3.");
 
         layers = new Layer[]{
                 layer1,
                 layer2,
                 layer3,
         };
-
-        Game.initialize();
 
         FSGAutomator automator = automator();
         automator.register(layer1);
@@ -106,7 +107,8 @@ public final class Loader extends FSG{
 
     @Override
     protected void destroyAssets(){
-        Game.destroy();
-        Animations.destroy();
+        layer1.mesh().instance(0).colorTexture().destroy();
+        layer2.mesh().instance(0).colorTexture().destroy();
+        layer3.mesh().instance(0).colorTexture().destroy();
     }
 }

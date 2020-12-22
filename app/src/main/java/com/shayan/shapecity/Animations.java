@@ -1,5 +1,7 @@
 package com.shayan.shapecity;
 
+import android.util.Log;
+
 import com.nurverek.firestorm.FSBounds;
 import com.nurverek.firestorm.FSBoundsCuboid;
 import com.nurverek.firestorm.FSInstance;
@@ -25,7 +27,7 @@ public final class Animations{
     public static final float[] COLOR_WHITE = new float[]{ 1F, 1F, 1F, 1F };
     public static final float[] COLOR_WHITE_LESS = new float[]{ 0.8F, 0.8F, 0.8F, 1F };
     public static final float[] COLOR_WHITE_LESS2 = new float[]{ 0.6F, 0.6F, 0.6F, 1F };
-    public static final float[] COLOR_ORANGE = new float[]{ 1.0F, 0.8F, 0F, 1F };
+    public static final float[] COLOR_ORANGE = new float[]{ 1.0F, 0.9F, 0F, 1F };
     public static final float[] COLOR_OBSIDIAN = new float[]{ 0.4F, 0.4F, 0.4F, 1F };
     public static final float[] COLOR_OBSIDIAN_LESS = new float[]{ 0.15F, 0.15F, 0.15F, 1F };
     public static final float[] COLOR_OBSIDIAN_LESS2 = new float[]{ 0.1F, 0.1F, 0.1F, 1F };
@@ -33,16 +35,15 @@ public final class Animations{
     public static final float[] COLOR_GOLD = new float[]{ 0.83F, 0.68F, 0.21F, 1F };
     public static final float[] COLOR_RED = new float[]{ 1.0F, 0.3F, 0F, 1F };
     public static final float[] COLOR_PURPLE = new float[]{ 0F, 0.137F, 0.220F, 1F };
+    public static final float[] COLOR_PURPLE_MORE = new float[]{ 0F, 0.237F, 0.320F, 1F };
 
     public static final float[] COLOR_BASE = COLOR_WHITE;
     public static final float[] COLOR_BASE_LINING = COLOR_ORANGE;
-    public static final float[] COLOR_LAYER1 = COLOR_RED;
-    public static final float[] COLOR_LAYER2 = COLOR_RED;
-    public static final float[] COLOR_LAYER3 = COLOR_RED;
+    public static final float[] COLOR_LAYER = COLOR_PURPLE;
     public static final float[] COLOR_PILLARS = COLOR_OBSIDIAN_LESS2;
     private static final float[] COLOR_BLINK = COLOR_ORANGE;
-    private static final float[] COLOR_DEACTIVATED = COLOR_PURPLE;
-    public static final float[] COLOR_STANDBY = COLOR_RED;
+    private static final float[] COLOR_DEACTIVATED = COLOR_ORANGE;
+    public static final float[] COLOR_STANDBY = COLOR_PURPLE_MORE;
 
     public static final float TEXCONTROL_IDLE = 0F;
     public static final float TEXCONTROL_ACTIVE = 1F;
@@ -70,7 +71,6 @@ public final class Animations{
     private static final int CYCLES_REVEAL_INPUT = 50;
     private static final int CYCLES_TEXCONTROL = 100;
 
-    private static final float Y_REDUCTION = 0.5f;
     private static final float Y_BOUNCE_HEIGHT_MULTIPLIER = 0.4f;
     private static final float Y_BASE_HEIGHT_MULTIPLIER = 0.3f;
 
@@ -87,8 +87,6 @@ public final class Animations{
 
         controlmanager.add(controlrunner);
 
-        float[][] colors = new float[][]{ COLOR_LAYER1, COLOR_LAYER2, COLOR_LAYER3 };
-
         int size = Loader.layers.length;
         int itemsize = Layer.INSTANCE_COUNT * size;
 
@@ -102,8 +100,6 @@ public final class Animations{
                 FSInstance instance = layer.instance(i2);
                 FSMatrixModel modelmatrix = instance.modelMatrix();
                 FSSchematics schematics = instance.schematics();
-
-                modelmatrix.getY(0).set(modelmatrix.getY(0).get() - Y_REDUCTION);
 
                 modelmatrix.addRowRotate(0, new VLV(90f), VLV.ZERO, VLV.ONE, VLV.ZERO);
                 modelmatrix.addRowRotate(0, new VLV(90f), VLV.ZERO, VLV.ZERO, VLV.ONE);
@@ -167,10 +163,10 @@ public final class Animations{
             for(int i2 = 0; i2 < layer.size(); i2++){
                 VLArrayFloat colorarray = layer.instance(i2).colors();
 
-                VLVCurved standbyred = new VLVCurved(colors[i][0], COLOR_STANDBY[0], CYCLES_STANDBY, VLVariable.LOOP_NONE, VLVCurved.CURVE_ACC_DEC_CUBIC);
-                VLVCurved standbygreen = new VLVCurved(colors[i][1], COLOR_STANDBY[1], CYCLES_STANDBY, VLVariable.LOOP_NONE, VLVCurved.CURVE_ACC_DEC_CUBIC);
-                VLVCurved standbyblue = new VLVCurved(colors[i][2], COLOR_STANDBY[2], CYCLES_STANDBY, VLVariable.LOOP_NONE, VLVCurved.CURVE_ACC_DEC_CUBIC);
-                VLVCurved standbyalpha = new VLVCurved(colors[i][3], COLOR_STANDBY[3], CYCLES_STANDBY, VLVariable.LOOP_NONE, VLVCurved.CURVE_ACC_DEC_CUBIC);
+                VLVCurved standbyred = new VLVCurved(COLOR_LAYER[0], COLOR_STANDBY[0], CYCLES_STANDBY, VLVariable.LOOP_NONE, VLVCurved.CURVE_ACC_DEC_CUBIC);
+                VLVCurved standbygreen = new VLVCurved(COLOR_LAYER[1], COLOR_STANDBY[1], CYCLES_STANDBY, VLVariable.LOOP_NONE, VLVCurved.CURVE_ACC_DEC_CUBIC);
+                VLVCurved standbyblue = new VLVCurved(COLOR_LAYER[2], COLOR_STANDBY[2], CYCLES_STANDBY, VLVariable.LOOP_NONE, VLVCurved.CURVE_ACC_DEC_CUBIC);
+                VLVCurved standbyalpha = new VLVCurved(COLOR_LAYER[3], COLOR_STANDBY[3], CYCLES_STANDBY, VLVariable.LOOP_NONE, VLVCurved.CURVE_ACC_DEC_CUBIC);
 
                 standbyred.SYNCER.add(new VLArray.DefinitionVLV(colorarray, 0));
                 standbygreen.SYNCER.add(new VLArray.DefinitionVLV(colorarray, 1));
@@ -200,10 +196,10 @@ public final class Animations{
             for(int i2 = 0; i2 < layer.size(); i2++){
                 VLArrayFloat colorarray = layer.instance(i2).colors();
 
-                VLVCurved blinkred = new VLVCurved(colors[i][0], COLOR_BLINK[0], CYCLES_BLINK, VLVariable.LOOP_RETURN_ONCE, VLVCurved.CURVE_ACC_DEC_CUBIC);
-                VLVCurved blinkgreen = new VLVCurved(colors[i][1], COLOR_BLINK[1], CYCLES_BLINK, VLVariable.LOOP_RETURN_ONCE, VLVCurved.CURVE_ACC_DEC_CUBIC);
-                VLVCurved blinkblue = new VLVCurved(colors[i][2], COLOR_BLINK[2], CYCLES_BLINK, VLVariable.LOOP_RETURN_ONCE, VLVCurved.CURVE_ACC_DEC_CUBIC);
-                VLVCurved blinkalpha = new VLVCurved(colors[i][3], COLOR_BLINK[3], CYCLES_BLINK, VLVariable.LOOP_RETURN_ONCE, VLVCurved.CURVE_ACC_DEC_CUBIC);
+                VLVCurved blinkred = new VLVCurved(COLOR_LAYER[0], COLOR_BLINK[0], CYCLES_BLINK, VLVariable.LOOP_RETURN_ONCE, VLVCurved.CURVE_ACC_DEC_CUBIC);
+                VLVCurved blinkgreen = new VLVCurved(COLOR_LAYER[1], COLOR_BLINK[1], CYCLES_BLINK, VLVariable.LOOP_RETURN_ONCE, VLVCurved.CURVE_ACC_DEC_CUBIC);
+                VLVCurved blinkblue = new VLVCurved(COLOR_LAYER[2], COLOR_BLINK[2], CYCLES_BLINK, VLVariable.LOOP_RETURN_ONCE, VLVCurved.CURVE_ACC_DEC_CUBIC);
+                VLVCurved blinkalpha = new VLVCurved(COLOR_LAYER[3], COLOR_BLINK[3], CYCLES_BLINK, VLVariable.LOOP_RETURN_ONCE, VLVCurved.CURVE_ACC_DEC_CUBIC);
 
                 blinkred.SYNCER.add(new VLArray.DefinitionVLV(colorarray, 0));
                 blinkgreen.SYNCER.add(new VLArray.DefinitionVLV(colorarray, 1));
@@ -233,10 +229,10 @@ public final class Animations{
             for(int i2 = 0; i2 < layer.size(); i2++){
                 VLArrayFloat colorarray = layer.instance(i2).colors();
 
-                VLVCurved deactivatedred = new VLVCurved(colors[i][0], COLOR_DEACTIVATED[0], CYCLES_DEACTIVATED, VLVariable.LOOP_NONE, VLVCurved.CURVE_ACC_DEC_CUBIC);
-                VLVCurved deactivatedgreen = new VLVCurved(colors[i][1], COLOR_DEACTIVATED[1], CYCLES_DEACTIVATED, VLVariable.LOOP_NONE, VLVCurved.CURVE_ACC_DEC_CUBIC);
-                VLVCurved deactivatedblue = new VLVCurved(colors[i][2], COLOR_DEACTIVATED[2], CYCLES_DEACTIVATED, VLVariable.LOOP_NONE, VLVCurved.CURVE_ACC_DEC_CUBIC);
-                VLVCurved deactivatedalpha = new VLVCurved(colors[i][3], COLOR_DEACTIVATED[3], CYCLES_DEACTIVATED, VLVariable.LOOP_NONE, VLVCurved.CURVE_ACC_DEC_CUBIC);
+                VLVCurved deactivatedred = new VLVCurved(COLOR_LAYER[0], COLOR_DEACTIVATED[0], CYCLES_DEACTIVATED, VLVariable.LOOP_NONE, VLVCurved.CURVE_ACC_DEC_CUBIC);
+                VLVCurved deactivatedgreen = new VLVCurved(COLOR_LAYER[1], COLOR_DEACTIVATED[1], CYCLES_DEACTIVATED, VLVariable.LOOP_NONE, VLVCurved.CURVE_ACC_DEC_CUBIC);
+                VLVCurved deactivatedblue = new VLVCurved(COLOR_LAYER[2], COLOR_DEACTIVATED[2], CYCLES_DEACTIVATED, VLVariable.LOOP_NONE, VLVCurved.CURVE_ACC_DEC_CUBIC);
+                VLVCurved deactivatedalpha = new VLVCurved(COLOR_LAYER[3], COLOR_DEACTIVATED[3], CYCLES_DEACTIVATED, VLVariable.LOOP_NONE, VLVCurved.CURVE_ACC_DEC_CUBIC);
 
                 deactivatedred.SYNCER.add(new VLArray.DefinitionVLV(colorarray, 0));
                 deactivatedgreen.SYNCER.add(new VLArray.DefinitionVLV(colorarray, 1));
@@ -252,7 +248,7 @@ public final class Animations{
             reveal.deactivate();
             deactivate.deactivate();
 
-            // texture blink
+            //texture blink
             VLVRunner texblink = new VLVRunner(itemsize, 0);
             reveal.add(texblink);
 
@@ -270,9 +266,9 @@ public final class Animations{
         rootmanager.connections(1, 1);
         rootmanager.targetSync();
 
-        VLVManager loadermanager = loader.vManager();
-        loadermanager.add(rootmanager);
-        loadermanager.add(controlmanager);
+        VLVManager main = loader.vManager();
+        main.add(rootmanager);
+        main.add(controlmanager);
     }
 
     public static VLVRunner getRaise(int layer){
@@ -475,11 +471,5 @@ public final class Animations{
 
     public static void removeDeactivationControl(){
         controlrunner.remove(controlrunner.size() - 1);
-    }
-
-
-
-    public static void destroy(){
-
     }
 }

@@ -17,7 +17,7 @@ public final class Light{
     public static void rotatePointLight(){
         final float[] orgpos = Loader.lightPoint.position().provider().clone();
 
-        controlpoint = new VLVLinear(0, 360, 1000, VLVariable.LOOP_FORWARD, new VLTaskContinous(new VLTask.Task<VLVLinear>(){
+        controlpoint = new VLVLinear(0, 360, 600, VLVariable.LOOP_FORWARD, new VLTaskContinous(new VLTask.Task<VLVLinear>(){
 
             @Override
             public void run(VLTask<VLVLinear> task, VLVLinear var){
@@ -42,7 +42,7 @@ public final class Light{
     public static void rotateDirectLight(){
         final float[] orgpos = Loader.lightDirect.position().provider().clone();
 
-        controldirect = new VLVLinear(0, 360, 1000, VLVariable.LOOP_FORWARD, new VLTaskContinous(new VLTask.Task<VLVLinear>(){
+        controldirect = new VLVLinear(0, 360, 600, VLVariable.LOOP_FORWARD, new VLTaskContinous(new VLTask.Task<VLVLinear>(){
 
             @Override
             public void run(VLTask<VLVLinear> task, VLVLinear var){

@@ -1,37 +1,58 @@
 package com.shayan.shapecity;
 
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Paint;
 import android.opengl.GLES32;
 
 import com.nurverek.firestorm.FSBufferLayout;
 import com.nurverek.firestorm.FSBufferManager;
-import com.nurverek.firestorm.FSConfig;
+import com.nurverek.firestorm.FSControl;
 import com.nurverek.firestorm.FSG;
 import com.nurverek.firestorm.FSGAssembler;
-import com.nurverek.firestorm.FSGAutomator;
 import com.nurverek.firestorm.FSGBluePrint;
 import com.nurverek.firestorm.FSGScanner;
 import com.nurverek.firestorm.FSInstance;
 import com.nurverek.firestorm.FSLinkType;
 import com.nurverek.firestorm.FSMesh;
 import com.nurverek.firestorm.FSP;
+import com.nurverek.firestorm.FSTexture;
+import com.nurverek.firestorm.FSTools;
 import com.nurverek.firestorm.FSVertexBuffer;
 import com.nurverek.vanguard.VLArrayFloat;
 import com.nurverek.vanguard.VLBufferFloat;
+import com.nurverek.vanguard.VLInt;
 import com.nurverek.vanguard.VLListType;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.Arrays;
 
 public final class Layer extends FSGBluePrint{
 
     public static final int INSTANCE_COUNT = 24;
+    private static final int LAYER_PIECE_TEXTURE_DIMENSION = 512;
+    public static ByteBuffer PIXEL_BUFFER = null;
 
     public FSP program;
-    public FSMesh mesh;
+    public FSTexture texture;
     public String name;
 
     public Layer(FSP program, String name){
         this.program = program;
         this.name = name;
+
+        texture = new FSTexture(new VLInt(GLES32.GL_TEXTURE_2D_ARRAY), new VLInt(Loader.TEXUNIT++));
+        texture.bind();
+        texture.storage3D(1, GLES32.GL_RGBA8, LAYER_PIECE_TEXTURE_DIMENSION, LAYER_PIECE_TEXTURE_DIMENSION, Layer.INSTANCE_COUNT);
+        texture.minFilter(GLES32.GL_LINEAR);
+        texture.magFilter(GLES32.GL_LINEAR);
+        texture.wrapS(GLES32.GL_CLAMP_TO_EDGE);
+        texture.wrapT(GLES32.GL_CLAMP_TO_EDGE);
+        texture.baseLevel(0);
+        texture.maxLevel(Layer.INSTANCE_COUNT - 1);
+        texture.unbind();
     }
 
     @Override
@@ -65,14 +86,25 @@ public final class Layer extends FSGBluePrint{
 
     @Override
     protected void adjustPreAssembly(FSMesh mesh, FSInstance instance){
-        instance.data().colors(new VLArrayFloat(Animations.COLOR_LAYER1));
-        instance.colorTexture(Game.texArrayLayer1);
+        instance.data().colors(new VLArrayFloat(Animations.COLOR_PURPLE.clone()));
+        instance.colorTexture(texture);
         instance.lightMaterial(Loader.MATERIAL_OBSIDIAN);
     }
 
     @Override
     protected void adjustPostScan(FSMesh mesh){
 
+    }
+
+    @Override
+    public void makeLinks(FSMesh mesh){
+        float[] array = new float[INSTANCE_COUNT];
+        Arrays.fill(array, Animations.TEXCONTROL_IDLE);
+
+        VLListType<FSLinkType> links = new VLListType<>(1, 0);
+        links.add(new ModColor.TextureControlLink(new VLArrayFloat(array)));
+
+        mesh.initLinks(links);
     }
 
     @Override
@@ -103,17 +135,6 @@ public final class Layer extends FSGBluePrint{
     }
 
     @Override
-    public void makeLinks(FSMesh mesh){
-        VLListType<FSLinkType> links1 = new VLListType<>(1, 0);
-
-        float[] array1 = new float[INSTANCE_COUNT];
-        Arrays.fill(array1, Animations.TEXCONTROL_IDLE);
-
-        links1.add(new ModColor.TextureControlLink(new VLArrayFloat(array1)));
-        mesh.initLinks(links1);
-    }
-
-    @Override
     protected void adjustPostBuffer(FSMesh mesh){
 
     }
@@ -122,4 +143,78 @@ public final class Layer extends FSGBluePrint{
     public void program(FSG gen, FSMesh mesh){
         program.addMesh(mesh);
     }
+
+    public int[] prepareMatchSymTexture(){
+        Bitmap b = null;
+
+        int[] resources = new int[]{ R.drawable.circle, R.drawable.hex, R.drawable.square, R.drawable.triangle, R.drawable.rsquare };
+        int[] timespicked = new int[resources.length];
+
+        Arrays.fill(timespicked, 0);
+
+        Paint paint = new Paint();
+        paint.setAntiAlias(true);
+        paint.setDither(true);
+
+        Context cxt = FSControl.getContext();
+
+        BitmapFactory.Options opts = new BitmapFactory.Options();
+        opts.inPreferredConfig = Bitmap.Config.ARGB_8888;
+        opts.outConfig = Bitmap.Config.ARGB_8888;
+        opts.inScaled = true;
+        opts.inMutable = true;
+
+        int choice = 0;
+        int requiredchoices = Layer.INSTANCE_COUNT / Game.GAME_MATCHSYM_PICK_LIMIT;
+        int index = 0;
+
+        PIXEL_BUFFER = null;
+        texture.bind();
+
+        int[] symbols = new int[Layer.INSTANCE_COUNT];
+        Arrays.fill(symbols, -1);
+
+        for(int i = 0; i < requiredchoices; i++){
+            choice = Loader.RANDOM.nextInt(resources.length);
+
+            while(timespicked[choice] >= Game.GAME_MATCHSYM_REPEAT_ICON_LIMIT){
+                choice = Loader.RANDOM.nextInt(resources.length);
+            }
+
+            timespicked[choice]++;
+
+            b = BitmapFactory.decodeResource(cxt.getResources(), resources[choice], opts);
+
+            if(PIXEL_BUFFER == null){
+                PIXEL_BUFFER = ByteBuffer.allocate(b.getAllocationByteCount());
+                PIXEL_BUFFER.order(ByteOrder.nativeOrder());
+            }
+
+            PIXEL_BUFFER.position(0);
+
+            b.copyPixelsToBuffer(PIXEL_BUFFER);
+            b.recycle();
+
+            for(int i2 = 0; i2 < Game.GAME_MATCHSYM_PICK_LIMIT; i2++){
+                index = Loader.RANDOM.nextInt(Layer.INSTANCE_COUNT);
+
+                while(symbols[index] != -1){
+                    index = Loader.RANDOM.nextInt(Layer.INSTANCE_COUNT);
+                }
+
+                symbols[index] = choice;
+
+                PIXEL_BUFFER.position(0);
+                texture.subImage3D(0, 0, 0, index, LAYER_PIECE_TEXTURE_DIMENSION, LAYER_PIECE_TEXTURE_DIMENSION, 1, GLES32.GL_RGBA, GLES32.GL_UNSIGNED_BYTE, PIXEL_BUFFER);
+            }
+        }
+
+        PIXEL_BUFFER = null;
+
+        FSTools.checkGLError();
+        texture.unbind();
+
+        return symbols;
+    }
+
 }

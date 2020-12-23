@@ -38,8 +38,8 @@ public final class Layer extends FSGBluePrint{
 
     public FSP program;
 
-    public Layer(){
-
+    public Layer(FSG gen){
+        initialize(gen);
     }
 
     @Override

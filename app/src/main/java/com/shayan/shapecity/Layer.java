@@ -8,6 +8,7 @@ import android.opengl.GLES32;
 
 import com.nurverek.firestorm.FSBufferLayout;
 import com.nurverek.firestorm.FSBufferManager;
+import com.nurverek.firestorm.FSConfig;
 import com.nurverek.firestorm.FSControl;
 import com.nurverek.firestorm.FSG;
 import com.nurverek.firestorm.FSGAssembler;
@@ -36,27 +37,28 @@ public final class Layer extends FSGBluePrint{
     public static ByteBuffer PIXEL_BUFFER = null;
 
     public FSP program;
-    public FSTexture texture;
-    public String name;
 
-    public Layer(FSP program, String name){
-        this.program = program;
-        this.name = name;
+    public Layer(){
 
-        texture = new FSTexture(new VLInt(GLES32.GL_TEXTURE_2D_ARRAY), new VLInt(Loader.TEXUNIT++));
-        texture.bind();
-        texture.storage3D(1, GLES32.GL_RGBA8, LAYER_PIECE_TEXTURE_DIMENSION, LAYER_PIECE_TEXTURE_DIMENSION, Layer.INSTANCE_COUNT);
-        texture.minFilter(GLES32.GL_LINEAR);
-        texture.magFilter(GLES32.GL_LINEAR);
-        texture.wrapS(GLES32.GL_CLAMP_TO_EDGE);
-        texture.wrapT(GLES32.GL_CLAMP_TO_EDGE);
-        texture.baseLevel(0);
-        texture.maxLevel(Layer.INSTANCE_COUNT - 1);
-        texture.unbind();
     }
 
     @Override
-    public FSGScanner register(FSG gen){
+    protected void createPrograms(){
+        program = new FSP(Loader.DEBUG_MODE_PROGRAMS);
+        program.modify(new ModModel.UBO(1, Layer.INSTANCE_COUNT), FSConfig.POLICY_ALWAYS);
+        program.modify(new ModColor.TextureAndUBO(1, Layer.INSTANCE_COUNT, true, false, true), FSConfig.POLICY_ALWAYS);
+        program.modify(new ModLight.Point(Loader.GAMMA, null, Loader.BRIGHTNESS, Loader.lightPoint, null, Loader.MATERIAL_WHITE_RUBBER.getGLSLSize()), FSConfig.POLICY_ALWAYS);
+        program.addMeshConfig(new FSP.DrawElementsInstanced(FSConfig.POLICY_ALWAYS, 0));
+        program.build();
+    }
+
+    @Override
+    protected void attachPrograms(FSG gen){
+        gen.programSet(Loader.MAIN_PROGRAMSET).add(program);
+    }
+
+    @Override
+    public FSGScanner register(FSG gen, String name){
         FSGAssembler config = new FSGAssembler();
         config.SYNC_MODELMATRIX_AND_MODELARRAY = true;
         config.SYNC_MODELARRAY_AND_SCHEMATICS = true;
@@ -85,19 +87,30 @@ public final class Layer extends FSGBluePrint{
     }
 
     @Override
-    protected void adjustPreAssembly(FSMesh mesh, FSInstance instance){
+    protected void preAssemblyAdjustment(FSMesh mesh, FSInstance instance){
+        FSTexture texture = new FSTexture(new VLInt(GLES32.GL_TEXTURE_2D_ARRAY), new VLInt(Loader.TEXUNIT++));
+        texture.bind();
+        texture.storage3D(1, GLES32.GL_RGBA8, LAYER_PIECE_TEXTURE_DIMENSION, LAYER_PIECE_TEXTURE_DIMENSION, Layer.INSTANCE_COUNT);
+        texture.minFilter(GLES32.GL_LINEAR);
+        texture.magFilter(GLES32.GL_LINEAR);
+        texture.wrapS(GLES32.GL_CLAMP_TO_EDGE);
+        texture.wrapT(GLES32.GL_CLAMP_TO_EDGE);
+        texture.baseLevel(0);
+        texture.maxLevel(Layer.INSTANCE_COUNT - 1);
+        texture.unbind();
+
         instance.data().colors(new VLArrayFloat(Animations.COLOR_PURPLE.clone()));
         instance.colorTexture(texture);
         instance.lightMaterial(Loader.MATERIAL_OBSIDIAN);
     }
 
     @Override
-    protected void adjustPostScan(FSMesh mesh){
+    protected void postScanAdjustment(FSMesh mesh){
 
     }
 
     @Override
-    public void makeLinks(FSMesh mesh){
+    public void createLinks(FSMesh mesh){
         float[] array = new float[INSTANCE_COUNT];
         Arrays.fill(array, Animations.TEXCONTROL_IDLE);
 
@@ -108,7 +121,7 @@ public final class Layer extends FSGBluePrint{
     }
 
     @Override
-    public FSBufferLayout layout(FSMesh mesh, FSBufferManager manager){
+    public FSBufferLayout bufferLayouts(FSMesh mesh, FSBufferManager manager){
         int modelbuffer = manager.add(new FSBufferManager.EntryFloat(new FSVertexBuffer(GLES32.GL_UNIFORM_BUFFER, GLES32.GL_DYNAMIC_DRAW, Loader.UBOBINDPOINT++), new VLBufferFloat()));
         int texcontrolbuffer = manager.add(new FSBufferManager.EntryFloat(new FSVertexBuffer(GLES32.GL_UNIFORM_BUFFER, GLES32.GL_DYNAMIC_DRAW, Loader.UBOBINDPOINT++), new VLBufferFloat()));
         int colorbuffer = manager.add(new FSBufferManager.EntryFloat(new FSVertexBuffer(GLES32.GL_UNIFORM_BUFFER, GLES32.GL_DYNAMIC_DRAW, Loader.UBOBINDPOINT++), new VLBufferFloat()));
@@ -135,17 +148,24 @@ public final class Layer extends FSGBluePrint{
     }
 
     @Override
-    protected void adjustPostBuffer(FSMesh mesh){
+    protected void postBufferAdjustment(FSMesh fsMesh){
 
     }
 
     @Override
-    public void program(FSG gen, FSMesh mesh){
+    protected void attachMeshToPrograms(FSMesh mesh){
         program.addMesh(mesh);
     }
 
-    public int[] prepareMatchSymTexture(){
+    @Override
+    protected void finished(FSMesh mesh){
+
+    }
+
+    public int[] prepareMatchSymTexture(FSMesh mesh){
         Bitmap b = null;
+
+        FSTexture texture = mesh.instance(0).colorTexture();
 
         int[] resources = new int[]{ R.drawable.circle, R.drawable.hex, R.drawable.square, R.drawable.triangle, R.drawable.rsquare };
         int[] timespicked = new int[resources.length];
@@ -216,5 +236,4 @@ public final class Layer extends FSGBluePrint{
 
         return symbols;
     }
-
 }

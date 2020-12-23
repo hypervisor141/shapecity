@@ -6,7 +6,6 @@ import com.nurverek.firestorm.FSActivity;
 import com.nurverek.firestorm.FSAttenuation;
 import com.nurverek.firestorm.FSBrightness;
 import com.nurverek.firestorm.FSBufferManager;
-import com.nurverek.firestorm.FSConfig;
 import com.nurverek.firestorm.FSControl;
 import com.nurverek.firestorm.FSG;
 import com.nurverek.firestorm.FSGAutomator;
@@ -14,7 +13,7 @@ import com.nurverek.firestorm.FSGamma;
 import com.nurverek.firestorm.FSLightDirect;
 import com.nurverek.firestorm.FSLightMaterial;
 import com.nurverek.firestorm.FSLightPoint;
-import com.nurverek.firestorm.FSP;
+import com.nurverek.firestorm.FSMesh;
 import com.nurverek.firestorm.FSVertexBuffer;
 import com.nurverek.vanguard.VLArrayFloat;
 import com.nurverek.vanguard.VLBufferFloat;
@@ -47,10 +46,8 @@ public final class Loader extends FSG{
     public static FSLightDirect lightDirect;
     public static FSLightPoint lightPoint;
 
-    public static Layer layer1;
-    public static Layer layer2;
-    public static Layer layer3;
-    public static Layer[] layers;
+    public static Layer blueprint_layer;
+    public static FSMesh[] layers;
 
     public Loader(){
         super(2, 50, 10);
@@ -72,29 +69,16 @@ public final class Loader extends FSG{
         BUFFER_ELEMENT_SHORT_DEFAULT = manager.add(new FSBufferManager.EntryShort(new FSVertexBuffer(GLES32.GL_ELEMENT_ARRAY_BUFFER, GLES32.GL_STATIC_DRAW), new VLBufferShort()));
         BUFFER_ARRAY_FLOAT_DEFAULT = manager.add(new FSBufferManager.EntryFloat(new FSVertexBuffer(GLES32.GL_ARRAY_BUFFER, GLES32.GL_STATIC_DRAW), new VLBufferFloat()));
 
-        FSP program = new FSP(DEBUG_MODE_PROGRAMS);
-        program.modify(new ModModel.UBO(1, Layer.INSTANCE_COUNT), FSConfig.POLICY_ALWAYS);
-        program.modify(new ModColor.TextureAndUBO(1, Layer.INSTANCE_COUNT, true, false, true), FSConfig.POLICY_ALWAYS);
-        program.modify(new ModLight.Point(Loader.GAMMA, null, Loader.BRIGHTNESS, Loader.lightPoint, null, Loader.MATERIAL_WHITE_RUBBER.getGLSLSize()), FSConfig.POLICY_ALWAYS);
-        program.addMeshConfig(new FSP.DrawElementsInstanced(FSConfig.POLICY_ALWAYS, 0));
-        program.build();
-
-        programSet(Loader.MAIN_PROGRAMSET).add(program);
-
-        layer1 = new Layer(program, "pieces1.");
-        layer2 = new Layer(program, "pieces2.");
-        layer3 = new Layer(program, "pieces3.");
-
-        layers = new Layer[]{
-                layer1,
-                layer2,
-                layer3,
-        };
+        blueprint_layer = new Layer();
 
         FSGAutomator automator = automator();
-        automator.register(layer1);
-        automator.register(layer2);
-        automator.register(layer3);
+
+        layers = new FSMesh[]{
+                automator.register(blueprint_layer, "pieces1."),
+                automator.register(blueprint_layer, "pieces2."),
+                automator.register(blueprint_layer, "pieces3.")
+        };
+
         automator.run(DEBUG_MODE_AUTOMATOR);
 
         Game.startGame(this);
@@ -107,8 +91,6 @@ public final class Loader extends FSG{
 
     @Override
     protected void destroyAssets(){
-        layer1.mesh().instance(0).colorTexture().destroy();
-        layer2.mesh().instance(0).colorTexture().destroy();
-        layer3.mesh().instance(0).colorTexture().destroy();
+
     }
 }

@@ -48,28 +48,22 @@ public final class Animations{
     public static final float TEXCONTROL_IDLE = 0F;
     public static final float TEXCONTROL_ACTIVE = 1F;
 
-    private static final int CYCLES_BLINK = 20;
-    private static final int CYCLES_DEACTIVATED = 60;
-    private static final int CYCLES_STANDBY = 100;
-    private static final int CYCLES_ROTATE = 30;
     private static final int CYCLES_RAISE_BASE_MIN = 80;
     private static final int CYCLES_RAISE_BASE_MAX = 120;
     private static final int CYCLES_RAISE_BASE_DELAY_MIN = 0;
     private static final int CYCLES_RAISE_BASE_DELAY_MAX = 40;
-    private static final int CYCLES_LOWER_BASE_MIN = 60;
-    private static final int CYCLES_LOWER_BASE_MAX = 120;
-    private static final int CYCLES_LOWER_BASE_DELAY_MIN = 0;
-    private static final int CYCLES_LOWER_BASE_DELAY_MAX = 50;
+
     private static final int CYCLES_BOUNCE = 200;
     private static final int CYCLES_BOUNCE_REVERSE = 50;
+
     private static final int CYCLES_REVEAL_MIN = 45;
     private static final int CYCLES_REVEAL_MAX = 80;
     private static final int CYCLES_REVEAL_DELAY_MIN = 0;
     private static final int CYCLES_REVEAL_DELAY_MAX = 30;
+
     private static final int CYCLES_REVEAL_REPEAT = 360;
     private static final int CYCLES_REVEAL_REPEAT_FASTFORWARD_AFTER_INPUT = 240;
     private static final int CYCLES_REVEAL_INPUT = 50;
-    private static final int CYCLES_TEXCONTROL = 100;
 
     private static final float Y_BOUNCE_HEIGHT_MULTIPLIER = 0.4f;
     private static final float Y_BASE_HEIGHT_MULTIPLIER = 0.3f;
@@ -91,7 +85,7 @@ public final class Animations{
         int itemsize = Layer.INSTANCE_COUNT * size;
 
         for(int i = 0; i < size; i++){
-            FSMesh layer = Loader.layers[i].mesh();
+            FSMesh layer = Loader.layers[i];
             VLArrayFloat linkdata = ((ModColor.TextureControlLink)layer.link(0)).data;
             VLVManager layermanager = new VLVManager(4, 0);
 
@@ -116,7 +110,7 @@ public final class Animations{
                 float yraisebase = 0;
 
                 for(int i3 = 0; i3 < i; i3++){
-                    yraisebase += Loader.layers[i3].mesh().instance(i2).schematics().modelHeight() * Y_BASE_HEIGHT_MULTIPLIER;
+                    yraisebase += Loader.layers[i3].instance(i2).schematics().modelHeight() * Y_BASE_HEIGHT_MULTIPLIER;
                 }
 
                 VLVCurved translateraisey = new VLVCurved(0f, yraisebase, CYCLES_RAISE_BASE_MAX, VLVariable.LOOP_NONE, VLVCurved.CURVE_DEC_SINE_SQRT);
@@ -163,10 +157,10 @@ public final class Animations{
             for(int i2 = 0; i2 < layer.size(); i2++){
                 VLArrayFloat colorarray = layer.instance(i2).colors();
 
-                VLVCurved standbyred = new VLVCurved(COLOR_LAYER[0], COLOR_STANDBY[0], CYCLES_STANDBY, VLVariable.LOOP_NONE, VLVCurved.CURVE_ACC_DEC_CUBIC);
-                VLVCurved standbygreen = new VLVCurved(COLOR_LAYER[1], COLOR_STANDBY[1], CYCLES_STANDBY, VLVariable.LOOP_NONE, VLVCurved.CURVE_ACC_DEC_CUBIC);
-                VLVCurved standbyblue = new VLVCurved(COLOR_LAYER[2], COLOR_STANDBY[2], CYCLES_STANDBY, VLVariable.LOOP_NONE, VLVCurved.CURVE_ACC_DEC_CUBIC);
-                VLVCurved standbyalpha = new VLVCurved(COLOR_LAYER[3], COLOR_STANDBY[3], CYCLES_STANDBY, VLVariable.LOOP_NONE, VLVCurved.CURVE_ACC_DEC_CUBIC);
+                VLVCurved standbyred = new VLVCurved(COLOR_LAYER[0], COLOR_STANDBY[0], CYCLES_REVEAL_MAX, VLVariable.LOOP_NONE, VLVCurved.CURVE_ACC_DEC_CUBIC);
+                VLVCurved standbygreen = new VLVCurved(COLOR_LAYER[1], COLOR_STANDBY[1], CYCLES_REVEAL_MAX, VLVariable.LOOP_NONE, VLVCurved.CURVE_ACC_DEC_CUBIC);
+                VLVCurved standbyblue = new VLVCurved(COLOR_LAYER[2], COLOR_STANDBY[2], CYCLES_REVEAL_MAX, VLVariable.LOOP_NONE, VLVCurved.CURVE_ACC_DEC_CUBIC);
+                VLVCurved standbyalpha = new VLVCurved(COLOR_LAYER[3], COLOR_STANDBY[3], CYCLES_REVEAL_MAX, VLVariable.LOOP_NONE, VLVCurved.CURVE_ACC_DEC_CUBIC);
 
                 standbyred.SYNCER.add(new VLArray.DefinitionVLV(colorarray, 0));
                 standbygreen.SYNCER.add(new VLArray.DefinitionVLV(colorarray, 1));
@@ -196,10 +190,10 @@ public final class Animations{
             for(int i2 = 0; i2 < layer.size(); i2++){
                 VLArrayFloat colorarray = layer.instance(i2).colors();
 
-                VLVCurved blinkred = new VLVCurved(COLOR_LAYER[0], COLOR_BLINK[0], CYCLES_BLINK, VLVariable.LOOP_RETURN_ONCE, VLVCurved.CURVE_ACC_DEC_CUBIC);
-                VLVCurved blinkgreen = new VLVCurved(COLOR_LAYER[1], COLOR_BLINK[1], CYCLES_BLINK, VLVariable.LOOP_RETURN_ONCE, VLVCurved.CURVE_ACC_DEC_CUBIC);
-                VLVCurved blinkblue = new VLVCurved(COLOR_LAYER[2], COLOR_BLINK[2], CYCLES_BLINK, VLVariable.LOOP_RETURN_ONCE, VLVCurved.CURVE_ACC_DEC_CUBIC);
-                VLVCurved blinkalpha = new VLVCurved(COLOR_LAYER[3], COLOR_BLINK[3], CYCLES_BLINK, VLVariable.LOOP_RETURN_ONCE, VLVCurved.CURVE_ACC_DEC_CUBIC);
+                VLVCurved blinkred = new VLVCurved(COLOR_LAYER[0], COLOR_BLINK[0], CYCLES_REVEAL_MAX, VLVariable.LOOP_RETURN_ONCE, VLVCurved.CURVE_ACC_DEC_CUBIC);
+                VLVCurved blinkgreen = new VLVCurved(COLOR_LAYER[1], COLOR_BLINK[1], CYCLES_REVEAL_MAX, VLVariable.LOOP_RETURN_ONCE, VLVCurved.CURVE_ACC_DEC_CUBIC);
+                VLVCurved blinkblue = new VLVCurved(COLOR_LAYER[2], COLOR_BLINK[2], CYCLES_REVEAL_MAX, VLVariable.LOOP_RETURN_ONCE, VLVCurved.CURVE_ACC_DEC_CUBIC);
+                VLVCurved blinkalpha = new VLVCurved(COLOR_LAYER[3], COLOR_BLINK[3], CYCLES_REVEAL_MAX, VLVariable.LOOP_RETURN_ONCE, VLVCurved.CURVE_ACC_DEC_CUBIC);
 
                 blinkred.SYNCER.add(new VLArray.DefinitionVLV(colorarray, 0));
                 blinkgreen.SYNCER.add(new VLArray.DefinitionVLV(colorarray, 1));
@@ -229,10 +223,10 @@ public final class Animations{
             for(int i2 = 0; i2 < layer.size(); i2++){
                 VLArrayFloat colorarray = layer.instance(i2).colors();
 
-                VLVCurved deactivatedred = new VLVCurved(COLOR_LAYER[0], COLOR_DEACTIVATED[0], CYCLES_DEACTIVATED, VLVariable.LOOP_NONE, VLVCurved.CURVE_ACC_DEC_CUBIC);
-                VLVCurved deactivatedgreen = new VLVCurved(COLOR_LAYER[1], COLOR_DEACTIVATED[1], CYCLES_DEACTIVATED, VLVariable.LOOP_NONE, VLVCurved.CURVE_ACC_DEC_CUBIC);
-                VLVCurved deactivatedblue = new VLVCurved(COLOR_LAYER[2], COLOR_DEACTIVATED[2], CYCLES_DEACTIVATED, VLVariable.LOOP_NONE, VLVCurved.CURVE_ACC_DEC_CUBIC);
-                VLVCurved deactivatedalpha = new VLVCurved(COLOR_LAYER[3], COLOR_DEACTIVATED[3], CYCLES_DEACTIVATED, VLVariable.LOOP_NONE, VLVCurved.CURVE_ACC_DEC_CUBIC);
+                VLVCurved deactivatedred = new VLVCurved(COLOR_LAYER[0], COLOR_DEACTIVATED[0], CYCLES_REVEAL_MAX, VLVariable.LOOP_NONE, VLVCurved.CURVE_ACC_DEC_CUBIC);
+                VLVCurved deactivatedgreen = new VLVCurved(COLOR_LAYER[1], COLOR_DEACTIVATED[1], CYCLES_REVEAL_MAX, VLVariable.LOOP_NONE, VLVCurved.CURVE_ACC_DEC_CUBIC);
+                VLVCurved deactivatedblue = new VLVCurved(COLOR_LAYER[2], COLOR_DEACTIVATED[2], CYCLES_REVEAL_MAX, VLVariable.LOOP_NONE, VLVCurved.CURVE_ACC_DEC_CUBIC);
+                VLVCurved deactivatedalpha = new VLVCurved(COLOR_LAYER[3], COLOR_DEACTIVATED[3], CYCLES_REVEAL_MAX, VLVariable.LOOP_NONE, VLVCurved.CURVE_ACC_DEC_CUBIC);
 
                 deactivatedred.SYNCER.add(new VLArray.DefinitionVLV(colorarray, 0));
                 deactivatedgreen.SYNCER.add(new VLArray.DefinitionVLV(colorarray, 1));
@@ -253,7 +247,7 @@ public final class Animations{
             reveal.add(texblink);
 
             for(int i2 = 0; i2 < layer.size(); i2++){
-                VLVCurved texblinkvar = new VLVCurved(TEXCONTROL_IDLE, TEXCONTROL_ACTIVE, CYCLES_TEXCONTROL, VLVariable.LOOP_RETURN_ONCE, VLVCurved.CURVE_ACC_DEC_CUBIC);
+                VLVCurved texblinkvar = new VLVCurved(TEXCONTROL_IDLE, TEXCONTROL_ACTIVE, CYCLES_REVEAL_MAX, VLVariable.LOOP_RETURN_ONCE, VLVCurved.CURVE_ACC_DEC_CUBIC);
                 texblinkvar.SYNCER.add(new VLArray.DefinitionVLV(linkdata, i2));
 
                 texblink.add(new VLVRunnerEntry(texblinkvar, 0));

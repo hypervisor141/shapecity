@@ -90,14 +90,13 @@ public final class Game{
     }
 
     private static void activateMatchSymForLayer(final int layer){
-        symbols = Loader.layers[layer].prepareMatchSymTexture();
+        final FSMesh mesh = Loader.layers[layer];
+        symbols = Loader.blueprint_layer.prepareMatchSymTexture(mesh);
 
         Arrays.fill(activatedSymbols.array(), -1);
         Arrays.fill(enabledPieces, true);
 
         Animations.revealRepeat(layer);
-
-        final FSMesh mesh = Loader.layers[layer].mesh();
 
         Input.activateInputListeners(mesh, new Runnable(){
 

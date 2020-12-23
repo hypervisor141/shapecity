@@ -88,6 +88,12 @@ public final class Layer extends FSGBluePrint{
 
     @Override
     protected void preAssemblyAdjustment(FSMesh mesh, FSInstance instance){
+        instance.data().colors(new VLArrayFloat(Animations.COLOR_PURPLE.clone()));
+        instance.lightMaterial(Loader.MATERIAL_OBSIDIAN);
+    }
+
+    @Override
+    protected void postScanAdjustment(FSMesh mesh){
         FSTexture texture = new FSTexture(new VLInt(GLES32.GL_TEXTURE_2D_ARRAY), new VLInt(Loader.TEXUNIT++));
         texture.bind();
         texture.storage3D(1, GLES32.GL_RGBA8, LAYER_PIECE_TEXTURE_DIMENSION, LAYER_PIECE_TEXTURE_DIMENSION, Layer.INSTANCE_COUNT);
@@ -99,14 +105,11 @@ public final class Layer extends FSGBluePrint{
         texture.maxLevel(Layer.INSTANCE_COUNT - 1);
         texture.unbind();
 
-        instance.data().colors(new VLArrayFloat(Animations.COLOR_PURPLE.clone()));
-        instance.colorTexture(texture);
-        instance.lightMaterial(Loader.MATERIAL_OBSIDIAN);
-    }
+        int size = mesh.size();
 
-    @Override
-    protected void postScanAdjustment(FSMesh mesh){
-
+        for(int i = 0; i < size; i++){
+            mesh.instance(i).colorTexture(texture);
+        }
     }
 
     @Override

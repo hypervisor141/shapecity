@@ -1,55 +1,53 @@
 package com.shayan.shapecity;
 
-import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Paint;
 import android.opengl.GLES32;
+import android.util.Log;
 
 import com.nurverek.firestorm.FSBufferLayout;
 import com.nurverek.firestorm.FSBufferManager;
 import com.nurverek.firestorm.FSConfig;
-import com.nurverek.firestorm.FSControl;
 import com.nurverek.firestorm.FSG;
 import com.nurverek.firestorm.FSGAssembler;
 import com.nurverek.firestorm.FSGBluePrint;
 import com.nurverek.firestorm.FSGScanner;
 import com.nurverek.firestorm.FSInstance;
-import com.nurverek.firestorm.FSLinkType;
 import com.nurverek.firestorm.FSMesh;
 import com.nurverek.firestorm.FSP;
-import com.nurverek.firestorm.FSTexture;
-import com.nurverek.firestorm.FSTools;
-import com.nurverek.firestorm.FSVertexBuffer;
+import com.nurverek.firestorm.FSShadowPoint;
 import com.nurverek.vanguard.VLArrayFloat;
-import com.nurverek.vanguard.VLBufferFloat;
-import com.nurverek.vanguard.VLInt;
-import com.nurverek.vanguard.VLListType;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.util.Arrays;
+public class BPBase extends FSGBluePrint{
 
-public class Base extends FSGBluePrint{
-
+    public FSP programdepth;
     public FSP program;
 
-    public Base(FSG gen){
+    public BPBase(FSG gen){
         initialize(gen);
     }
 
     @Override
     protected void createPrograms(){
+        ModModel.Uniform model = new ModModel.Uniform();
+
+        programdepth = new FSP(Loader.DEBUG_MODE_PROGRAMS);
+        programdepth.modify(new ModShadow.Prepare(Loader.shadow, true), FSConfig.POLICY_ALWAYS);
+        programdepth.modify(model, FSConfig.POLICY_ALWAYS);
+        programdepth.modify(new ModShadow.SetupPoint(Loader.shadow), FSConfig.POLICY_ALWAYS);
+        programdepth.modify(new ModShadow.Finish(Loader.shadow), FSConfig.POLICY_ALWAYS);
+        programdepth.addMeshConfig(new FSP.DrawElements(FSConfig.POLICY_ALWAYS, 0));
+        programdepth.build();
+
         program = new FSP(Loader.DEBUG_MODE_PROGRAMS);
-        program.modify(new ModModel.Uniform(), FSConfig.POLICY_ALWAYS);
+        program.modify(model, FSConfig.POLICY_ALWAYS);
         program.modify(new ModColor.Uniform(), FSConfig.POLICY_ALWAYS);
-        program.modify(new ModLight.Point(Loader.GAMMA, null, Loader.BRIGHTNESS, Loader.lightPoint, null, Loader.MATERIAL_WHITE_RUBBER.getGLSLSize()), FSConfig.POLICY_ALWAYS);
+        program.modify(new ModLight.Point(Loader.GAMMA, null, Loader.BRIGHTNESS, Loader.light, Loader.shadow, Loader.MATERIAL_WHITE_RUBBER.getGLSLSize()), FSConfig.POLICY_ALWAYS);
         program.addMeshConfig(new FSP.DrawElements(FSConfig.POLICY_ALWAYS, 0));
         program.build();
     }
 
     @Override
     protected void attachPrograms(FSG gen){
+        gen.programSet(Loader.SHADOW_PROGRAMSET).add(programdepth);
         gen.programSet(Loader.MAIN_PROGRAMSET).add(program);
     }
 
@@ -71,7 +69,7 @@ public class Base extends FSGBluePrint{
         config.INSTANCE_SHARE_NORMALS = false;
         config.LOAD_MODELS = true;
         config.LOAD_POSITIONS = true;
-        config.LOAD_COLORS = true;
+        config.LOAD_COLORS = false;
         config.LOAD_TEXCOORDS = true;
         config.LOAD_NORMALS = true;
         config.LOAD_INDICES = true;
@@ -120,6 +118,7 @@ public class Base extends FSGBluePrint{
 
     @Override
     protected void attachMeshToPrograms(FSMesh mesh){
+        programdepth.addMesh(mesh);
         program.addMesh(mesh);
     }
 

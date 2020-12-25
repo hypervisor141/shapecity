@@ -1,5 +1,6 @@
 package com.shayan.shapecity;
 
+import com.nurverek.firestorm.FSAttenuation;
 import com.nurverek.firestorm.FSBrightness;
 import com.nurverek.firestorm.FSConfig;
 import com.nurverek.firestorm.FSConfigDynamic;
@@ -214,8 +215,10 @@ public final class ModLight{
 
             fragment.addPrecision("mediump", "float");
             fragment.addStruct("Material", FSLightMaterial.STRUCT_MEMBERS);
+            fragment.addStruct("Attenuation", lightsource.attenuation().getStructMembers());
             fragment.addStruct("PointLight", lightsource.getStructMembers());
             fragment.addFunctionCode(gamma.getGammaFunction());
+            fragment.addFunctionCode(lightsource.attenuation().getFunction());
             fragment.addFunctionCode(lightsource.getLightFunction());
             fragment.addUniform(gam.location(), "float", "gamma");
             fragment.addUniform(bright.location(), "float", "brightness");
@@ -227,6 +230,7 @@ public final class ModLight{
             fragment.addPipedOutputField("vec4", "fragColor");
             fragment.addMainCode("vec3 normal = normalize(vnormal);");
             fragment.addMainCode("vec3 lightdir = normalize(light.position - fragPos);");
+            fragment.addMainCode("float attenuation = attenuation(light.attenuation, fragPos);");
             
             if(pointshadow != null){
                 FSConfig shadowbind = new FSP.TextureBind(FSConfig.POLICY_ALWAYS, pointshadow.texture());
@@ -260,12 +264,12 @@ public final class ModLight{
                     fragment.addMainCode("float vshadow = shadowMap(fragPos, light.position, shadowmap, shadow.zfar, shadowMapBias(normal, lightdir, shadow.minbias, shadow.maxbias), shadow.divident);");
                 }
 
-                fragment.addMainCode("vec3 pointlight = pointLight(light, material, normal, fragPos, cameraPos, lightdir, vshadow);");
+                fragment.addMainCode("vec3 pointlight = pointLight(light, material, normal, cameraPos, lightdir, vshadow, attenuation);");
                 fragment.addMainCode("fragColor = vcolor * brightness * vec4(pointlight, 1.0);");
                 fragment.addMainCode("correctGamma(fragColor, gamma);");
                 
             }else{
-                fragment.addMainCode("vec3 pointlight = pointLight(light, material, normal, fragPos, cameraPos, lightdir, 1.0);");
+                fragment.addMainCode("vec3 pointlight = pointLight(light, material, normal, cameraPos, lightdir, 1.0, attenuation);");
                 fragment.addMainCode("fragColor = vcolor * brightness * vec4(pointlight, 1.0);");
                 fragment.addMainCode("correctGamma(fragColor, gamma);");
             }

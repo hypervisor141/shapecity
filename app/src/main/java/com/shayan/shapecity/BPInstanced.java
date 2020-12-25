@@ -1,56 +1,56 @@
 package com.shayan.shapecity;
 
-import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Paint;
 import android.opengl.GLES32;
 
 import com.nurverek.firestorm.FSBufferLayout;
 import com.nurverek.firestorm.FSBufferManager;
 import com.nurverek.firestorm.FSConfig;
-import com.nurverek.firestorm.FSControl;
 import com.nurverek.firestorm.FSG;
 import com.nurverek.firestorm.FSGAssembler;
 import com.nurverek.firestorm.FSGBluePrint;
 import com.nurverek.firestorm.FSGScanner;
 import com.nurverek.firestorm.FSInstance;
-import com.nurverek.firestorm.FSLinkType;
 import com.nurverek.firestorm.FSMesh;
 import com.nurverek.firestorm.FSP;
-import com.nurverek.firestorm.FSTexture;
-import com.nurverek.firestorm.FSTools;
+import com.nurverek.firestorm.FSShadowPoint;
 import com.nurverek.firestorm.FSVertexBuffer;
 import com.nurverek.vanguard.VLArrayFloat;
 import com.nurverek.vanguard.VLBufferFloat;
-import com.nurverek.vanguard.VLListType;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.util.Arrays;
+public final class BPInstanced extends FSGBluePrint{
 
-public final class BPTrapezoids extends FSGBluePrint{
-
+    public FSP programdepth;
     public FSP program;
     public int maxinstancecount;
 
-    public BPTrapezoids(FSG gen, int maxinstancecount){
-        initialize(gen);
+    public BPInstanced(FSG gen, int maxinstancecount){
         this.maxinstancecount = maxinstancecount;
+        initialize(gen);
     }
 
     @Override
     protected void createPrograms(){
+        ModModel.UBO model = new ModModel.UBO(1, maxinstancecount);
+
+        programdepth = new FSP(Loader.DEBUG_MODE_PROGRAMS);
+        programdepth.modify(new ModShadow.Prepare(Loader.shadow, true), FSConfig.POLICY_ALWAYS);
+        programdepth.modify(model, FSConfig.POLICY_ALWAYS);
+        programdepth.modify(new ModShadow.SetupPoint(Loader.shadow), FSConfig.POLICY_ALWAYS);
+        programdepth.modify(new ModShadow.Finish(Loader.shadow), FSConfig.POLICY_ALWAYS);
+        programdepth.addMeshConfig(new FSP.DrawElementsInstanced(FSConfig.POLICY_ALWAYS, 0));
+        programdepth.build();
+
         program = new FSP(Loader.DEBUG_MODE_PROGRAMS);
-        program.modify(new ModModel.UBO(1, maxinstancecount), FSConfig.POLICY_ALWAYS);
-        program.modify(new ModColor.TextureAndUBO(1, maxinstancecount, true, false, true), FSConfig.POLICY_ALWAYS);
-        program.modify(new ModLight.Point(Loader.GAMMA, null, Loader.BRIGHTNESS, Loader.lightPoint, null, Loader.MATERIAL_WHITE_RUBBER.getGLSLSize()), FSConfig.POLICY_ALWAYS);
+        program.modify(model, FSConfig.POLICY_ALWAYS);
+        program.modify(new ModColor.UBO(1, maxinstancecount), FSConfig.POLICY_ALWAYS);
+        program.modify(new ModLight.Point(Loader.GAMMA, null, Loader.BRIGHTNESS, Loader.light, Loader.shadow, Loader.MATERIAL_WHITE_RUBBER.getGLSLSize()), FSConfig.POLICY_ALWAYS);
         program.addMeshConfig(new FSP.DrawElementsInstanced(FSConfig.POLICY_ALWAYS, 0));
         program.build();
     }
 
     @Override
     protected void attachPrograms(FSG gen){
+        gen.programSet(Loader.SHADOW_PROGRAMSET).add(programdepth);
         gen.programSet(Loader.MAIN_PROGRAMSET).add(program);
     }
 
@@ -85,7 +85,7 @@ public final class BPTrapezoids extends FSGBluePrint{
 
     @Override
     protected void preAssemblyAdjustment(FSMesh mesh, FSInstance instance){
-        instance.data().colors(new VLArrayFloat(Animations.COLOR_PURPLE.clone()));
+        instance.data().colors(new VLArrayFloat(Animations.COLOR_ORANGE.clone()));
         instance.lightMaterial(Loader.MATERIAL_WHITE_RUBBER);
     }
 
@@ -129,6 +129,7 @@ public final class BPTrapezoids extends FSGBluePrint{
 
     @Override
     protected void attachMeshToPrograms(FSMesh mesh){
+        programdepth.addMesh(mesh);
         program.addMesh(mesh);
     }
 

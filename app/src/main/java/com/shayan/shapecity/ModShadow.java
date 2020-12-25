@@ -12,6 +12,7 @@ import com.nurverek.firestorm.FSP;
 import com.nurverek.firestorm.FSPMod;
 import com.nurverek.firestorm.FSRenderer;
 import com.nurverek.firestorm.FSShader;
+import com.nurverek.firestorm.FSShadow;
 import com.nurverek.firestorm.FSShadowDirect;
 import com.nurverek.firestorm.FSShadowPoint;
 import com.nurverek.firestorm.FSViewConfig;
@@ -20,19 +21,15 @@ import com.nurverek.vanguard.VLDebug;
 import com.nurverek.vanguard.VLFloat;
 import com.nurverek.vanguard.VLInt;
 
-public final class ModDepthMap{
+public final class ModShadow{
 
     public static final class Prepare implements FSPMod{
 
-        private FSFrameBuffer framebuffer;
-        private VLInt width;
-        private VLInt height;
+        private FSShadow shadow;
         private boolean cullfrontface;
 
-        public Prepare(FSFrameBuffer framebuffer, VLInt width, VLInt height, boolean cullfrontface){
-            this.framebuffer = framebuffer;
-            this.width = width;
-            this.height = height;
+        public Prepare(FSShadow shadow, boolean cullfrontface){
+            this.shadow = shadow;
             this.cullfrontface = cullfrontface;
         }
 
@@ -46,10 +43,10 @@ public final class ModDepthMap{
                 public void configure(FSP program, FSMesh mesh, int meshindex, int passindex){
                     FSViewConfig config = FSControl.getViewConfig();
 
-                    config.viewPort(0, 0, width.get(), height.get());
+                    config.viewPort(0, 0, shadow.width().get(), shadow.height().get());
                     config.updateViewPort();
 
-                    framebuffer.bind();
+                    shadow.frameBuffer().bind();
 
                     FSRenderer.clear(GLES32.GL_DEPTH_BUFFER_BIT);
                     FSRenderer.colorMask(false, false, false, false);
@@ -109,13 +106,9 @@ public final class ModDepthMap{
     public static final class SetupPoint implements FSPMod{
 
         private FSShadowPoint shadow;
-        private VLFloat zfar;
-        private int selection;
 
-        public SetupPoint(FSShadowPoint shadow, int selection, VLFloat zfar){
+        public SetupPoint(FSShadowPoint shadow){
             this.shadow = shadow;
-            this.selection = selection;
-            this.zfar = zfar;
         }
 
         @Override
@@ -126,9 +119,9 @@ public final class ModDepthMap{
 
             VLArrayFloat cubeposition = shadow.light().position();
 
-            FSConfig transforms = new FSConfigDynamicSelective(shadow, selection);
+            FSConfig transforms = new FSConfigDynamicSelective(shadow, FSShadowPoint.SELECT_LIGHT_TRANSFORMS);
             FSConfig position = new FSP.AttribPointer(FSConfig.POLICY_ALWAYS, FSG.ELEMENT_POSITION, 0);
-            FSConfig far = new FSP.Uniform1f(FSConfig.POLICY_ALWAYS, zfar);
+            FSConfig far = new FSP.Uniform1f(FSConfig.POLICY_ALWAYS, shadow.zFar());
             FSConfig cubepos = new FSP.Uniform3fvd(FSConfig.POLICY_ALWAYS, cubeposition, 0, 1);
 
             program.registerAttributeLocation(vertex, position);
@@ -184,10 +177,10 @@ public final class ModDepthMap{
 
     public static final class Finish implements FSPMod{
 
-        private FSFrameBuffer framebuffer;
+        private FSShadow shadow;
 
-        public Finish(FSFrameBuffer framebuffer){
-            this.framebuffer = framebuffer;
+        public Finish(FSShadow shadow){
+            this.shadow = shadow;
         }
 
         @Override
@@ -201,7 +194,7 @@ public final class ModDepthMap{
                     config.viewPort(0, 0, FSControl.getContainerWidth(), FSControl.getContainerHeight());
                     config.updateViewPort();
 
-                    framebuffer.unbind();
+                    shadow.frameBuffer().unbind();
                     
                     FSRenderer.colorMask(true, true, true, true);
                     FSRenderer.cullFace(GLES32.GL_BACK);

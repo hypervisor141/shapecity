@@ -1,7 +1,5 @@
 package com.shayan.shapecity;
 
-import android.util.Log;
-
 import com.nurverek.firestorm.FSBounds;
 import com.nurverek.firestorm.FSBoundsCuboid;
 import com.nurverek.firestorm.FSInstance;
@@ -82,7 +80,7 @@ public final class Animations{
         controlmanager.add(controlrunner);
 
         int size = Loader.layers.length;
-        int itemsize = Layer.INSTANCE_COUNT * size;
+        int itemsize = BPLayer.INSTANCE_COUNT * size;
 
         for(int i = 0; i < size; i++){
             FSMesh layer = Loader.layers[i];

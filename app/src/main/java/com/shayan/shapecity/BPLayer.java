@@ -30,7 +30,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
 
-public final class Layer extends FSGBluePrint{
+public final class BPLayer extends FSGBluePrint{
 
     public static final int INSTANCE_COUNT = 24;
     private static final int LAYER_PIECE_TEXTURE_DIMENSION = 512;
@@ -38,16 +38,16 @@ public final class Layer extends FSGBluePrint{
 
     public FSP program;
 
-    public Layer(FSG gen){
+    public BPLayer(FSG gen){
         initialize(gen);
     }
 
     @Override
     protected void createPrograms(){
         program = new FSP(Loader.DEBUG_MODE_PROGRAMS);
-        program.modify(new ModModel.UBO(1, Layer.INSTANCE_COUNT), FSConfig.POLICY_ALWAYS);
-        program.modify(new ModColor.TextureAndUBO(1, Layer.INSTANCE_COUNT, true, false, true), FSConfig.POLICY_ALWAYS);
-        program.modify(new ModLight.Point(Loader.GAMMA, null, Loader.BRIGHTNESS, Loader.lightPoint, null, Loader.MATERIAL_WHITE_RUBBER.getGLSLSize()), FSConfig.POLICY_ALWAYS);
+        program.modify(new ModModel.UBO(1, BPLayer.INSTANCE_COUNT), FSConfig.POLICY_ALWAYS);
+        program.modify(new ModColor.TextureAndUBO(1, BPLayer.INSTANCE_COUNT, true, false, true), FSConfig.POLICY_ALWAYS);
+        program.modify(new ModLight.Point(Loader.GAMMA, null, Loader.BRIGHTNESS, Loader.light, null, Loader.MATERIAL_WHITE_RUBBER.getGLSLSize()), FSConfig.POLICY_ALWAYS);
         program.addMeshConfig(new FSP.DrawElementsInstanced(FSConfig.POLICY_ALWAYS, 0));
         program.build();
     }
@@ -96,13 +96,13 @@ public final class Layer extends FSGBluePrint{
     protected void postScanAdjustment(FSMesh mesh){
         FSTexture texture = new FSTexture(new VLInt(GLES32.GL_TEXTURE_2D_ARRAY), new VLInt(Loader.TEXUNIT++));
         texture.bind();
-        texture.storage3D(1, GLES32.GL_RGBA8, LAYER_PIECE_TEXTURE_DIMENSION, LAYER_PIECE_TEXTURE_DIMENSION, Layer.INSTANCE_COUNT);
+        texture.storage3D(1, GLES32.GL_RGBA8, LAYER_PIECE_TEXTURE_DIMENSION, LAYER_PIECE_TEXTURE_DIMENSION, BPLayer.INSTANCE_COUNT);
         texture.minFilter(GLES32.GL_LINEAR);
         texture.magFilter(GLES32.GL_LINEAR);
         texture.wrapS(GLES32.GL_CLAMP_TO_EDGE);
         texture.wrapT(GLES32.GL_CLAMP_TO_EDGE);
         texture.baseLevel(0);
-        texture.maxLevel(Layer.INSTANCE_COUNT - 1);
+        texture.maxLevel(BPLayer.INSTANCE_COUNT - 1);
         texture.unbind();
 
         int size = mesh.size();
@@ -188,13 +188,13 @@ public final class Layer extends FSGBluePrint{
         opts.inMutable = true;
 
         int choice = 0;
-        int requiredchoices = Layer.INSTANCE_COUNT / Game.GAME_MATCHSYM_PICK_LIMIT;
+        int requiredchoices = BPLayer.INSTANCE_COUNT / Game.GAME_MATCHSYM_PICK_LIMIT;
         int index = 0;
 
         PIXEL_BUFFER = null;
         texture.bind();
 
-        int[] symbols = new int[Layer.INSTANCE_COUNT];
+        int[] symbols = new int[BPLayer.INSTANCE_COUNT];
         Arrays.fill(symbols, -1);
 
         for(int i = 0; i < requiredchoices; i++){
@@ -219,10 +219,10 @@ public final class Layer extends FSGBluePrint{
             b.recycle();
 
             for(int i2 = 0; i2 < Game.GAME_MATCHSYM_PICK_LIMIT; i2++){
-                index = Loader.RANDOM.nextInt(Layer.INSTANCE_COUNT);
+                index = Loader.RANDOM.nextInt(BPLayer.INSTANCE_COUNT);
 
                 while(symbols[index] != -1){
-                    index = Loader.RANDOM.nextInt(Layer.INSTANCE_COUNT);
+                    index = Loader.RANDOM.nextInt(BPLayer.INSTANCE_COUNT);
                 }
 
                 symbols[index] = choice;

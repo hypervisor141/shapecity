@@ -74,9 +74,14 @@ public class Start extends FSActivity{
             Loader loader = new Loader();
             loader.assemble(this);
 
+            FSRenderPass shadowpass = new FSRenderPass(FSControl.DEBUG_FULL).setClearColor(true).setAdvanceProcessors(false)
+                    .setClearStencil(true).setRunTasks(false).setDrawMeshes(true).setUpdateMeshes(true).build();
             FSRenderPass mainpass = new FSRenderPass(FSControl.DEBUG_FULL).build();
-            mainpass.add(new FSRenderPass.Entry(loader, 0));
 
+            shadowpass.add(new FSRenderPass.Entry(loader, 0));
+            mainpass.add(new FSRenderPass.Entry(loader, 1));
+
+            FSRenderer.addRenderPass(shadowpass);
             FSRenderer.addRenderPass(mainpass);
         }
     }
@@ -86,7 +91,7 @@ public class Start extends FSActivity{
         FSViewConfig scene = FSControl.getViewConfig();
         scene.setPerspectiveMode();
         scene.viewPort(0, 0, width, height);
-        scene.perspective(60f, (float)width / height, 1F, 1500F);
+        scene.perspective(60f, (float)width / height, 1F, 15000F);
         scene.updateViewPort();
 
         scene.eyePosition(0f, 10F, -0.01f);

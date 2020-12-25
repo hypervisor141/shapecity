@@ -1,24 +1,11 @@
 package com.shayan.shapecity;
 
-import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Paint;
-import android.opengl.GLES32;
 import android.util.Log;
 
-import com.nurverek.firestorm.FSControl;
-import com.nurverek.firestorm.FSM;
 import com.nurverek.firestorm.FSMesh;
-import com.nurverek.firestorm.FSTexture;
-import com.nurverek.firestorm.FSTools;
 import com.nurverek.vanguard.VLArrayFloat;
-import com.nurverek.vanguard.VLInt;
 import com.nurverek.vanguard.VLListInt;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.security.SecureRandom;
 import java.util.Arrays;
 
 public final class Game{
@@ -67,10 +54,10 @@ public final class Game{
     }
 
     private static void startMatchSymbolsGame(){
-        activatedSymbols = new VLListInt(Layer.INSTANCE_COUNT, 0);
-        activatedSymbols.virtualSize(Layer.INSTANCE_COUNT);
+        activatedSymbols = new VLListInt(BPLayer.INSTANCE_COUNT, 0);
+        activatedSymbols.virtualSize(BPLayer.INSTANCE_COUNT);
 
-        enabledPieces = new boolean[Layer.INSTANCE_COUNT];
+        enabledPieces = new boolean[BPLayer.INSTANCE_COUNT];
 
         Animations.raiseBases(1);
         Animations.raiseBases(2);
@@ -91,7 +78,7 @@ public final class Game{
 
     private static void activateMatchSymForLayer(final int layer){
         final FSMesh mesh = Loader.layers[layer];
-        symbols = Loader.blueprint_layer.prepareMatchSymTexture(mesh);
+        symbols = Loader.bplayer.prepareMatchSymTexture(mesh);
 
         Arrays.fill(activatedSymbols.array(), -1);
         Arrays.fill(enabledPieces, true);

@@ -4,7 +4,6 @@ import android.opengl.GLES32;
 
 import com.nurverek.firestorm.FSConfig;
 import com.nurverek.firestorm.FSConfigDynamicSelective;
-import com.nurverek.firestorm.FSConfigSelective;
 import com.nurverek.firestorm.FSControl;
 import com.nurverek.firestorm.FSFrameBuffer;
 import com.nurverek.firestorm.FSG;
@@ -13,6 +12,8 @@ import com.nurverek.firestorm.FSP;
 import com.nurverek.firestorm.FSPMod;
 import com.nurverek.firestorm.FSRenderer;
 import com.nurverek.firestorm.FSShader;
+import com.nurverek.firestorm.FSShadowDirect;
+import com.nurverek.firestorm.FSShadowPoint;
 import com.nurverek.firestorm.FSViewConfig;
 import com.nurverek.vanguard.VLArrayFloat;
 import com.nurverek.vanguard.VLDebug;
@@ -73,10 +74,10 @@ public final class ModDepthMap{
 
     public static final class SetupDirect implements FSPMod{
 
-        private VLArrayFloat lightViewProjection;
+        private FSShadowDirect shadow;
 
-        public SetupDirect(VLArrayFloat lightViewProjection){
-            this.lightViewProjection = lightViewProjection;
+        public SetupDirect(FSShadowDirect shadow){
+            this.shadow = shadow;
         }
 
         @Override
@@ -84,7 +85,7 @@ public final class ModDepthMap{
             FSShader vertex = program.vertexShader();
 
             FSConfig position = new FSP.AttribPointer(FSConfig.POLICY_ALWAYS, FSG.ELEMENT_POSITION, 0);
-            FSConfig lighttransform = new FSP.UniformMatrix4fvd(FSConfig.POLICY_ALWAYS, lightViewProjection, 0, 1);
+            FSConfig lighttransform = new FSP.UniformMatrix4fvd(FSConfig.POLICY_ALWAYS, shadow.lightViewProjection(), 0, 1);
             
             program.registerAttributeLocation(vertex, position);
             program.registerUniformLocation(vertex, lighttransform);
@@ -107,15 +108,13 @@ public final class ModDepthMap{
 
     public static final class SetupPoint implements FSPMod{
 
-        private FSConfigSelective transformsrc;
-        private VLArrayFloat cubeposition;
+        private FSShadowPoint shadow;
         private VLFloat zfar;
         private int selection;
 
-        public SetupPoint(FSConfigSelective transformsrc, int selection, VLArrayFloat cubeposition, VLFloat zfar){
-            this.transformsrc = transformsrc;
+        public SetupPoint(FSShadowPoint shadow, int selection, VLFloat zfar){
+            this.shadow = shadow;
             this.selection = selection;
-            this.cubeposition = cubeposition;
             this.zfar = zfar;
         }
 
@@ -125,7 +124,9 @@ public final class ModDepthMap{
             FSShader fragment = program.fragmentShader();
             FSShader geomtry = program.initializeGeometryShader();
 
-            FSConfig transforms = new FSConfigDynamicSelective(transformsrc, selection);
+            VLArrayFloat cubeposition = shadow.light().position();
+
+            FSConfig transforms = new FSConfigDynamicSelective(shadow, selection);
             FSConfig position = new FSP.AttribPointer(FSConfig.POLICY_ALWAYS, FSG.ELEMENT_POSITION, 0);
             FSConfig far = new FSP.Uniform1f(FSConfig.POLICY_ALWAYS, zfar);
             FSConfig cubepos = new FSP.Uniform3fvd(FSConfig.POLICY_ALWAYS, cubeposition, 0, 1);

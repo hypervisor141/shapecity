@@ -7,7 +7,6 @@ import com.nurverek.firestorm.FSBufferManager;
 import com.nurverek.firestorm.FSConfig;
 import com.nurverek.firestorm.FSG;
 import com.nurverek.firestorm.FSGAssembler;
-import com.nurverek.firestorm.FSGBluePrint;
 import com.nurverek.firestorm.FSGScanner;
 import com.nurverek.firestorm.FSInstance;
 import com.nurverek.firestorm.FSMesh;
@@ -21,7 +20,9 @@ public final class BPInstanced extends CustomBluePrint{
     public FSP program;
     public int maxinstancecount;
 
-    public BPInstanced(FSG gen, int maxinstancecount){
+    public BPInstanced(FSG gen, int maxinstancecount, int colorcapacity){
+        super(colorcapacity);
+
         this.maxinstancecount = maxinstancecount;
         initialize(gen);
     }
@@ -72,8 +73,7 @@ public final class BPInstanced extends CustomBluePrint{
 
     @Override
     protected void preAssemblyAdjustment(FSMesh mesh, FSInstance instance){
-        instance.data().colors(new VLArrayFloat(customColors().clone()));
-        instance.lightMaterial(Loader.MATERIAL_WHITE_RUBBER);
+        super.preAssemblyAdjustment(mesh, instance);
     }
 
     @Override

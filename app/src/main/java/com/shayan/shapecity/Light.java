@@ -26,7 +26,7 @@ public final class Light{
                 float[] pos = Loader.lightpoint.position().provider();
 
                 VLFloat radius = ((FSAttenuation.Radius)Loader.lightpoint.attenuation()).radius();
-                radius.set(var.get() * 40F);
+                radius.set(var.get() * 60F);
 
                 Matrix.setIdentityM(CACHE, 0);
                 Matrix.rotateM(CACHE, 0, var.get(), 0f, 1f, 0f);

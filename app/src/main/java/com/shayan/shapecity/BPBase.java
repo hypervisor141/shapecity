@@ -20,7 +20,8 @@ public class BPBase extends CustomBluePrint{
 
     public FSP program;
 
-    public BPBase(FSG gen){
+    public BPBase(FSG gen, int colorcapacity){
+        super(colorcapacity);
         initialize(gen);
     }
 
@@ -72,9 +73,7 @@ public class BPBase extends CustomBluePrint{
 
     @Override
     protected void preAssemblyAdjustment(FSMesh mesh, FSInstance instance){
-        Log.d("wtf", Arrays.toString(customColors()));
-        instance.data().colors(new VLArrayFloat(customColors().clone()));
-        instance.lightMaterial(Loader.MATERIAL_WHITE_RUBBER);
+        super.preAssemblyAdjustment(mesh, instance);
     }
 
     @Override

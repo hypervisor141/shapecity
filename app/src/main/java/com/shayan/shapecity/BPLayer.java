@@ -12,7 +12,6 @@ import com.nurverek.firestorm.FSConfig;
 import com.nurverek.firestorm.FSControl;
 import com.nurverek.firestorm.FSG;
 import com.nurverek.firestorm.FSGAssembler;
-import com.nurverek.firestorm.FSGBluePrint;
 import com.nurverek.firestorm.FSGScanner;
 import com.nurverek.firestorm.FSInstance;
 import com.nurverek.firestorm.FSLinkType;
@@ -38,7 +37,8 @@ public final class BPLayer extends CustomBluePrint{
 
     public FSP program;
 
-    public BPLayer(FSG gen){
+    public BPLayer(FSG gen, int colorcapacity){
+        super(colorcapacity);
         initialize(gen);
     }
 
@@ -88,8 +88,7 @@ public final class BPLayer extends CustomBluePrint{
 
     @Override
     protected void preAssemblyAdjustment(FSMesh mesh, FSInstance instance){
-        instance.data().colors(new VLArrayFloat(customColors().clone()));
-        instance.lightMaterial(Loader.MATERIAL_OBSIDIAN);
+        super.preAssemblyAdjustment(mesh, instance);
     }
 
     @Override

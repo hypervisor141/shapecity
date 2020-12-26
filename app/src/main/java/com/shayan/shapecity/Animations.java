@@ -22,6 +22,7 @@ import com.nurverek.vanguard.VLVariable;
 
 public final class Animations{
 
+    public static final float[] COLOR_SILVER = new float[]{ 0.5F, 0.5F, 0.5F, 1F };
     public static final float[] COLOR_WHITE = new float[]{ 1F, 1F, 1F, 1F };
     public static final float[] COLOR_WHITE_LESS = new float[]{ 0.8F, 0.8F, 0.8F, 1F };
     public static final float[] COLOR_WHITE_LESS2 = new float[]{ 0.6F, 0.6F, 0.6F, 1F };

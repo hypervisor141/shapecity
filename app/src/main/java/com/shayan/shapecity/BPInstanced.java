@@ -9,6 +9,7 @@ import com.nurverek.firestorm.FSG;
 import com.nurverek.firestorm.FSGAssembler;
 import com.nurverek.firestorm.FSGBluePrint;
 import com.nurverek.firestorm.FSGScanner;
+import com.nurverek.firestorm.FSGamma;
 import com.nurverek.firestorm.FSInstance;
 import com.nurverek.firestorm.FSMesh;
 import com.nurverek.firestorm.FSP;
@@ -16,6 +17,7 @@ import com.nurverek.firestorm.FSShadowPoint;
 import com.nurverek.firestorm.FSVertexBuffer;
 import com.nurverek.vanguard.VLArrayFloat;
 import com.nurverek.vanguard.VLBufferFloat;
+import com.nurverek.vanguard.VLFloat;
 
 public final class BPInstanced extends FSGBluePrint{
 
@@ -32,25 +34,25 @@ public final class BPInstanced extends FSGBluePrint{
     protected void createPrograms(){
         ModModel.UBO model = new ModModel.UBO(1, maxinstancecount);
 
-        programdepth = new FSP(Loader.DEBUG_MODE_PROGRAMS);
-        programdepth.modify(new ModShadow.Prepare(Loader.shadow, true), FSConfig.POLICY_ALWAYS);
-        programdepth.modify(model, FSConfig.POLICY_ALWAYS);
-        programdepth.modify(new ModShadow.SetupPoint(Loader.shadow), FSConfig.POLICY_ALWAYS);
-        programdepth.modify(new ModShadow.Finish(Loader.shadow), FSConfig.POLICY_ALWAYS);
-        programdepth.addMeshConfig(new FSP.DrawElementsInstanced(FSConfig.POLICY_ALWAYS, 0));
-        programdepth.build();
+//        programdepth = new FSP(Loader.DEBUG_MODE_PROGRAMS);
+//        programdepth.modify(new ModShadow.Prepare(Loader.shadow2, false), FSConfig.POLICY_ALWAYS);
+//        programdepth.modify(model, FSConfig.POLICY_ALWAYS);
+//        programdepth.modify(new ModShadow.SetupDirect(Loader.shadow2), FSConfig.POLICY_ALWAYS);
+//        programdepth.modify(new ModShadow.Finish(Loader.shadow2), FSConfig.POLICY_ALWAYS);
+//        programdepth.addMeshConfig(new FSP.DrawElementsInstanced(FSConfig.POLICY_ALWAYS, 0));
+//        programdepth.build();
 
         program = new FSP(Loader.DEBUG_MODE_PROGRAMS);
         program.modify(model, FSConfig.POLICY_ALWAYS);
         program.modify(new ModColor.UBO(1, maxinstancecount), FSConfig.POLICY_ALWAYS);
-        program.modify(new ModLight.Point(Loader.GAMMA, null, Loader.BRIGHTNESS, Loader.light, Loader.shadow, Loader.MATERIAL_WHITE_RUBBER.getGLSLSize()), FSConfig.POLICY_ALWAYS);
+        program.modify(new ModLight.Point(Loader.GAMMA, null, Loader.BRIGHTNESS, Loader.light, null, Loader.MATERIAL_WHITE_RUBBER.getGLSLSize()), FSConfig.POLICY_ALWAYS);
         program.addMeshConfig(new FSP.DrawElementsInstanced(FSConfig.POLICY_ALWAYS, 0));
         program.build();
     }
 
     @Override
     protected void attachPrograms(FSG gen){
-        gen.programSet(Loader.SHADOW_PROGRAMSET).add(programdepth);
+//        gen.programSet(Loader.SHADOW_PROGRAMSET).add(programdepth);
         gen.programSet(Loader.MAIN_PROGRAMSET).add(program);
     }
 
@@ -129,7 +131,7 @@ public final class BPInstanced extends FSGBluePrint{
 
     @Override
     protected void attachMeshToPrograms(FSMesh mesh){
-        programdepth.addMesh(mesh);
+//        programdepth.addMesh(mesh);
         program.addMesh(mesh);
     }
 

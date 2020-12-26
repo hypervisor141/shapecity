@@ -10,9 +10,11 @@ import com.nurverek.firestorm.FSControl;
 import com.nurverek.firestorm.FSG;
 import com.nurverek.firestorm.FSGAutomator;
 import com.nurverek.firestorm.FSGamma;
+import com.nurverek.firestorm.FSLightDirect;
 import com.nurverek.firestorm.FSLightMaterial;
 import com.nurverek.firestorm.FSLightPoint;
 import com.nurverek.firestorm.FSMesh;
+import com.nurverek.firestorm.FSShadowDirect;
 import com.nurverek.firestorm.FSShadowPoint;
 import com.nurverek.firestorm.FSVertexBuffer;
 import com.nurverek.vanguard.VLArrayFloat;
@@ -35,8 +37,8 @@ public final class Loader extends FSG{
 
     public static final int SHADOW_PROGRAMSET = 0;
     public static final int MAIN_PROGRAMSET = 1;
-    public static final FSBrightness BRIGHTNESS = new FSBrightness(new VLFloat(2F));
-    public static final FSGamma GAMMA = new FSGamma(new VLFloat(1.15F));
+    public static final FSBrightness BRIGHTNESS = new FSBrightness(new VLFloat(1F));
+    public static final FSGamma GAMMA = new FSGamma(new VLFloat(1.1F));
 
     public static int BUFFER_ELEMENT_SHORT_DEFAULT;
     public static int BUFFER_ARRAY_FLOAT_DEFAULT;
@@ -47,6 +49,9 @@ public final class Loader extends FSG{
 
     public static FSLightPoint light;
     public static FSShadowPoint shadow;
+
+    public static FSLightDirect light2;
+    public static FSShadowDirect shadow2;
 
     public static BPLayer bplayer;
     public static BPBase bpbase;
@@ -87,11 +92,14 @@ public final class Loader extends FSG{
         BUFFER_ELEMENT_SHORT_DEFAULT = manager.add(new FSBufferManager.EntryShort(new FSVertexBuffer(GLES32.GL_ELEMENT_ARRAY_BUFFER, GLES32.GL_STATIC_DRAW), new VLBufferShort()));
         BUFFER_ARRAY_FLOAT_DEFAULT = manager.add(new FSBufferManager.EntryFloat(new FSVertexBuffer(GLES32.GL_ARRAY_BUFFER, GLES32.GL_STATIC_DRAW), new VLBufferFloat()));
 
-        light = new FSLightPoint(new FSAttenuation.Radius(new VLFloat(140F)), new VLArrayFloat(new float[]{ 0F, 10F, -40F, 1.0F }));
-        shadow = new FSShadowPoint(Loader.light, new VLInt(1024), new VLInt(1024), new VLFloat(0.0005F),
-                new VLFloat(0.0005F), new VLFloat(1.5F), new VLFloat(1F), new VLFloat(140F));
+        light = new FSLightPoint(new FSAttenuation.Radius(new VLFloat(10000F)), new VLArrayFloat(new float[]{ 0F, 10F, -40F, 1.0F }));
+//        light2 = new FSLightDirect(new VLArrayFloat(new float[]{ 0F, 4000F, 6000F, 1.0F }), new VLArrayFloat(new float[]{ 0F, 0F, 0F, 1.0F }));
 
-        shadow.initialize(new VLInt(Loader.TEXUNIT++));
+//        shadow = new FSShadowPoint(light, new VLInt(1024), new VLInt(1024), new VLFloat(0.0005F), new VLFloat(0.0005F), new VLFloat(1.5F), new VLFloat(1F), new VLFloat(140F));
+//        shadow.initialize(new VLInt(Loader.TEXUNIT++));
+//
+//        shadow2 = new FSShadowDirect(light2, new VLInt(1500), new VLInt(1500), new VLFloat(0.0005F), new VLFloat(0.005F), new VLFloat(4F));
+//        shadow2.initialize(new VLInt(Loader.TEXUNIT++));
 
         try{
             constructAutomator(act.getAssets().open("meshes.fsm"), ByteOrder.LITTLE_ENDIAN, true, 300);
@@ -135,7 +143,7 @@ public final class Loader extends FSG{
         layers = new FSMesh[]{
                 layer1,
                 layer2,
-                layer3,
+                layer3
         };
 
         Game.startGame(this);

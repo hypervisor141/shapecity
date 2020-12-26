@@ -29,25 +29,26 @@ public class BPBase extends FSGBluePrint{
     protected void createPrograms(){
         ModModel.Uniform model = new ModModel.Uniform();
 
-        programdepth = new FSP(Loader.DEBUG_MODE_PROGRAMS);
-        programdepth.modify(new ModShadow.Prepare(Loader.shadow, true), FSConfig.POLICY_ALWAYS);
-        programdepth.modify(model, FSConfig.POLICY_ALWAYS);
-        programdepth.modify(new ModShadow.SetupPoint(Loader.shadow), FSConfig.POLICY_ALWAYS);
-        programdepth.modify(new ModShadow.Finish(Loader.shadow), FSConfig.POLICY_ALWAYS);
-        programdepth.addMeshConfig(new FSP.DrawElements(FSConfig.POLICY_ALWAYS, 0));
-        programdepth.build();
+//        programdepth = new FSP(Loader.DEBUG_MODE_PROGRAMS);
+//        programdepth.modify(new ModShadow.Prepare(Loader.shadow2, false), FSConfig.POLICY_ALWAYS);
+//        programdepth.modify(model, FSConfig.POLICY_ALWAYS);
+//        programdepth.modify(new ModShadow.SetupDirect(Loader.shadow2), FSConfig.POLICY_ALWAYS);
+//        programdepth.modify(new ModShadow.Finish(Loader.shadow2), FSConfig.POLICY_ALWAYS);
+//        programdepth.addMeshConfig(new FSP.DrawElements(FSConfig.POLICY_ALWAYS, 0));
+//        programdepth.build();
 
         program = new FSP(Loader.DEBUG_MODE_PROGRAMS);
         program.modify(model, FSConfig.POLICY_ALWAYS);
         program.modify(new ModColor.Uniform(), FSConfig.POLICY_ALWAYS);
-        program.modify(new ModLight.Point(Loader.GAMMA, null, Loader.BRIGHTNESS, Loader.light, Loader.shadow, Loader.MATERIAL_WHITE_RUBBER.getGLSLSize()), FSConfig.POLICY_ALWAYS);
+        program.modify(new ModLight.Point(Loader.GAMMA, null, Loader.BRIGHTNESS, Loader.light, null, Loader.MATERIAL_WHITE_RUBBER.getGLSLSize()), FSConfig.POLICY_ALWAYS);
+//        program.modify(new ModLight.Direct(Loader.GAMMA, Loader.BRIGHTNESS, Loader.light2, Loader.shadow2, Loader.MATERIAL_WHITE_RUBBER.getGLSLSize()), FSConfig.POLICY_ALWAYS);
         program.addMeshConfig(new FSP.DrawElements(FSConfig.POLICY_ALWAYS, 0));
         program.build();
     }
 
     @Override
     protected void attachPrograms(FSG gen){
-        gen.programSet(Loader.SHADOW_PROGRAMSET).add(programdepth);
+//        gen.programSet(Loader.SHADOW_PROGRAMSET).add(programdepth);
         gen.programSet(Loader.MAIN_PROGRAMSET).add(program);
     }
 
@@ -118,7 +119,6 @@ public class BPBase extends FSGBluePrint{
 
     @Override
     protected void attachMeshToPrograms(FSMesh mesh){
-        programdepth.addMesh(mesh);
         program.addMesh(mesh);
     }
 

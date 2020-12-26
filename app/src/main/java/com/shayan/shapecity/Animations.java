@@ -32,6 +32,7 @@ public final class Animations{
     public static final float[] COLOR_OBSIDIAN_LESS2 = new float[]{ 0.1F, 0.1F, 0.1F, 1F };
     public static final float[] COLOR_OBSIDIAN_LESS3 = new float[]{ 0.05F, 0.05F, 0.05F, 1F };
     public static final float[] COLOR_GOLD = new float[]{ 0.83F, 0.68F, 0.21F, 1F };
+    public static final float[] COLOR_LIGHT_GOLD = new float[]{ 0.98F, 0.76F, 0.01F, 1F };
     public static final float[] COLOR_RED = new float[]{ 1.0F, 0.3F, 0F, 1F };
     public static final float[] COLOR_PURPLE_LESS = new float[]{ 0.227F, 0.109F, 0.807F, 1F };
     public static final float[] COLOR_PURPLE = new float[]{ 0.282F, 0.135F, 1.0F, 1F };

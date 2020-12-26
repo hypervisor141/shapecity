@@ -6,8 +6,6 @@ import com.nurverek.firestorm.FSAttenuation;
 import com.nurverek.vanguard.VLFloat;
 import com.nurverek.vanguard.VLTask;
 import com.nurverek.vanguard.VLTaskContinous;
-import com.nurverek.vanguard.VLVConnection;
-import com.nurverek.vanguard.VLVControl;
 import com.nurverek.vanguard.VLVLinear;
 import com.nurverek.vanguard.VLVRunnerEntry;
 import com.nurverek.vanguard.VLVariable;
@@ -19,16 +17,16 @@ public final class Light{
     private static VLVLinear controlpoint;
 
     public static void rotatePointLight(){
-        final float[] orgpos = Loader.light.position().provider().clone();
+        final float[] orgpos = Loader.lightpoint.position().provider().clone();
 
-        controlpoint = new VLVLinear(0, 360, 600, VLVariable.LOOP_FORWARD_BACKWARD, new VLTaskContinous(new VLTask.Task<VLVLinear>(){
+        controlpoint = new VLVLinear(0, 360, 150, VLVariable.LOOP_FORWARD_BACKWARD, new VLTaskContinous(new VLTask.Task<VLVLinear>(){
 
             @Override
             public void run(VLTask<VLVLinear> task, VLVLinear var){
-                float[] pos = Loader.light.position().provider();
+                float[] pos = Loader.lightpoint.position().provider();
 
-                VLFloat radius = ((FSAttenuation.Radius)Loader.light.attenuation()).radius();
-                radius.set(var.get() * 100F);
+                VLFloat radius = ((FSAttenuation.Radius)Loader.lightpoint.attenuation()).radius();
+                radius.set(var.get() * 40F);
 
                 Matrix.setIdentityM(CACHE, 0);
                 Matrix.rotateM(CACHE, 0, var.get(), 0f, 1f, 0f);

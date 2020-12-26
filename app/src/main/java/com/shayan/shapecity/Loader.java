@@ -8,20 +8,16 @@ import com.nurverek.firestorm.FSBrightness;
 import com.nurverek.firestorm.FSBufferManager;
 import com.nurverek.firestorm.FSControl;
 import com.nurverek.firestorm.FSG;
-import com.nurverek.firestorm.FSGAutomator;
 import com.nurverek.firestorm.FSGamma;
 import com.nurverek.firestorm.FSLightDirect;
 import com.nurverek.firestorm.FSLightMaterial;
 import com.nurverek.firestorm.FSLightPoint;
 import com.nurverek.firestorm.FSMesh;
-import com.nurverek.firestorm.FSShadowDirect;
-import com.nurverek.firestorm.FSShadowPoint;
 import com.nurverek.firestorm.FSVertexBuffer;
 import com.nurverek.vanguard.VLArrayFloat;
 import com.nurverek.vanguard.VLBufferFloat;
 import com.nurverek.vanguard.VLBufferShort;
 import com.nurverek.vanguard.VLFloat;
-import com.nurverek.vanguard.VLInt;
 
 import java.nio.ByteOrder;
 import java.security.SecureRandom;
@@ -35,10 +31,9 @@ public final class Loader extends FSG{
     public static final FSLightMaterial MATERIAL_OBSIDIAN = new FSLightMaterial(new VLArrayFloat(new float[]{ 0.05375f, 0.05f, 0.06625f }), new VLArrayFloat(new float[]{ 0.18275f, 0.17f, 0.22525f }), new VLArrayFloat(new float[]{ 0.332741f, 0.328634f, 0.346435f }), new VLFloat(16));
     public static final FSLightMaterial MATERIAL_WHITE_RUBBER = new FSLightMaterial(new VLArrayFloat(new float[]{ 0.05f, 0.05f, 0.05f }), new VLArrayFloat(new float[]{ 0.5f, 0.5f, 0.5f }), new VLArrayFloat(new float[]{ 0.7f, 0.7f, 0.7f }), new VLFloat(16));
 
-    public static final int SHADOW_PROGRAMSET = 0;
-    public static final int MAIN_PROGRAMSET = 1;
+    public static final int MAIN_PROGRAMSET = 0;
     public static final FSBrightness BRIGHTNESS = new FSBrightness(new VLFloat(1F));
-    public static final FSGamma GAMMA = new FSGamma(new VLFloat(1.1F));
+    public static final FSGamma GAMMA = new FSGamma(new VLFloat(1.5F));
 
     public static int BUFFER_ELEMENT_SHORT_DEFAULT;
     public static int BUFFER_ARRAY_FLOAT_DEFAULT;
@@ -47,11 +42,8 @@ public final class Loader extends FSG{
 
     public static final SecureRandom RANDOM = new SecureRandom();
 
-    public static FSLightPoint light;
-    public static FSShadowPoint shadow;
-
-    public static FSLightDirect light2;
-    public static FSShadowDirect shadow2;
+    public static FSLightDirect lightdirect;
+    public static FSLightPoint lightpoint;
 
     public static BPLayer bplayer;
     public static BPBase bpbase;
@@ -61,6 +53,7 @@ public final class Loader extends FSG{
     public static FSMesh layer1;
     public static FSMesh layer2;
     public static FSMesh layer3;
+    public static FSMesh puzzlebase;
     public static FSMesh phase1_trapezoidx1;
     public static FSMesh phase1_trapezoidx2;
     public static FSMesh phase1_trapezoidy1;
@@ -92,14 +85,8 @@ public final class Loader extends FSG{
         BUFFER_ELEMENT_SHORT_DEFAULT = manager.add(new FSBufferManager.EntryShort(new FSVertexBuffer(GLES32.GL_ELEMENT_ARRAY_BUFFER, GLES32.GL_STATIC_DRAW), new VLBufferShort()));
         BUFFER_ARRAY_FLOAT_DEFAULT = manager.add(new FSBufferManager.EntryFloat(new FSVertexBuffer(GLES32.GL_ARRAY_BUFFER, GLES32.GL_STATIC_DRAW), new VLBufferFloat()));
 
-        light = new FSLightPoint(new FSAttenuation.Radius(new VLFloat(10000F)), new VLArrayFloat(new float[]{ 0F, 10F, -40F, 1.0F }));
+        lightpoint = new FSLightPoint(new FSAttenuation.Radius(new VLFloat(10000F)), new VLArrayFloat(new float[]{ 0F, 10F, -40F, 1.0F }));
 //        light2 = new FSLightDirect(new VLArrayFloat(new float[]{ 0F, 4000F, 6000F, 1.0F }), new VLArrayFloat(new float[]{ 0F, 0F, 0F, 1.0F }));
-
-//        shadow = new FSShadowPoint(light, new VLInt(1024), new VLInt(1024), new VLFloat(0.0005F), new VLFloat(0.0005F), new VLFloat(1.5F), new VLFloat(1F), new VLFloat(140F));
-//        shadow.initialize(new VLInt(Loader.TEXUNIT++));
-//
-//        shadow2 = new FSShadowDirect(light2, new VLInt(1500), new VLInt(1500), new VLFloat(0.0005F), new VLFloat(0.005F), new VLFloat(4F));
-//        shadow2.initialize(new VLInt(Loader.TEXUNIT++));
 
         try{
             constructAutomator(act.getAssets().open("meshes.fsm"), ByteOrder.LITTLE_ENDIAN, true, 300);
@@ -112,33 +99,32 @@ public final class Loader extends FSG{
         bpbase = new BPBase(this);
         bpinstanced = new BPInstanced(this, 60);
 
-        FSGAutomator automator = automator();
+        layer1 = register(bplayer, "pieces1.", Animations.COLOR_LAYER);
+        layer2 = register(bplayer, "pieces2.", Animations.COLOR_LAYER);
+        layer3 = register(bplayer, "pieces3.", Animations.COLOR_LAYER);
+        puzzlebase = register(bpbase, "puzzlebase_Cube.072", Animations.COLOR_PURPLE_MORE);
+        phase1_trapezoidx1 = register(bpinstanced, "phase1_trapezoid_x1.", Animations.COLOR_GOLD);
+        phase1_trapezoidx2 = register(bpinstanced, "phase1_trapezoid_x2.", Animations.COLOR_GOLD);
+        phase1_trapezoidy1 = register(bpinstanced, "phase1_trapezoid_y1.", Animations.COLOR_GOLD);
+        phase1_trapezoidy2 = register(bpinstanced, "phase1_trapezoid_y2.", Animations.COLOR_GOLD);
+        phase1_rect = register(bpinstanced, "phase1_rect.", Animations.COLOR_GOLD);
+        phase1_walls = register(bpinstanced, "phase1_walls.", Animations.COLOR_GOLD);
+        phase1_base = register(bpbase, "phase1_base_Cube.157", Animations.COLOR_PURPLE);
+        phase2_pillar = register(bpinstanced, "phase2_pillar.", Animations.COLOR_GOLD);
+        phase3_rect_layer1 = register(bpinstanced, "phase3_rect_layer1.", Animations.COLOR_GOLD);
+        phase3_rect_layer2 = register(bpinstanced, "phase3_rect_layer2.", Animations.COLOR_GOLD);
+        phase3_rect_layer3 = register(bpinstanced, "phase3_rect_layer3.", Animations.COLOR_GOLD);
+        phase3_rect_layer4 = register(bpinstanced, "phase3_rect_layer4.", Animations.COLOR_GOLD);
+        phase3_trapezoidx1 = register(bpinstanced, "phase3_trapezoidx1.", Animations.COLOR_RED);
+        phase3_trapezoidx2 = register(bpinstanced, "phase3_trapezoidx2.", Animations.COLOR_RED);
+        phase3_trapezoidy1 = register(bpinstanced, "phase3_trapezoidy1.", Animations.COLOR_RED);
+        phase3_trapezoidy2 = register(bpinstanced, "phase3_trapezoidy2.", Animations.COLOR_RED);
+        phase3_outrect = register(bpinstanced, "phase3_outrect.", Animations.COLOR_ORANGE);
+        outbase_powerplant = register(bpinstanced, "outbase_powerplant.", Animations.COLOR_RED);
+        outbase_walls = register(bpinstanced, "outbase_walls.", Animations.COLOR_OBSIDIAN);
+        mainbase = register(bpbase, "base_Cube.036", Animations.COLOR_PURPLE);
 
-        layer1 = automator.register(bplayer, "pieces1.");
-        layer2 = automator.register(bplayer, "pieces2.");
-        layer3 = automator.register(bplayer, "pieces3.");
-        phase1_trapezoidx1 = automator.register(bpinstanced, "phase1_trapezoid_x1.");
-        phase1_trapezoidx2 = automator.register(bpinstanced, "phase1_trapezoid_x2.");
-        phase1_trapezoidy1 = automator.register(bpinstanced, "phase1_trapezoid_y1.");
-        phase1_trapezoidy2 = automator.register(bpinstanced, "phase1_trapezoid_y2.");
-        phase1_rect = automator.register(bpinstanced, "phase1_rect.");
-        phase1_walls = automator.register(bpinstanced, "phase1_walls.");
-        phase1_base = automator.register(bpbase, "phase1_base_Cube.157");
-        phase2_pillar = automator.register(bpinstanced, "phase2_pillar.");
-        phase3_rect_layer1 = automator.register(bpinstanced, "phase3_rect_layer1.");
-        phase3_rect_layer2 = automator.register(bpinstanced, "phase3_rect_layer2.");
-        phase3_rect_layer3 = automator.register(bpinstanced, "phase3_rect_layer3.");
-        phase3_rect_layer4 = automator.register(bpinstanced, "phase3_rect_layer4.");
-        phase3_trapezoidx1 = automator.register(bpinstanced, "phase3_trapezoidx1.");
-        phase3_trapezoidx2 = automator.register(bpinstanced, "phase3_trapezoidx2.");
-        phase3_trapezoidy1 = automator.register(bpinstanced, "phase3_trapezoidy1.");
-        phase3_trapezoidy2 = automator.register(bpinstanced, "phase3_trapezoidy2.");
-        phase3_outrect = automator.register(bpinstanced, "phase3_outrect.");
-        outbase_powerplant = automator.register(bpinstanced, "outbase_powerplant.");
-        outbase_walls = automator.register(bpinstanced, "outbase_walls.");
-        mainbase = automator.register(bpbase, "base_Cube.036");
-
-        automator.run(DEBUG_MODE_AUTOMATOR);
+        automator().run(DEBUG_MODE_AUTOMATOR);
 
         layers = new FSMesh[]{
                 layer1,
@@ -149,6 +135,11 @@ public final class Loader extends FSG{
         Game.startGame(this);
     }
 
+    private FSMesh register(CustomBluePrint bp, String name, float[] colors){
+        bp.customColors(colors);
+        return automator().register(bp, name);
+    }
+
     @Override
     public void update(int passindex, int programsetindex){
         bufferManager().updateIfNeeded();
@@ -156,6 +147,6 @@ public final class Loader extends FSG{
 
     @Override
     protected void destroyAssets(){
-        shadow.destroy();
+
     }
 }

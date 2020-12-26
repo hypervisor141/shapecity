@@ -74,14 +74,8 @@ public class Start extends FSActivity{
             Loader loader = new Loader();
             loader.assemble(this);
 
-            FSRenderPass shadowpass = new FSRenderPass(FSControl.DEBUG_FULL).setClearColor(true).setAdvanceProcessors(false)
-                    .setClearStencil(true).setRunTasks(false).setDrawMeshes(true).setUpdateMeshes(true).build();
             FSRenderPass mainpass = new FSRenderPass(FSControl.DEBUG_FULL).build();
-
-            shadowpass.add(new FSRenderPass.Entry(loader, 0));
-            mainpass.add(new FSRenderPass.Entry(loader, 1));
-
-            FSRenderer.addRenderPass(shadowpass);
+            mainpass.add(new FSRenderPass.Entry(loader, Loader.MAIN_PROGRAMSET));
             FSRenderer.addRenderPass(mainpass);
         }
     }

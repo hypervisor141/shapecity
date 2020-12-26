@@ -8,17 +8,16 @@ import com.nurverek.firestorm.FSBufferManager;
 import com.nurverek.firestorm.FSConfig;
 import com.nurverek.firestorm.FSG;
 import com.nurverek.firestorm.FSGAssembler;
-import com.nurverek.firestorm.FSGBluePrint;
 import com.nurverek.firestorm.FSGScanner;
 import com.nurverek.firestorm.FSInstance;
 import com.nurverek.firestorm.FSMesh;
 import com.nurverek.firestorm.FSP;
-import com.nurverek.firestorm.FSShadowPoint;
 import com.nurverek.vanguard.VLArrayFloat;
 
-public class BPBase extends FSGBluePrint{
+import java.util.Arrays;
 
-    public FSP programdepth;
+public class BPBase extends CustomBluePrint{
+
     public FSP program;
 
     public BPBase(FSG gen){
@@ -29,26 +28,16 @@ public class BPBase extends FSGBluePrint{
     protected void createPrograms(){
         ModModel.Uniform model = new ModModel.Uniform();
 
-//        programdepth = new FSP(Loader.DEBUG_MODE_PROGRAMS);
-//        programdepth.modify(new ModShadow.Prepare(Loader.shadow2, false), FSConfig.POLICY_ALWAYS);
-//        programdepth.modify(model, FSConfig.POLICY_ALWAYS);
-//        programdepth.modify(new ModShadow.SetupDirect(Loader.shadow2), FSConfig.POLICY_ALWAYS);
-//        programdepth.modify(new ModShadow.Finish(Loader.shadow2), FSConfig.POLICY_ALWAYS);
-//        programdepth.addMeshConfig(new FSP.DrawElements(FSConfig.POLICY_ALWAYS, 0));
-//        programdepth.build();
-
         program = new FSP(Loader.DEBUG_MODE_PROGRAMS);
         program.modify(model, FSConfig.POLICY_ALWAYS);
         program.modify(new ModColor.Uniform(), FSConfig.POLICY_ALWAYS);
-        program.modify(new ModLight.Point(Loader.GAMMA, null, Loader.BRIGHTNESS, Loader.light, null, Loader.MATERIAL_WHITE_RUBBER.getGLSLSize()), FSConfig.POLICY_ALWAYS);
-//        program.modify(new ModLight.Direct(Loader.GAMMA, Loader.BRIGHTNESS, Loader.light2, Loader.shadow2, Loader.MATERIAL_WHITE_RUBBER.getGLSLSize()), FSConfig.POLICY_ALWAYS);
+        program.modify(new ModLight.Point(Loader.GAMMA, null, Loader.BRIGHTNESS, Loader.lightpoint, null, Loader.MATERIAL_WHITE_RUBBER.getGLSLSize()), FSConfig.POLICY_ALWAYS);
         program.addMeshConfig(new FSP.DrawElements(FSConfig.POLICY_ALWAYS, 0));
         program.build();
     }
 
     @Override
     protected void attachPrograms(FSG gen){
-//        gen.programSet(Loader.SHADOW_PROGRAMSET).add(programdepth);
         gen.programSet(Loader.MAIN_PROGRAMSET).add(program);
     }
 
@@ -83,7 +72,8 @@ public class BPBase extends FSGBluePrint{
 
     @Override
     protected void preAssemblyAdjustment(FSMesh mesh, FSInstance instance){
-        instance.data().colors(new VLArrayFloat(Animations.COLOR_BASE.clone()));
+        Log.d("wtf", Arrays.toString(customColors()));
+        instance.data().colors(new VLArrayFloat(customColors().clone()));
         instance.lightMaterial(Loader.MATERIAL_WHITE_RUBBER);
     }
 

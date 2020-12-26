@@ -30,7 +30,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
 
-public final class BPLayer extends FSGBluePrint{
+public final class BPLayer extends CustomBluePrint{
 
     public static final int INSTANCE_COUNT = 24;
     private static final int LAYER_PIECE_TEXTURE_DIMENSION = 512;
@@ -47,7 +47,7 @@ public final class BPLayer extends FSGBluePrint{
         program = new FSP(Loader.DEBUG_MODE_PROGRAMS);
         program.modify(new ModModel.UBO(1, BPLayer.INSTANCE_COUNT), FSConfig.POLICY_ALWAYS);
         program.modify(new ModColor.TextureAndUBO(1, BPLayer.INSTANCE_COUNT, true, false, true), FSConfig.POLICY_ALWAYS);
-        program.modify(new ModLight.Point(Loader.GAMMA, null, Loader.BRIGHTNESS, Loader.light, null, Loader.MATERIAL_WHITE_RUBBER.getGLSLSize()), FSConfig.POLICY_ALWAYS);
+        program.modify(new ModLight.Point(Loader.GAMMA, null, Loader.BRIGHTNESS, Loader.lightpoint, null, Loader.MATERIAL_WHITE_RUBBER.getGLSLSize()), FSConfig.POLICY_ALWAYS);
         program.addMeshConfig(new FSP.DrawElementsInstanced(FSConfig.POLICY_ALWAYS, 0));
         program.build();
     }
@@ -88,7 +88,7 @@ public final class BPLayer extends FSGBluePrint{
 
     @Override
     protected void preAssemblyAdjustment(FSMesh mesh, FSInstance instance){
-        instance.data().colors(new VLArrayFloat(Animations.COLOR_PURPLE.clone()));
+        instance.data().colors(new VLArrayFloat(customColors().clone()));
         instance.lightMaterial(Loader.MATERIAL_OBSIDIAN);
     }
 

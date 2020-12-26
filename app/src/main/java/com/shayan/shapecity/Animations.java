@@ -35,10 +35,7 @@ public final class Animations{
     public static final float[] COLOR_PURPLE = new float[]{ 0F, 0.137F, 0.220F, 1F };
     public static final float[] COLOR_PURPLE_MORE = new float[]{ 0F, 0.237F, 0.320F, 1F };
 
-    public static final float[] COLOR_BASE = COLOR_WHITE;
-    public static final float[] COLOR_BASE_LINING = COLOR_ORANGE;
     public static final float[] COLOR_LAYER = COLOR_PURPLE;
-    public static final float[] COLOR_PILLARS = COLOR_OBSIDIAN_LESS2;
     private static final float[] COLOR_BLINK = COLOR_ORANGE;
     private static final float[] COLOR_DEACTIVATED = COLOR_ORANGE;
     public static final float[] COLOR_STANDBY = COLOR_PURPLE_MORE;

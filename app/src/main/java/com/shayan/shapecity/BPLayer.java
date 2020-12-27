@@ -37,8 +37,7 @@ public final class BPLayer extends CustomBluePrint{
 
     public FSP program;
 
-    public BPLayer(FSG gen, int colorcapacity){
-        super(colorcapacity);
+    public BPLayer(FSG gen){
         initialize(gen);
     }
 
@@ -47,7 +46,7 @@ public final class BPLayer extends CustomBluePrint{
         program = new FSP(Loader.DEBUG_MODE_PROGRAMS);
         program.modify(new ModModel.UBO(1, BPLayer.INSTANCE_COUNT), FSConfig.POLICY_ALWAYS);
         program.modify(new ModColor.TextureAndUBO(1, BPLayer.INSTANCE_COUNT, true, false, true), FSConfig.POLICY_ALWAYS);
-        program.modify(new ModLight.Point(Loader.GAMMA, null, Loader.BRIGHTNESS, Loader.lightpoint, null, Loader.MATERIAL_WHITE_RUBBER.getGLSLSize()), FSConfig.POLICY_ALWAYS);
+        program.modify(new ModLight.Point(Loader.GAMMA, null, Loader.BRIGHTNESS, Loader.light1, null, Loader.MATERIAL_WHITE_RUBBER.getGLSLSize()), FSConfig.POLICY_ALWAYS);
         program.addMeshConfig(new FSP.DrawElementsInstanced(FSConfig.POLICY_ALWAYS, 0));
         program.build();
     }

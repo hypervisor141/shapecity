@@ -1,7 +1,6 @@
 package com.shayan.shapecity;
 
 import android.opengl.GLES32;
-import android.util.Log;
 
 import com.nurverek.firestorm.FSBufferLayout;
 import com.nurverek.firestorm.FSBufferManager;
@@ -12,16 +11,12 @@ import com.nurverek.firestorm.FSGScanner;
 import com.nurverek.firestorm.FSInstance;
 import com.nurverek.firestorm.FSMesh;
 import com.nurverek.firestorm.FSP;
-import com.nurverek.vanguard.VLArrayFloat;
-
-import java.util.Arrays;
 
 public class BPBase extends CustomBluePrint{
 
     public FSP program;
 
-    public BPBase(FSG gen, int colorcapacity){
-        super(colorcapacity);
+    public BPBase(FSG gen){
         initialize(gen);
     }
 
@@ -32,7 +27,7 @@ public class BPBase extends CustomBluePrint{
         program = new FSP(Loader.DEBUG_MODE_PROGRAMS);
         program.modify(model, FSConfig.POLICY_ALWAYS);
         program.modify(new ModColor.Uniform(), FSConfig.POLICY_ALWAYS);
-        program.modify(new ModLight.Point(Loader.GAMMA, null, Loader.BRIGHTNESS, Loader.lightpoint, null, Loader.MATERIAL_WHITE_RUBBER.getGLSLSize()), FSConfig.POLICY_ALWAYS);
+        program.modify(new ModLight.Point(Loader.GAMMA, null, Loader.BRIGHTNESS, Loader.light1, null, Loader.MATERIAL_WHITE_RUBBER.getGLSLSize()), FSConfig.POLICY_ALWAYS);
         program.addMeshConfig(new FSP.DrawElements(FSConfig.POLICY_ALWAYS, 0));
         program.build();
     }

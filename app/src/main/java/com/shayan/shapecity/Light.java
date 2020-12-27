@@ -17,15 +17,15 @@ public final class Light{
     private static VLVLinear controlpoint;
 
     public static void rotatePointLight(){
-        final float[] orgpos = Loader.lightpoint.position().provider().clone();
+        final float[] orgpos = Loader.light1.position().provider().clone();
 
         controlpoint = new VLVLinear(0, 360, 150, VLVariable.LOOP_FORWARD_BACKWARD, new VLTaskContinous(new VLTask.Task<VLVLinear>(){
 
             @Override
             public void run(VLTask<VLVLinear> task, VLVLinear var){
-                float[] pos = Loader.lightpoint.position().provider();
+                float[] pos = Loader.light1.position().provider();
 
-                VLFloat radius = ((FSAttenuation.Radius)Loader.lightpoint.attenuation()).radius();
+                VLFloat radius = ((FSAttenuation.Radius)Loader.light1.attenuation()).radius();
                 radius.set(var.get() * 60F);
 
                 Matrix.setIdentityM(CACHE, 0);

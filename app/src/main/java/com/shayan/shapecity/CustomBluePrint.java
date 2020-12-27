@@ -9,37 +9,44 @@ import com.nurverek.firestorm.FSMesh;
 import com.nurverek.vanguard.VLArrayFloat;
 import com.nurverek.vanguard.VLListType;
 
+import java.util.Arrays;
+import java.util.HashMap;
+
 public abstract class CustomBluePrint extends FSGBluePrint{
 
-    private VLListType<float[]> colors;
-    private VLListType<FSLightMaterial> materials;
+    private HashMap<String, Entry> entries;
 
-    private int tracker;
-
-    protected CustomBluePrint(int capacity){
-        tracker = 0;
-
-        colors = new VLListType<>(capacity, capacity);
-        materials = new VLListType<>(capacity, capacity);
+    protected CustomBluePrint(){
+        entries = new HashMap<>(100);
     }
 
     @Override
     protected void preAssemblyAdjustment(FSMesh mesh, FSInstance instance){
-        instance.data().colors(new VLArrayFloat(colors.get(tracker).clone()));
-        instance.lightMaterial(materials.get(tracker));
+        Entry e = entries.get(mesh.name());
 
-        tracker++;
+        instance.data().colors(new VLArrayFloat(e.color.clone()));
+        instance.lightMaterial(e.material);
     }
 
-    public void addColor(float[] c, int count){
-        for(int i = 0; i < count; i++){
-            colors.add(c);
+    public void addCustoms(String name, float[] color, FSLightMaterial material){
+        entries.put(name.toLowerCase(), new Entry(color, material));
+    }
+
+    private static final class Entry{
+
+        protected float[] color;
+        protected FSLightMaterial material;
+        protected int index;
+
+        protected Entry(float[] color, FSLightMaterial material){
+            this.color = color;
+            this.material = material;
+
+            index = 0;
         }
-    }
 
-    public void addMaterial(FSLightMaterial m, int count){
-        for(int i = 0; i < count; i++){
-            materials.add(m);
+        protected void incrementIndex(){
+            index++;
         }
     }
 }

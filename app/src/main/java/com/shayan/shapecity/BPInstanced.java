@@ -12,7 +12,6 @@ import com.nurverek.firestorm.FSInstance;
 import com.nurverek.firestorm.FSMesh;
 import com.nurverek.firestorm.FSP;
 import com.nurverek.firestorm.FSVertexBuffer;
-import com.nurverek.vanguard.VLArrayFloat;
 import com.nurverek.vanguard.VLBufferFloat;
 
 public final class BPInstanced extends CustomBluePrint{
@@ -20,9 +19,7 @@ public final class BPInstanced extends CustomBluePrint{
     public FSP program;
     public int maxinstancecount;
 
-    public BPInstanced(FSG gen, int maxinstancecount, int colorcapacity){
-        super(colorcapacity);
-
+    public BPInstanced(FSG gen, int maxinstancecount){
         this.maxinstancecount = maxinstancecount;
         initialize(gen);
     }
@@ -32,7 +29,7 @@ public final class BPInstanced extends CustomBluePrint{
         program = new FSP(Loader.DEBUG_MODE_PROGRAMS);
         program.modify(new ModModel.UBO(1, maxinstancecount), FSConfig.POLICY_ALWAYS);
         program.modify(new ModColor.UBO(1, maxinstancecount), FSConfig.POLICY_ALWAYS);
-        program.modify(new ModLight.Point(Loader.GAMMA, null, Loader.BRIGHTNESS, Loader.lightpoint, null, Loader.MATERIAL_WHITE_RUBBER.getGLSLSize()), FSConfig.POLICY_ALWAYS);
+        program.modify(new ModLight.Point(Loader.GAMMA, null, Loader.BRIGHTNESS, Loader.light1, null, Loader.MATERIAL_WHITE_RUBBER.getGLSLSize()), FSConfig.POLICY_ALWAYS);
         program.addMeshConfig(new FSP.DrawElementsInstanced(FSConfig.POLICY_ALWAYS, 0));
         program.build();
     }

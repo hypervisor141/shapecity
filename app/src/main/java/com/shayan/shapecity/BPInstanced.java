@@ -89,6 +89,7 @@ public final class BPInstanced extends CustomBluePrint{
         int colorbuffer = manager.add(new FSBufferManager.EntryFloat(new FSVertexBuffer(GLES32.GL_UNIFORM_BUFFER, GLES32.GL_DYNAMIC_DRAW, Loader.UBOBINDPOINT++), new VLBufferFloat()));
 
         FSBufferLayout layout = new FSBufferLayout(mesh);
+
         layout.add(manager, modelbuffer, 1)
                 .addElement(new FSBufferLayout.EntryElement(FSBufferLayout.ELEMENT_SEQUENTIAL_INSTANCED, FSG.ELEMENT_MODEL));
 

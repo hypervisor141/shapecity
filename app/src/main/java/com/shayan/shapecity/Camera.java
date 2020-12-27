@@ -23,11 +23,11 @@ public final class Camera{
     private static VLVRunner control;
 
     public static void rotateCamera(){
-        VLVCurved controlcamera1 = new VLVCurved(0, 360, 400, VLVariable.LOOP_FORWARD_BACKWARD, VLVCurved.CURVE_DEC_SINE, new VLTaskContinous(new VLTask.Task<VLVCurved>(){
+        VLVCurved controlcamera1 = new VLVCurved(0, 360, 300, VLVariable.LOOP_FORWARD_BACKWARD, VLVCurved.CURVE_DEC_SINE, new VLTaskContinous(new VLTask.Task<VLVCurved>(){
 
             @Override
             public void run(VLTask<VLVCurved> task, VLVCurved var){
-                FSControl.getViewConfig().eyePosition(0F, 1000 + var.get() * 10, 1000 + var.get() * 10);
+                FSControl.getViewConfig().eyePosition(0F, 500 + var.get() * 4, 500 + var.get() * 4);
             }
         }));
 

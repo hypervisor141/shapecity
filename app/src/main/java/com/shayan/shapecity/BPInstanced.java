@@ -18,9 +18,14 @@ public final class BPInstanced extends CustomBluePrint{
 
     public FSP program;
     public int maxinstancecount;
+    public int bindpointoffset;
 
     public BPInstanced(FSG gen, int maxinstancecount){
         this.maxinstancecount = maxinstancecount;
+
+        bindpointoffset = Loader.UBOBINDPOINT;
+        Loader.UBOBINDPOINT++;
+
         initialize(gen);
     }
 
@@ -85,8 +90,8 @@ public final class BPInstanced extends CustomBluePrint{
 
     @Override
     public FSBufferLayout bufferLayouts(FSMesh mesh, FSBufferManager manager){
-        int modelbuffer = manager.add(new FSBufferManager.EntryFloat(new FSVertexBuffer(GLES32.GL_UNIFORM_BUFFER, GLES32.GL_DYNAMIC_DRAW, Loader.UBOBINDPOINT++), new VLBufferFloat()));
-        int colorbuffer = manager.add(new FSBufferManager.EntryFloat(new FSVertexBuffer(GLES32.GL_UNIFORM_BUFFER, GLES32.GL_DYNAMIC_DRAW, Loader.UBOBINDPOINT++), new VLBufferFloat()));
+        int modelbuffer = manager.add(new FSBufferManager.EntryFloat(new FSVertexBuffer(GLES32.GL_UNIFORM_BUFFER, GLES32.GL_DYNAMIC_DRAW, bindpointoffset), new VLBufferFloat()));
+        int colorbuffer = manager.add(new FSBufferManager.EntryFloat(new FSVertexBuffer(GLES32.GL_UNIFORM_BUFFER, GLES32.GL_DYNAMIC_DRAW, bindpointoffset + 1), new VLBufferFloat()));
 
         FSBufferLayout layout = new FSBufferLayout(mesh);
 

@@ -1,6 +1,7 @@
 package com.shayan.shapecity;
 
 import android.opengl.GLES32;
+import android.util.Log;
 
 import com.nurverek.firestorm.FSActivity;
 import com.nurverek.firestorm.FSAttenuation;
@@ -38,8 +39,8 @@ public final class Loader extends FSG{
 
     public static int BUFFER_ELEMENT_SHORT_DEFAULT;
     public static int BUFFER_ARRAY_FLOAT_DEFAULT;
-    public static int UBOBINDPOINT = 0;
     public static int TEXUNIT = 1;
+    public static int UBOBINDPOINT = 0;
 
     public static final SecureRandom RANDOM = new SecureRandom();
 
@@ -62,24 +63,34 @@ public final class Loader extends FSG{
     public static FSMesh phase1_walls_stripes;
     public static FSMesh phase1_walls_caps;
     public static FSMesh phase1_pillars;
-    public static FSMesh phase1_pillars_stripes;
+    public static FSMesh phase1_pillars_caps;
+    public static FSMesh phase1_pillars_blades;
     public static FSMesh phase2_pillars;
+    public static FSMesh phase2_pillars_caps;
+    public static FSMesh phase2_pillars_caps2;
     public static FSMesh phase2_pillar_stripes;
     public static FSMesh phase3_rect_layer1;
     public static FSMesh phase3_rect_layer2;
     public static FSMesh phase3_rect_layer3;
-    public static FSMesh phase3_rect_layer4;
     public static FSMesh phase3_rect_layer1_stripes;
     public static FSMesh phase3_rect_layer2_stripes;
     public static FSMesh phase3_rect_layer3_stripes;
-    public static FSMesh phase3_rect_layer4_stripes;
+    public static FSMesh phase3_rect_layer3_caps;
     public static FSMesh phase3_trapezoidx1;
     public static FSMesh phase3_trapezoidx2;
     public static FSMesh phase3_trapezoidy1;
     public static FSMesh phase3_trapezoidy2;
-    public static FSMesh phase3_outrect_part1;
-    public static FSMesh phase3_outrect_part2;
-    public static FSMesh phase3_outrect_part3;
+    public static FSMesh phase3_outrect_layer1;
+    public static FSMesh phase3_outrect_layer2;
+    public static FSMesh phase3_outrect_layer3;
+    public static FSMesh phase3_outrect_layer4;
+    public static FSMesh phase3_outrect_layer5;
+    public static FSMesh phase3_outrect_layer6;
+    public static FSMesh phase3_outrect_layer7;
+    public static FSMesh phase3_outrect_layer8;
+    public static FSMesh phase3_outrect_layer9;
+    public static FSMesh phase3_outrect_layer10;
+    public static FSMesh phase3_outrect_layer11;
     public static FSMesh outbase_powerplants;
     public static FSMesh outbase_powerplant_base;
     public static FSMesh outbase_powerplant_baseplates;
@@ -122,32 +133,41 @@ public final class Loader extends FSG{
         phase1_walls_stripes = register(bpinstanced, "phase1_walls_stripe.", Animations.COLOR_RED, MATERIAL_WHITE);
         phase1_walls_caps = register(bpinstanced, "phase1_walls_cap.", Animations.COLOR_RED_LESS2, MATERIAL_WHITE);
         phase1_pillars = register(bpinstanced, "phase1_pillar.", Animations.COLOR_OBSIDIAN_LESS4, MATERIAL_WHITE);
-        phase1_pillars_stripes = register(bpinstanced, "phase1_pillars_stripe.", Animations.COLOR_RED, MATERIAL_WHITE);
+        phase1_pillars_caps = register(bpinstanced, "phase1_pillars_cap.", Animations.COLOR_RED, MATERIAL_WHITE);
+        phase1_pillars_blades = register(bpsingular, "phase1_pillars_blades_Cube.475", Animations.COLOR_OBSIDIAN_LESS5, MATERIAL_WHITE);
         phase1_rect = register(bpinstanced, "phase1_rect.", Animations.COLOR_OBSIDIAN_LESS4, MATERIAL_WHITE);
         phase2_pillars = register(bpinstanced, "phase2_pillar.", Animations.COLOR_OBSIDIAN_LESS4, MATERIAL_WHITE);
-        phase2_pillar_stripes = register(bpinstanced, "phase2_pillars_stripe.", Animations.COLOR_GOLD, MATERIAL_WHITE);
+        phase2_pillars_caps = register(bpinstanced, "phase2_pillars_cap.", Animations.COLOR_GOLD, MATERIAL_WHITE);
+        phase2_pillars_caps2 = register(bpinstanced, "phase2_pillars_cap2.", Animations.COLOR_GOLD, MATERIAL_WHITE);
         phase3_rect_layer1 = register(bpinstanced, "phase3_rect_layer1.", Animations.COLOR_OBSIDIAN_LESS2, MATERIAL_WHITE);
         phase3_rect_layer2 = register(bpinstanced, "phase3_rect_layer2.", Animations.COLOR_OBSIDIAN_LESS3, MATERIAL_WHITE);
         phase3_rect_layer3 = register(bpinstanced, "phase3_rect_layer3.", Animations.COLOR_OBSIDIAN_LESS4, MATERIAL_WHITE);
-        phase3_rect_layer4 = register(bpinstanced, "phase3_rect_layer4.", Animations.COLOR_OBSIDIAN_LESS5, MATERIAL_WHITE);
         phase3_rect_layer1_stripes = register(bpinstanced, "phase3_rect_layer1_stripe.", Animations.COLOR_RED, MATERIAL_WHITE);
         phase3_rect_layer2_stripes = register(bpinstanced, "phase3_rect_layer2_stripe.", Animations.COLOR_RED, MATERIAL_WHITE);
         phase3_rect_layer3_stripes = register(bpinstanced, "phase3_rect_layer3_stripe.", Animations.COLOR_RED, MATERIAL_WHITE);
-        phase3_rect_layer4_stripes = register(bpinstanced, "phase3_rect_layer4_stripe.", Animations.COLOR_RED, MATERIAL_WHITE);
+        phase3_rect_layer3_caps = register(bpinstanced, "phase3_rect_layer3_cap.", Animations.COLOR_RED, MATERIAL_WHITE);
         phase3_trapezoidx1 = register(bpinstanced, "phase3_trapezoidx1.", Animations.COLOR_OBSIDIAN_LESS2, MATERIAL_WHITE);
         phase3_trapezoidx2 = register(bpinstanced, "phase3_trapezoidx2.", Animations.COLOR_OBSIDIAN_LESS3, MATERIAL_WHITE);
         phase3_trapezoidy1 = register(bpinstanced, "phase3_trapezoidy1.", Animations.COLOR_OBSIDIAN_LESS2, MATERIAL_WHITE);
         phase3_trapezoidy2 = register(bpinstanced, "phase3_trapezoidy2.", Animations.COLOR_OBSIDIAN_LESS3, MATERIAL_WHITE);
-        phase3_outrect_part1 = register(bpinstanced, "phase3_outrect_part1.", Animations.COLOR_OBSIDIAN_LESS5, MATERIAL_WHITE);
-        phase3_outrect_part2 = register(bpinstanced, "phase3_outrect_part2.", Animations.COLOR_OBSIDIAN_LESS3, MATERIAL_WHITE);
-        phase3_outrect_part3 = register(bpinstanced, "phase3_outrect_part3.", Animations.COLOR_RED_LESS2, MATERIAL_WHITE);
+        phase3_outrect_layer1 = register(bpinstanced, "phase3_outrect_layer1.", Animations.COLOR_OBSIDIAN_LESS1, MATERIAL_WHITE);
+        phase3_outrect_layer2 = register(bpinstanced, "phase3_outrect_layer2.", Animations.COLOR_OBSIDIAN_LESS2, MATERIAL_WHITE);
+        phase3_outrect_layer3 = register(bpinstanced, "phase3_outrect_layer3.", Animations.COLOR_OBSIDIAN_LESS3, MATERIAL_WHITE);
+        phase3_outrect_layer4 = register(bpinstanced, "phase3_outrect_layer4.", Animations.COLOR_OBSIDIAN_LESS4, MATERIAL_WHITE);
+        phase3_outrect_layer5 = register(bpinstanced, "phase3_outrect_layer5.", Animations.COLOR_OBSIDIAN_LESS5, MATERIAL_WHITE);
+        phase3_outrect_layer6 = register(bpinstanced, "phase3_outrect_layer6.", Animations.COLOR_OBSIDIAN_LESS1, MATERIAL_WHITE);
+        phase3_outrect_layer7 = register(bpinstanced, "phase3_outrect_layer7.", Animations.COLOR_OBSIDIAN_LESS2, MATERIAL_WHITE);
+        phase3_outrect_layer8 = register(bpinstanced, "phase3_outrect_layer8.", Animations.COLOR_OBSIDIAN_LESS3, MATERIAL_WHITE);
+        phase3_outrect_layer9 = register(bpinstanced, "phase3_outrect_layer9.", Animations.COLOR_OBSIDIAN_LESS4, MATERIAL_WHITE);
+        phase3_outrect_layer10 = register(bpinstanced, "phase3_outrect_layer10.", Animations.COLOR_OBSIDIAN_LESS5, MATERIAL_WHITE);
+        phase3_outrect_layer11 = register(bpinstanced, "phase3_outrect_layer11.", Animations.COLOR_RED_LESS2, MATERIAL_WHITE);
         outbase_walls = register(bpsingular, "outbase_walls_Cube.480", Animations.COLOR_OBSIDIAN_LESS4, MATERIAL_WHITE);
         outbase_walls_stripes = register(bpsingular, "outbase_walls_stripes_Cube.449", Animations.COLOR_GOLD, MATERIAL_WHITE);
         outbase_powerplants = register(bpinstanced, "outbase_powerplant.", Animations.COLOR_OBSIDIAN_LESS4, MATERIAL_WHITE);
-        outbase_powerplant_base = register(bpsingular, "powerplants_base_Cube.308", Animations.COLOR_OBSIDIAN_LESS5, MATERIAL_WHITE);
         outbase_powerplant_baseplates = register(bpsingular, "powerplants_baseplates_Cube.309", Animations.COLOR_GOLD, MATERIAL_WHITE);
+        outbase_powerplant_base = register(bpsingular, "powerplants_base_Cube.308", Animations.COLOR_WHITE_LESS, MATERIAL_WHITE);
         puzzle_base = register(bpsingular, "puzzlebase_Cube.036", Animations.COLOR_OBSIDIAN_LESS1, MATERIAL_WHITE);
-        mainbase = register(bpsingular, "base_Cube.157", Animations.COLOR_OBSIDIAN_LESS2, MATERIAL_WHITE);
+        mainbase = register(bpsingular, "base_Cube.157", Animations.COLOR_WHITE_LESS, MATERIAL_WHITE);
 
         automator().run(DEBUG_MODE_AUTOMATOR);
 

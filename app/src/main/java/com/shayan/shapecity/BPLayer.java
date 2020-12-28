@@ -36,9 +36,13 @@ public final class BPLayer extends CustomBluePrint{
     public static ByteBuffer PIXEL_BUFFER = null;
 
     public FSP program;
+    public int bindpointoffset;
 
     public BPLayer(FSG gen){
         initialize(gen);
+
+        bindpointoffset = Loader.UBOBINDPOINT;
+        Loader.UBOBINDPOINT++;
     }
 
     @Override
@@ -123,9 +127,9 @@ public final class BPLayer extends CustomBluePrint{
 
     @Override
     public FSBufferLayout bufferLayouts(FSMesh mesh, FSBufferManager manager){
-        int modelbuffer = manager.add(new FSBufferManager.EntryFloat(new FSVertexBuffer(GLES32.GL_UNIFORM_BUFFER, GLES32.GL_DYNAMIC_DRAW, Loader.UBOBINDPOINT++), new VLBufferFloat()));
-        int texcontrolbuffer = manager.add(new FSBufferManager.EntryFloat(new FSVertexBuffer(GLES32.GL_UNIFORM_BUFFER, GLES32.GL_DYNAMIC_DRAW, Loader.UBOBINDPOINT++), new VLBufferFloat()));
-        int colorbuffer = manager.add(new FSBufferManager.EntryFloat(new FSVertexBuffer(GLES32.GL_UNIFORM_BUFFER, GLES32.GL_DYNAMIC_DRAW, Loader.UBOBINDPOINT++), new VLBufferFloat()));
+        int modelbuffer = manager.add(new FSBufferManager.EntryFloat(new FSVertexBuffer(GLES32.GL_UNIFORM_BUFFER, GLES32.GL_DYNAMIC_DRAW, bindpointoffset), new VLBufferFloat()));
+        int texcontrolbuffer = manager.add(new FSBufferManager.EntryFloat(new FSVertexBuffer(GLES32.GL_UNIFORM_BUFFER, GLES32.GL_DYNAMIC_DRAW, bindpointoffset + 1), new VLBufferFloat()));
+        int colorbuffer = manager.add(new FSBufferManager.EntryFloat(new FSVertexBuffer(GLES32.GL_UNIFORM_BUFFER, GLES32.GL_DYNAMIC_DRAW, bindpointoffset + 2), new VLBufferFloat()));
 
         FSBufferLayout layout = new FSBufferLayout(mesh);
         layout.add(manager, modelbuffer, 1)

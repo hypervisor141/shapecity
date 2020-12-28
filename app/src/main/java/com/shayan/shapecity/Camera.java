@@ -27,7 +27,7 @@ public final class Camera{
 
             @Override
             public void run(VLTask<VLVCurved> task, VLVCurved var){
-                FSControl.getViewConfig().eyePosition(0F, 500 + var.get() * 15, 500 + var.get() * 15);
+//                FSControl.getViewConfig().eyePosition(0F, 500 + var.get() * 15, 500 + var.get() * 15);
             }
         }));
 
@@ -39,7 +39,8 @@ public final class Camera{
             public void run(VLTask<VLVLinear> task, VLVLinear var){
                 FSViewConfig c = FSControl.getViewConfig();
 //                c.eyePosition(0F, 5F, 5F);
-//                c.eyePosition(0F, 1000 + var.get() * 10, 1000 + var.get() * 10);
+//                c.eyePosition(0F, 1000, 1000);
+                c.eyePosition(0F, 6000, 6000);
 //                c.eyePosition(0F, 4000F, 6000F);
 
                 float[] eyepos = c.eyePosition().provider();

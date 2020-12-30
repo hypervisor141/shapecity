@@ -24,10 +24,7 @@ public final class Game{
 
     public static void startGame(Loader loader){
         Animations.initialize(loader);
-
-        Light.rotateDirectLight();
         Light.rotatePointLight();
-
         Camera.rotateCamera();
 
         Loader.RANDOM.setSeed(System.currentTimeMillis());
@@ -90,9 +87,11 @@ public final class Game{
             @Override
             public void run(){
                 final int target = Input.closestPoint.instanceindex;
+                int activecount = getActiveSymbolCount();
 
-                if(enabledPieces[target]){
+                if(enabledPieces[target] && activecount < 2){
                     activatedSymbols.set(target, symbols[target]);
+                    activecount++;
 
                     Animations.revealResetTimer();
                     Animations.reveal(layer, target, new Runnable(){
@@ -103,7 +102,7 @@ public final class Game{
                         }
                     });
 
-                    if(getActiveSymbolCount() >= GAME_MATCHSYM_PICK_LIMIT){
+                    if(activecount >= GAME_MATCHSYM_PICK_LIMIT){
                         int match = checkSymbolMatch();
 
                         if(match != -1){
@@ -135,15 +134,14 @@ public final class Game{
                                     Log.d("wtf", "ALL DONE");
 
                                 }else{
+                                    final int nextlayer = layer - 1;
+
+                                    Animations.unstandBy(nextlayer);
                                     Animations.lowerBases(layer, new Runnable(){
 
                                         @Override
                                         public void run(){
-                                            int nextlayer = layer - 1;
-
                                             Animations.removeDeactivationControl();
-                                            Animations.unstandBy(nextlayer);
-
                                             activateMatchSymForLayer(nextlayer);
                                         }
                                     });

@@ -1,7 +1,6 @@
 package com.shayan.shapecity;
 
 import android.opengl.GLES32;
-import android.util.Log;
 
 import com.nurverek.firestorm.FSActivity;
 import com.nurverek.firestorm.FSAttenuation;
@@ -10,17 +9,25 @@ import com.nurverek.firestorm.FSBufferManager;
 import com.nurverek.firestorm.FSControl;
 import com.nurverek.firestorm.FSG;
 import com.nurverek.firestorm.FSGamma;
+import com.nurverek.firestorm.FSInstance;
 import com.nurverek.firestorm.FSLightMaterial;
 import com.nurverek.firestorm.FSLightPoint;
+import com.nurverek.firestorm.FSMatrixModel;
 import com.nurverek.firestorm.FSMesh;
 import com.nurverek.firestorm.FSVertexBuffer;
 import com.nurverek.vanguard.VLArrayFloat;
 import com.nurverek.vanguard.VLBufferFloat;
 import com.nurverek.vanguard.VLBufferShort;
 import com.nurverek.vanguard.VLFloat;
+import com.nurverek.vanguard.VLVCurved;
+import com.nurverek.vanguard.VLVMatrix;
+import com.nurverek.vanguard.VLVRunner;
+import com.nurverek.vanguard.VLVRunnerEntry;
+import com.nurverek.vanguard.VLVariable;
 
 import java.nio.ByteOrder;
 import java.security.SecureRandom;
+import java.util.Random;
 
 public final class Loader extends FSG{
 
@@ -44,7 +51,7 @@ public final class Loader extends FSG{
 
     public static final SecureRandom RANDOM = new SecureRandom();
 
-    public static FSLightPoint light1;
+    public static FSLightPoint light;
 
     public static BPLayer bplayer;
     public static BPBase bpsingular;
@@ -65,6 +72,10 @@ public final class Loader extends FSG{
     public static FSMesh phase1_pillars;
     public static FSMesh phase1_pillars_caps;
     public static FSMesh phase1_pillars_blades;
+    public static FSMesh phase1_pillars_baseframe1;
+    public static FSMesh phase1_pillars_baseframe2;
+    public static FSMesh phase1_pillars_baseframe3;
+    public static FSMesh phase1_pillars_baseframe4;
     public static FSMesh phase2_pillars;
     public static FSMesh phase2_pillars_caps;
     public static FSMesh phase2_pillars_caps2;
@@ -92,12 +103,17 @@ public final class Loader extends FSG{
     public static FSMesh phase3_outrect_layer10;
     public static FSMesh phase3_outrect_layer11;
     public static FSMesh outbase_powerplants;
-    public static FSMesh outbase_powerplant_base;
+    public static FSMesh outbase_powerplant_caps;
+    public static FSMesh outbase_powerplant_caps2;
     public static FSMesh outbase_powerplant_baseplates;
-    public static FSMesh outbase_walls;
+    public static FSMesh outbase_walls_layer1;
+    public static FSMesh outbase_walls_layer2;
     public static FSMesh outbase_walls_stripes;
-    public static FSMesh puzzle_base;
-    public static FSMesh mainbase;
+    public static FSMesh platform;
+    public static FSMesh puzzlebase;
+    public static FSMesh puzzlebase_lining;
+    public static FSMesh mainbase1;
+    public static FSMesh mainbase2;
 
     public Loader(){
         super(2, 50, 10);
@@ -109,7 +125,7 @@ public final class Loader extends FSG{
         BUFFER_ELEMENT_SHORT_DEFAULT = manager.add(new FSBufferManager.EntryShort(new FSVertexBuffer(GLES32.GL_ELEMENT_ARRAY_BUFFER, GLES32.GL_STATIC_DRAW), new VLBufferShort()));
         BUFFER_ARRAY_FLOAT_DEFAULT = manager.add(new FSBufferManager.EntryFloat(new FSVertexBuffer(GLES32.GL_ARRAY_BUFFER, GLES32.GL_STATIC_DRAW), new VLBufferFloat()));
 
-        light1 = new FSLightPoint(new FSAttenuation.Radius(new VLFloat(10000F)), new VLArrayFloat(new float[]{ 0F, 10F, -40F, 1.0F }));
+        light = new FSLightPoint(new FSAttenuation.Radius(new VLFloat(200F)), new VLArrayFloat(new float[]{ 0F, 5F, -50F, 1.0F }));
 
         try{
             constructAutomator(act.getAssets().open("meshes.fsm"), ByteOrder.LITTLE_ENDIAN, true, 300);
@@ -130,22 +146,26 @@ public final class Loader extends FSG{
         phase1_trapezoidy1 = register(bpinstanced, "phase1_trapezoid_y1.", Animations.COLOR_OBSIDIAN_LESS4, MATERIAL_WHITE);
         phase1_trapezoidy2 = register(bpinstanced, "phase1_trapezoid_y2.", Animations.COLOR_OBSIDIAN_LESS4, MATERIAL_WHITE);
         phase1_walls = register(bpinstanced, "phase1_walls.", Animations.COLOR_OBSIDIAN_LESS4, MATERIAL_WHITE);
-        phase1_walls_stripes = register(bpinstanced, "phase1_walls_stripe.", Animations.COLOR_RED, MATERIAL_WHITE);
-        phase1_walls_caps = register(bpinstanced, "phase1_walls_cap.", Animations.COLOR_RED_LESS2, MATERIAL_WHITE);
+        phase1_walls_stripes = register(bpinstanced, "phase1_walls_stripe.", Animations.COLOR_BLUE, MATERIAL_WHITE);
+        phase1_walls_caps = register(bpinstanced, "phase1_walls_cap.", Animations.COLOR_BLUE, MATERIAL_WHITE);
         phase1_pillars = register(bpinstanced, "phase1_pillar.", Animations.COLOR_OBSIDIAN_LESS4, MATERIAL_WHITE);
-        phase1_pillars_caps = register(bpinstanced, "phase1_pillars_cap.", Animations.COLOR_RED, MATERIAL_WHITE);
-        phase1_pillars_blades = register(bpsingular, "phase1_pillars_blades_Cube.475", Animations.COLOR_OBSIDIAN_LESS5, MATERIAL_WHITE);
+        phase1_pillars_caps = register(bpinstanced, "phase1_pillars_cap.", Animations.COLOR_BLUE, MATERIAL_WHITE);
+        phase1_pillars_blades = register(bpsingular, "phase1_pillars_blades_Cube.475", Animations.COLOR_WHITE_LESS3, MATERIAL_WHITE);
+        phase1_pillars_baseframe1 = register(bpinstanced, "phase1_pillars_baseframe1.", Animations.COLOR_OBSIDIAN_LESS2, MATERIAL_WHITE);
+        phase1_pillars_baseframe2 = register(bpinstanced, "phase1_pillars_baseframe2.", Animations.COLOR_BLUE, MATERIAL_WHITE);
+        phase1_pillars_baseframe3 = register(bpinstanced, "phase1_pillars_baseframe3.", Animations.COLOR_OBSIDIAN_LESS4, MATERIAL_WHITE);
+        phase1_pillars_baseframe4 = register(bpinstanced, "phase1_pillars_baseframe4.", Animations.COLOR_BLUE, MATERIAL_WHITE);
         phase1_rect = register(bpinstanced, "phase1_rect.", Animations.COLOR_OBSIDIAN_LESS4, MATERIAL_WHITE);
         phase2_pillars = register(bpinstanced, "phase2_pillar.", Animations.COLOR_OBSIDIAN_LESS4, MATERIAL_WHITE);
-        phase2_pillars_caps = register(bpinstanced, "phase2_pillars_cap.", Animations.COLOR_GOLD, MATERIAL_WHITE);
-        phase2_pillars_caps2 = register(bpinstanced, "phase2_pillars_cap2.", Animations.COLOR_GOLD, MATERIAL_WHITE);
+        phase2_pillars_caps = register(bpinstanced, "phase2_pillars_cap.", Animations.COLOR_BLUE_LESS, MATERIAL_WHITE);
+        phase2_pillars_caps2 = register(bpinstanced, "phase2_pillars_cap2.", Animations.COLOR_BLUE, MATERIAL_WHITE);
         phase3_rect_layer1 = register(bpinstanced, "phase3_rect_layer1.", Animations.COLOR_OBSIDIAN_LESS2, MATERIAL_WHITE);
         phase3_rect_layer2 = register(bpinstanced, "phase3_rect_layer2.", Animations.COLOR_OBSIDIAN_LESS3, MATERIAL_WHITE);
         phase3_rect_layer3 = register(bpinstanced, "phase3_rect_layer3.", Animations.COLOR_OBSIDIAN_LESS4, MATERIAL_WHITE);
-        phase3_rect_layer1_stripes = register(bpinstanced, "phase3_rect_layer1_stripe.", Animations.COLOR_RED, MATERIAL_WHITE);
-        phase3_rect_layer2_stripes = register(bpinstanced, "phase3_rect_layer2_stripe.", Animations.COLOR_RED, MATERIAL_WHITE);
-        phase3_rect_layer3_stripes = register(bpinstanced, "phase3_rect_layer3_stripe.", Animations.COLOR_RED, MATERIAL_WHITE);
-        phase3_rect_layer3_caps = register(bpinstanced, "phase3_rect_layer3_cap.", Animations.COLOR_RED, MATERIAL_WHITE);
+        phase3_rect_layer1_stripes = register(bpinstanced, "phase3_rect_layer1_stripe.", Animations.COLOR_BLUE, MATERIAL_WHITE);
+        phase3_rect_layer2_stripes = register(bpinstanced, "phase3_rect_layer2_stripe.", Animations.COLOR_BLUE, MATERIAL_WHITE);
+        phase3_rect_layer3_stripes = register(bpinstanced, "phase3_rect_layer3_stripe.", Animations.COLOR_BLUE, MATERIAL_WHITE);
+        phase3_rect_layer3_caps = register(bpinstanced, "phase3_rect_layer3_cap.", Animations.COLOR_BLUE, MATERIAL_WHITE);
         phase3_trapezoidx1 = register(bpinstanced, "phase3_trapezoidx1.", Animations.COLOR_OBSIDIAN_LESS2, MATERIAL_WHITE);
         phase3_trapezoidx2 = register(bpinstanced, "phase3_trapezoidx2.", Animations.COLOR_OBSIDIAN_LESS3, MATERIAL_WHITE);
         phase3_trapezoidy1 = register(bpinstanced, "phase3_trapezoidy1.", Animations.COLOR_OBSIDIAN_LESS2, MATERIAL_WHITE);
@@ -160,22 +180,58 @@ public final class Loader extends FSG{
         phase3_outrect_layer8 = register(bpinstanced, "phase3_outrect_layer8.", Animations.COLOR_OBSIDIAN_LESS3, MATERIAL_WHITE);
         phase3_outrect_layer9 = register(bpinstanced, "phase3_outrect_layer9.", Animations.COLOR_OBSIDIAN_LESS4, MATERIAL_WHITE);
         phase3_outrect_layer10 = register(bpinstanced, "phase3_outrect_layer10.", Animations.COLOR_OBSIDIAN_LESS5, MATERIAL_WHITE);
-        phase3_outrect_layer11 = register(bpinstanced, "phase3_outrect_layer11.", Animations.COLOR_RED_LESS2, MATERIAL_WHITE);
-        outbase_walls = register(bpsingular, "outbase_walls_Cube.480", Animations.COLOR_OBSIDIAN_LESS4, MATERIAL_WHITE);
-        outbase_walls_stripes = register(bpsingular, "outbase_walls_stripes_Cube.449", Animations.COLOR_GOLD, MATERIAL_WHITE);
-        outbase_powerplants = register(bpinstanced, "outbase_powerplant.", Animations.COLOR_OBSIDIAN_LESS4, MATERIAL_WHITE);
-        outbase_powerplant_baseplates = register(bpsingular, "powerplants_baseplates_Cube.309", Animations.COLOR_GOLD, MATERIAL_WHITE);
-        outbase_powerplant_base = register(bpsingular, "powerplants_base_Cube.308", Animations.COLOR_WHITE_LESS, MATERIAL_WHITE);
-        puzzle_base = register(bpsingular, "puzzlebase_Cube.036", Animations.COLOR_OBSIDIAN_LESS1, MATERIAL_WHITE);
-        mainbase = register(bpsingular, "base_Cube.157", Animations.COLOR_WHITE_LESS, MATERIAL_WHITE);
+        phase3_outrect_layer11 = register(bpinstanced, "phase3_outrect_layer11.", Animations.COLOR_BLUE, MATERIAL_WHITE);
+        outbase_powerplants = register(bpinstanced, "outbase_powerplant.", Animations.COLOR_BLUE_LESS, MATERIAL_WHITE);
+        outbase_powerplant_caps = register(bpinstanced, "outbase_powerplant_caps.", Animations.COLOR_BLUE, MATERIAL_WHITE);
+        outbase_powerplant_caps2 = register(bpinstanced, "outbase_powerplant_caps2.", Animations.COLOR_ORANGE, MATERIAL_WHITE);
+        outbase_powerplant_baseplates = register(bpsingular, "powerplants_baseplates_Cube.309", Animations.COLOR_ORANGE, MATERIAL_WHITE);
+        outbase_walls_layer1 = register(bpsingular, "outbase_walls_layer1_Cube.480", Animations.COLOR_PURPLE_MORE, MATERIAL_WHITE);
+        outbase_walls_layer2 = register(bpsingular, "outbase_walls_layer2_Cube.635", Animations.COLOR_BLUE_LESS2, MATERIAL_WHITE);
+        outbase_walls_stripes = register(bpsingular, "outbase_walls_stripes_Cube.449", Animations.COLOR_WHITE_LESS, MATERIAL_WHITE);
+        platform = register(bpsingular, "platform_Cube.636", Animations.COLOR_ORANGE, MATERIAL_WHITE);
+        puzzlebase = register(bpsingular, "puzzlebase_Cube.036", Animations.COLOR_PURPLE_MORE, MATERIAL_WHITE);
+        puzzlebase_lining = register(bpsingular, "puzzlebase_lining_Cube.634", Animations.COLOR_BLUE, MATERIAL_WHITE);
+        mainbase1 = register(bpsingular, "mainbase_Cube.157", Animations.COLOR_PURPLE_MORE, MATERIAL_WHITE);
+        mainbase2 = register(bpsingular, "mainbase2_Cube.612", Animations.COLOR_RED_LESS1, MATERIAL_WHITE);
 
         automator().run(DEBUG_MODE_AUTOMATOR);
 
         layers = new FSMesh[]{
-                puzzle_layer1, puzzle_layer2, puzzle_layer3
+                puzzle_layer1,
+                puzzle_layer2,
+                puzzle_layer3
         };
 
         Game.startGame(this);
+
+        animate();
+    }
+
+    public void animate(){
+        int size = phase1_pillars_baseframe1.size();
+        FSInstance instance;
+
+        VLVRunner runner = new VLVRunner(size * 4, 0);
+        FSMatrixModel model;
+
+        Random rand = new Random();
+
+        for(int i = 0; i < size; i++){
+            instance = phase1_pillars_baseframe1.instance(i);
+            model = instance.modelMatrix();
+
+            float y = model.getY(0).get() - 100F;
+
+            VLVCurved v = new VLVCurved(y - 100F,  y, 100 + rand.nextInt(200), VLVariable.LOOP_FORWARD_BACKWARD, VLVCurved.CURVE_ACC_SINE_SQRT);
+            v.SYNCER.add(new VLVMatrix.Definition(model));
+
+            runner.add(new VLVRunnerEntry(v,0));
+        }
+
+        runner.targetSync();
+        runner.start();
+
+        vManager().add(runner);
     }
 
     private FSMesh register(CustomBluePrint bp, String name, float[] color, FSLightMaterial material){

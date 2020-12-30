@@ -23,43 +23,35 @@ public final class Camera{
     private static VLVRunner control;
 
     public static void rotateCamera(){
-        VLVCurved controlcamera1 = new VLVCurved(0, 360, 300, VLVariable.LOOP_FORWARD_BACKWARD, VLVCurved.CURVE_DEC_SINE, new VLTaskContinous(new VLTask.Task<VLVCurved>(){
-
-            @Override
-            public void run(VLTask<VLVCurved> task, VLVCurved var){
-//                FSControl.getViewConfig().eyePosition(0F, 500 + var.get() * 15, 500 + var.get() * 15);
-            }
-        }));
-
-        controlcamera = new VLVLinear(0, 360, 3000, VLVariable.LOOP_FORWARD, new VLTaskContinous(new VLTask.Task<VLVLinear>(){
-
-            private float[] cache = new float[16];
-
-            @Override
-            public void run(VLTask<VLVLinear> task, VLVLinear var){
-                FSViewConfig c = FSControl.getViewConfig();
-//                c.eyePosition(0F, 5F, 5F);
-//                c.eyePosition(0F, 1000, 1000);
-                c.eyePosition(0F, 6000, 6000);
-//                c.eyePosition(0F, 4000F, 6000F);
-
-                float[] eyepos = c.eyePosition().provider();
-
-                Matrix.setIdentityM(cache, 0);
-                Matrix.rotateM(cache, 0, var.get(), 0f, 1f, 0f);
-                Matrix.multiplyMV(eyepos, 0, cache, 0, eyepos, 0);
-
-                c.eyePositionDivideByW();
-                c.lookAt(0f, 2.5f, 0f, 0f, 1f, 0f);
-                c.updateViewProjection();
-            }
-        }));
-
-        control = new VLVRunner(2, 0);
-        control.add(new VLVRunnerEntry(controlcamera1, 0));
-        control.add(new VLVRunnerEntry(controlcamera, 0));
-        control.start();
-
-        FSRenderer.getControlManager().add(control);
+//        control = new VLVRunner(2, 0);
+//
+//        controlcamera = new VLVLinear(0, 360, 3000, VLVariable.LOOP_FORWARD, new VLTaskContinous(new VLTask.Task<VLVLinear>(){
+//
+//            private float[] cache = new float[16];
+//
+//            @Override
+//            public void run(VLTask<VLVLinear> task, VLVLinear var){
+//                FSViewConfig c = FSControl.getViewConfig();
+//
+////                c.eyePosition(0F, 5F, 5F);
+////                c.eyePosition(0F, 6000, 5000);
+////                c.eyePosition(0F, 1000, 1000);
+//
+//                float[] eyepos = c.eyePosition().provider();
+//
+//                Matrix.setIdentityM(cache, 0);
+//                Matrix.rotateM(cache, 0, var.get(), 0f, 1f, 0f);
+//                Matrix.multiplyMV(eyepos, 0, cache, 0, eyepos, 0);
+//
+//                c.eyePositionDivideByW();
+//                c.lookAt(0f, 2.5f, 0f, 0f, 1f, 0f);
+//                c.updateViewProjection();
+//            }
+//        }));
+//
+//        control.add(new VLVRunnerEntry(controlcamera, 0));
+//        control.start();
+//
+//        FSRenderer.getControlManager().add(control);
     }
 }

@@ -27,7 +27,7 @@ public class BPBase extends CustomBluePrint{
         program = new FSP(Loader.DEBUG_MODE_PROGRAMS);
         program.modify(model, FSConfig.POLICY_ALWAYS);
         program.modify(new ModColor.Uniform(), FSConfig.POLICY_ALWAYS);
-        program.modify(new ModLight.Point(Loader.GAMMA, null, Loader.BRIGHTNESS, Loader.light1, null, Loader.MATERIAL_WHITE_RUBBER.getGLSLSize()), FSConfig.POLICY_ALWAYS);
+        program.modify(new ModLight.Point(Loader.GAMMA, null, Loader.BRIGHTNESS, Loader.light, null, Loader.MATERIAL_WHITE_RUBBER.getGLSLSize()), FSConfig.POLICY_ALWAYS);
         program.addMeshConfig(new FSP.DrawElements(FSConfig.POLICY_ALWAYS, 0));
         program.build();
     }

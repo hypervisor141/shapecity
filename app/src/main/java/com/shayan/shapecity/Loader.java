@@ -1,6 +1,7 @@
 package com.shayan.shapecity;
 
 import android.opengl.GLES32;
+import android.util.Log;
 
 import com.nurverek.firestorm.FSActivity;
 import com.nurverek.firestorm.FSAttenuation;
@@ -27,6 +28,7 @@ import com.nurverek.vanguard.VLVariable;
 
 import java.nio.ByteOrder;
 import java.security.SecureRandom;
+import java.util.Arrays;
 import java.util.Random;
 
 public final class Loader extends FSG{
@@ -125,7 +127,7 @@ public final class Loader extends FSG{
         BUFFER_ELEMENT_SHORT_DEFAULT = manager.add(new FSBufferManager.EntryShort(new FSVertexBuffer(GLES32.GL_ELEMENT_ARRAY_BUFFER, GLES32.GL_STATIC_DRAW), new VLBufferShort()));
         BUFFER_ARRAY_FLOAT_DEFAULT = manager.add(new FSBufferManager.EntryFloat(new FSVertexBuffer(GLES32.GL_ARRAY_BUFFER, GLES32.GL_STATIC_DRAW), new VLBufferFloat()));
 
-        light = new FSLightPoint(new FSAttenuation.Radius(new VLFloat(200F)), new VLArrayFloat(new float[]{ 0F, 5F, -50F, 1.0F }));
+        light = new FSLightPoint(new FSAttenuation.Radius(new VLFloat(20000F)), new VLArrayFloat(new float[]{ 0F, 5F, -50F, 1.0F }));
 
         try{
             constructAutomator(act.getAssets().open("meshes.fsm"), ByteOrder.LITTLE_ENDIAN, true, 300);
@@ -208,24 +210,36 @@ public final class Loader extends FSG{
     }
 
     public void animate(){
-        int size = phase1_pillars_baseframe1.size();
         FSInstance instance;
-
-        VLVRunner runner = new VLVRunner(size * 4, 0);
         FSMatrixModel model;
-
         Random rand = new Random();
 
-        for(int i = 0; i < size; i++){
-            instance = phase1_pillars_baseframe1.instance(i);
-            model = instance.modelMatrix();
+        FSMesh[] layers = new FSMesh[]{
+                phase1_pillars_baseframe1,
+                phase1_pillars_baseframe2,
+                phase1_pillars_baseframe3,
+                phase1_pillars_baseframe4
+        };
 
-            float y = model.getY(0).get() - 100F;
+        VLVRunner runner = new VLVRunner(phase1_pillars_baseframe1.size() * layers.length, phase1_pillars_baseframe1.size());
 
-            VLVCurved v = new VLVCurved(y - 100F,  y, 100 + rand.nextInt(200), VLVariable.LOOP_FORWARD_BACKWARD, VLVCurved.CURVE_ACC_SINE_SQRT);
-            v.SYNCER.add(new VLVMatrix.Definition(model));
+        for(int i = 0; i < layers.length; i++){
+            FSMesh layer = layers[i];
+            int size2 = layer.size();
 
-            runner.add(new VLVRunnerEntry(v,0));
+            for(int i2 = 0; i2 < size2; i2++){
+                instance = layer.instance(i2);
+                model = instance.modelMatrix();
+
+                float height = instance.schematics().modelHeight();
+                float y = model.getY(0).get() - height;
+
+                VLVCurved v = new VLVCurved(y,  y + height, 100 + rand.nextInt(200), VLVariable.LOOP_FORWARD_BACKWARD, VLVCurved.CURVE_DEC_COS_SQRT);
+                v.SYNCER.add(new VLVMatrix.Definition(model));
+
+                model.setY(0, v);
+                runner.add(new VLVRunnerEntry(v,0));
+            }
         }
 
         runner.targetSync();

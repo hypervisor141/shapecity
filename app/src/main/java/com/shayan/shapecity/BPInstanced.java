@@ -23,25 +23,25 @@ public final class BPInstanced extends CustomBluePrint{
     public BPInstanced(FSG gen, int maxinstancecount){
         this.maxinstancecount = maxinstancecount;
 
-        bindpointoffset = Loader.UBOBINDPOINT;
-        Loader.UBOBINDPOINT++;
+        bindpointoffset = Gen.UBOBINDPOINT;
+        Gen.UBOBINDPOINT++;
 
         initialize(gen);
     }
 
     @Override
     protected void createPrograms(){
-        program = new FSP(Loader.DEBUG_MODE_PROGRAMS);
+        program = new FSP(Gen.DEBUG_MODE_PROGRAMS);
         program.modify(new ModModel.UBO(1, maxinstancecount), FSConfig.POLICY_ALWAYS);
         program.modify(new ModColor.UBO(1, maxinstancecount), FSConfig.POLICY_ALWAYS);
-        program.modify(new ModLight.Point(Loader.GAMMA, null, Loader.BRIGHTNESS, Loader.light, null, Loader.MATERIAL_WHITE_RUBBER.getGLSLSize()), FSConfig.POLICY_ALWAYS);
+        program.modify(new ModLight.Point(Gen.GAMMA, null, Gen.BRIGHTNESS, Gen.light, null, Gen.MATERIAL_WHITE_RUBBER.getGLSLSize()), FSConfig.POLICY_ALWAYS);
         program.addMeshConfig(new FSP.DrawElementsInstanced(FSConfig.POLICY_ALWAYS, 0));
         program.build();
     }
 
     @Override
     protected void attachPrograms(FSG gen){
-        gen.programSet(Loader.MAIN_PROGRAMSET).add(program);
+        gen.programSet(Gen.MAIN_PROGRAMSET).add(program);
     }
 
     @Override
@@ -101,12 +101,12 @@ public final class BPInstanced extends CustomBluePrint{
         layout.add(manager, colorbuffer, 1)
                 .addElement(new FSBufferLayout.EntryElement(FSBufferLayout.ELEMENT_SEQUENTIAL_INSTANCED, FSG.ELEMENT_COLOR));
 
-        layout.add(manager, Loader.BUFFER_ARRAY_FLOAT_DEFAULT, 3)
+        layout.add(manager, Gen.BUFFER_ARRAY_FLOAT_DEFAULT, 3)
                 .addElement(new FSBufferLayout.EntryElement(FSBufferLayout.ELEMENT_INTERLEAVED_SINGULAR, FSG.ELEMENT_POSITION))
                 .addElement(new FSBufferLayout.EntryElement(FSBufferLayout.ELEMENT_INTERLEAVED_SINGULAR, FSG.ELEMENT_TEXCOORD))
                 .addElement(new FSBufferLayout.EntryElement(FSBufferLayout.ELEMENT_INTERLEAVED_SINGULAR, FSG.ELEMENT_NORMAL));
 
-        layout.add(manager, Loader.BUFFER_ELEMENT_SHORT_DEFAULT, 1)
+        layout.add(manager, Gen.BUFFER_ELEMENT_SHORT_DEFAULT, 1)
                 .addElement(new FSBufferLayout.EntryElement(FSBufferLayout.ELEMENT_SEQUENTIAL_INDICES, FSG.ELEMENT_INDEX));
 
         return layout;

@@ -24,17 +24,17 @@ public class BPBase extends CustomBluePrint{
     protected void createPrograms(){
         ModModel.Uniform model = new ModModel.Uniform();
 
-        program = new FSP(Loader.DEBUG_MODE_PROGRAMS);
+        program = new FSP(Gen.DEBUG_MODE_PROGRAMS);
         program.modify(model, FSConfig.POLICY_ALWAYS);
         program.modify(new ModColor.Uniform(), FSConfig.POLICY_ALWAYS);
-        program.modify(new ModLight.Point(Loader.GAMMA, null, Loader.BRIGHTNESS, Loader.light, null, Loader.MATERIAL_WHITE_RUBBER.getGLSLSize()), FSConfig.POLICY_ALWAYS);
+        program.modify(new ModLight.Point(Gen.GAMMA, null, Gen.BRIGHTNESS, Gen.light, null, Gen.MATERIAL_WHITE_RUBBER.getGLSLSize()), FSConfig.POLICY_ALWAYS);
         program.addMeshConfig(new FSP.DrawElements(FSConfig.POLICY_ALWAYS, 0));
         program.build();
     }
 
     @Override
     protected void attachPrograms(FSG gen){
-        gen.programSet(Loader.MAIN_PROGRAMSET).add(program);
+        gen.programSet(Gen.MAIN_PROGRAMSET).add(program);
     }
 
     @Override
@@ -85,12 +85,12 @@ public class BPBase extends CustomBluePrint{
     public FSBufferLayout bufferLayouts(FSMesh mesh, FSBufferManager manager){
         FSBufferLayout layout = new FSBufferLayout(mesh);
 
-        layout.add(manager, Loader.BUFFER_ARRAY_FLOAT_DEFAULT, 3)
+        layout.add(manager, Gen.BUFFER_ARRAY_FLOAT_DEFAULT, 3)
                 .addElement(new FSBufferLayout.EntryElement(FSBufferLayout.ELEMENT_INTERLEAVED_SINGULAR, FSG.ELEMENT_POSITION))
                 .addElement(new FSBufferLayout.EntryElement(FSBufferLayout.ELEMENT_INTERLEAVED_SINGULAR, FSG.ELEMENT_TEXCOORD))
                 .addElement(new FSBufferLayout.EntryElement(FSBufferLayout.ELEMENT_INTERLEAVED_SINGULAR, FSG.ELEMENT_NORMAL));
 
-        layout.add(manager, Loader.BUFFER_ELEMENT_SHORT_DEFAULT, 1)
+        layout.add(manager, Gen.BUFFER_ELEMENT_SHORT_DEFAULT, 1)
                 .addElement(new FSBufferLayout.EntryElement(FSBufferLayout.ELEMENT_SEQUENTIAL_INDICES, FSG.ELEMENT_INDEX));
 
         return layout;

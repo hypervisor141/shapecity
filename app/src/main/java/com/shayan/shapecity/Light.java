@@ -14,14 +14,18 @@ public final class Light{
     private static VLVLinear controldirect;
     private static VLVLinear controlpoint;
 
+    public static void initialize(){
+        rotatePointLight();
+    }
+
     public static void rotatePointLight(){
-        final float[] orgpos = Loader.light.position().provider().clone();
+        final float[] orgpos = Gen.light.position().provider().clone();
 
         controlpoint = new VLVLinear(0, 360, 500, VLVariable.LOOP_FORWARD, new VLTaskContinous(new VLTask.Task<VLVLinear>(){
 
             @Override
             public void run(VLTask<VLVLinear> task, VLVLinear var){
-                float[] pos = Loader.light.position().provider();
+                float[] pos = Gen.light.position().provider();
 
                 Matrix.setIdentityM(CACHE, 0);
                 Matrix.rotateM(CACHE, 0, var.get(), 0f, 1f, 0f);
@@ -35,7 +39,7 @@ public final class Light{
             }
         }));
 
-        Animations.controlrunner.add(new VLVRunnerEntry(controlpoint, 0));
-        Animations.controlrunner.start();
+        LayerAnimations.controlrunner.add(new VLVRunnerEntry(controlpoint, 0));
+        LayerAnimations.controlrunner.start();
     }
 }

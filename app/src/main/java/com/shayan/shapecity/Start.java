@@ -71,11 +71,11 @@ public class Start extends FSActivity{
             FSRenderer.blendFunc(GLES32.GL_SRC_ALPHA, GLES32.GL_ONE_MINUS_SRC_ALPHA);
             FSRenderer.depthMask(true);
 
-            Loader loader = new Loader();
-            loader.assemble(this);
+            Gen gen = new Gen();
+            gen.assemble(this);
 
             FSRenderPass mainpass = new FSRenderPass(FSControl.DEBUG_FULL).build();
-            mainpass.add(new FSRenderPass.Entry(loader, Loader.MAIN_PROGRAMSET));
+            mainpass.add(new FSRenderPass.Entry(gen, Gen.MAIN_PROGRAMSET));
             FSRenderer.addRenderPass(mainpass);
         }
     }
@@ -90,6 +90,8 @@ public class Start extends FSActivity{
 
 //        scene.eyePosition(0f, 3F, -0.01f);
         scene.eyePosition(0f, 1000F, 1000f);
+//        scene.eyePosition(3000f, 4000F, 3000f);
+
         scene.lookAt(0f, 0f, 0f, 0f, 1f, 0f);
         scene.updateViewProjection();
     }

@@ -22,14 +22,15 @@ public final class Game{
     public static VLListInt activatedSymbols;
     private static int[] symbols;
 
-    public static void startGame(Loader loader){
-        Animations.initialize(loader);
-        Light.rotatePointLight();
-        Camera.rotateCamera();
+    public static void startGame(Gen gen){
+        LayerAnimations.initialize(gen);
+        GeneralAnimations.initialize(gen);
+        Light.initialize();
+        Camera.initialize();
 
-        Loader.RANDOM.setSeed(System.currentTimeMillis());
+        Gen.RANDOM.setSeed(System.currentTimeMillis());
 
-        int choice = Loader.RANDOM.nextInt(3);
+        int choice = Gen.RANDOM.nextInt(3);
         choice = GAME_MATCH_SYMBOLS;
 
         switch(choice){
@@ -56,11 +57,11 @@ public final class Game{
 
         enabledPieces = new boolean[BPLayer.INSTANCE_COUNT];
 
-        Animations.raiseBases(1);
-        Animations.raiseBases(2);
+        LayerAnimations.raiseBases(1);
+        LayerAnimations.raiseBases(2);
 
-        Animations.standBy(0);
-        Animations.standBy(1);
+        LayerAnimations.standBy(0);
+        LayerAnimations.standBy(1);
 
         activateMatchSymForLayer(2);
     }
@@ -74,13 +75,13 @@ public final class Game{
     }
 
     private static void activateMatchSymForLayer(final int layer){
-        final FSMesh mesh = Loader.layers[layer];
-        symbols = Loader.bplayer.prepareMatchSymTexture(mesh);
+        final FSMesh mesh = Gen.layers[layer];
+        symbols = Gen.bplayer.prepareMatchSymTexture(mesh);
 
         Arrays.fill(activatedSymbols.array(), -1);
         Arrays.fill(enabledPieces, true);
 
-        Animations.revealRepeat(layer);
+        LayerAnimations.revealRepeat(layer);
 
         Input.activateInputListeners(mesh, new Runnable(){
 
@@ -93,8 +94,8 @@ public final class Game{
                     activatedSymbols.set(target, symbols[target]);
                     activecount++;
 
-                    Animations.revealResetTimer();
-                    Animations.reveal(layer, target, new Runnable(){
+                    LayerAnimations.revealResetTimer();
+                    LayerAnimations.reveal(layer, target, new Runnable(){
 
                         @Override
                         public void run(){
@@ -118,8 +119,8 @@ public final class Game{
                                     enabledPieces[i] = false;
                                     activatedSymbols.set(i, -1);
 
-                                    Animations.deactivate(layer, i);
-                                    linkdata.set(i, Animations.TEXCONTROL_ACTIVE);
+                                    LayerAnimations.deactivate(layer, i);
+                                    linkdata.set(i, LayerAnimations.TEXCONTROL_ACTIVE);
 
                                     counter++;
 
@@ -136,12 +137,12 @@ public final class Game{
                                 }else{
                                     final int nextlayer = layer - 1;
 
-                                    Animations.unstandBy(nextlayer);
-                                    Animations.lowerBases(layer, new Runnable(){
+                                    LayerAnimations.unstandBy(nextlayer);
+                                    LayerAnimations.lowerBases(layer, new Runnable(){
 
                                         @Override
                                         public void run(){
-                                            Animations.removeDeactivationControl();
+                                            LayerAnimations.removeDeactivationControl();
                                             activateMatchSymForLayer(nextlayer);
                                         }
                                     });

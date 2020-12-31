@@ -23,8 +23,10 @@ public final class Game{
     private static int[] symbols;
 
     public static void startGame(Gen gen){
-        LayerAnimations.initialize(gen);
-        GeneralAnimations.initialize(gen);
+        PuzzleAnimations.initialize(gen);
+        Phase1.initialize(gen);
+        Phase2.initialize(gen);
+        Phase3.initialize(gen);
         Light.initialize();
         Camera.initialize();
 
@@ -35,7 +37,7 @@ public final class Game{
 
         switch(choice){
             case GAME_MATCH_SYMBOLS:
-                startMatchSymbolsGame();
+                startMatchSymbolsGame(gen);
                 break;
 
             case GAME_MATCH_COLORS:
@@ -51,19 +53,19 @@ public final class Game{
         }
     }
 
-    private static void startMatchSymbolsGame(){
+    private static void startMatchSymbolsGame(Gen gen){
         activatedSymbols = new VLListInt(BPLayer.INSTANCE_COUNT, 0);
         activatedSymbols.virtualSize(BPLayer.INSTANCE_COUNT);
 
         enabledPieces = new boolean[BPLayer.INSTANCE_COUNT];
 
-        LayerAnimations.raiseBases(1);
-        LayerAnimations.raiseBases(2);
+        PuzzleAnimations.raiseBases(1);
+        PuzzleAnimations.raiseBases(2);
 
-        LayerAnimations.standBy(0);
-        LayerAnimations.standBy(1);
+        PuzzleAnimations.standBy(0);
+        PuzzleAnimations.standBy(1);
 
-        activateMatchSymForLayer(2);
+        activateMatchSymForLayer(gen, 2);
     }
 
     private static void startMatchColorsGame(){
@@ -74,14 +76,14 @@ public final class Game{
 
     }
 
-    private static void activateMatchSymForLayer(final int layer){
-        final FSMesh mesh = Gen.layers[layer];
-        symbols = Gen.bplayer.prepareMatchSymTexture(mesh);
+    private static void activateMatchSymForLayer(Gen gen, final int layer){
+        final FSMesh mesh = gen.layers[layer];
+        symbols = gen.bplayer.prepareMatchSymTexture(mesh);
 
         Arrays.fill(activatedSymbols.array(), -1);
         Arrays.fill(enabledPieces, true);
 
-        LayerAnimations.revealRepeat(layer);
+        PuzzleAnimations.revealRepeat(layer);
 
         Input.activateInputListeners(mesh, new Runnable(){
 
@@ -94,8 +96,8 @@ public final class Game{
                     activatedSymbols.set(target, symbols[target]);
                     activecount++;
 
-                    LayerAnimations.revealResetTimer();
-                    LayerAnimations.reveal(layer, target, new Runnable(){
+                    PuzzleAnimations.revealResetTimer();
+                    PuzzleAnimations.reveal(layer, target, new Runnable(){
 
                         @Override
                         public void run(){
@@ -119,8 +121,8 @@ public final class Game{
                                     enabledPieces[i] = false;
                                     activatedSymbols.set(i, -1);
 
-                                    LayerAnimations.deactivate(layer, i);
-                                    linkdata.set(i, LayerAnimations.TEXCONTROL_ACTIVE);
+                                    PuzzleAnimations.deactivate(layer, i);
+                                    linkdata.set(i, PuzzleAnimations.TEXCONTROL_ACTIVE);
 
                                     counter++;
 
@@ -137,13 +139,13 @@ public final class Game{
                                 }else{
                                     final int nextlayer = layer - 1;
 
-                                    LayerAnimations.unstandBy(nextlayer);
-                                    LayerAnimations.lowerBases(layer, new Runnable(){
+                                    PuzzleAnimations.unstandBy(nextlayer);
+                                    PuzzleAnimations.lowerBases(layer, new Runnable(){
 
                                         @Override
                                         public void run(){
-                                            LayerAnimations.removeDeactivationControl();
-                                            activateMatchSymForLayer(nextlayer);
+                                            PuzzleAnimations.removeDeactivationControl();
+                                            activateMatchSymForLayer(gen, nextlayer);
                                         }
                                     });
                                 }

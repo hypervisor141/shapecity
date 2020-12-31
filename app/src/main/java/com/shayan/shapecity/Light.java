@@ -39,7 +39,7 @@ public final class Light{
             }
         }));
 
-        LayerAnimations.controlrunner.add(new VLVRunnerEntry(controlpoint, 0));
-        LayerAnimations.controlrunner.start();
+        PuzzleAnimations.controlrunner.add(new VLVRunnerEntry(controlpoint, 0));
+        PuzzleAnimations.controlrunner.start();
     }
 }

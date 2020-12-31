@@ -20,7 +20,7 @@ import com.nurverek.vanguard.VLVRunner;
 import com.nurverek.vanguard.VLVRunnerEntry;
 import com.nurverek.vanguard.VLVariable;
 
-public final class LayerAnimations{
+public final class PuzzleAnimations{
 
     public static final float[] COLOR_WHITE = new float[]{ 1F, 1F, 1F, 1F };
     public static final float[] COLOR_WHITE_LESS = new float[]{ 0.8F, 0.8F, 0.8F, 1F };
@@ -95,11 +95,11 @@ public final class LayerAnimations{
 
         controlmanager.add(controlrunner);
 
-        int size = Gen.layers.length;
+        int size = gen.layers.length;
         int itemsize = BPLayer.INSTANCE_COUNT * size;
 
         for(int i = 0; i < size; i++){
-            FSMesh layer = Gen.layers[i];
+            FSMesh layer = gen.layers[i];
             VLArrayFloat linkdata = ((ModColor.TextureControlLink)layer.link(0)).data;
             VLVManager layermanager = new VLVManager(4, 0);
 
@@ -124,7 +124,7 @@ public final class LayerAnimations{
                 float yraisebase = 0;
 
                 for(int i3 = 0; i3 < i; i3++){
-                    yraisebase += Gen.layers[i3].instance(i2).schematics().modelHeight() * Y_BASE_HEIGHT_MULTIPLIER;
+                    yraisebase += gen.layers[i3].instance(i2).schematics().modelHeight() * Y_BASE_HEIGHT_MULTIPLIER;
                 }
 
                 VLVCurved translateraisey = new VLVCurved(0f, yraisebase, CYCLES_RAISE_BASE_MAX, VLVariable.LOOP_NONE, CURVE_TYPE);

@@ -14,11 +14,11 @@ public final class Light{
     private static VLVLinear controldirect;
     private static VLVLinear controlpoint;
 
-    public static void initialize(){
-        rotatePointLight();
+    public static void initialize(Gen gen){
+        rotatePointLight(gen);
     }
 
-    public static void rotatePointLight(){
+    public static void rotatePointLight(Gen gen){
         final float[] orgpos = Gen.light.position().provider().clone();
 
         controlpoint = new VLVLinear(0, 360, 500, VLVariable.LOOP_FORWARD, new VLTaskContinous(new VLTask.Task<VLVLinear>(){

@@ -27,8 +27,9 @@ public final class Game{
         Phase1.initialize(gen);
         Phase2.initialize(gen);
         Phase3.initialize(gen);
-        Light.initialize();
-        Camera.initialize();
+        Outbase.initialize(gen);
+        Light.initialize(gen);
+        Camera.initialize(gen);
 
         Gen.RANDOM.setSeed(System.currentTimeMillis());
 

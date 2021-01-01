@@ -77,7 +77,7 @@ public final class Gen extends FSG{
     public FSMesh phase3_rect_layer1_stripes;
     public FSMesh phase3_rect_layer2_stripes;
     public FSMesh phase3_rect_layer3_stripes;
-    public FSMesh phase3_rect_layer3_caps;
+    public FSMesh phase3_rect_caps;
     public FSMesh phase3_trapezoidx1;
     public FSMesh phase3_trapezoidy1;
     public FSMesh phase3_trapezoidx2;
@@ -132,10 +132,11 @@ public final class Gen extends FSG{
         puzzle_layer1 = register(bplayer, "pieces1.", PuzzleAnimations.COLOR_LAYER, MATERIAL_WHITE);
         puzzle_layer2 = register(bplayer, "pieces2.", PuzzleAnimations.COLOR_LAYER, MATERIAL_WHITE);
         puzzle_layer3 = register(bplayer, "pieces3.", PuzzleAnimations.COLOR_LAYER, MATERIAL_WHITE);
-        phase1_trapezoidx1 = register(bpinstanced, "phase1_trapezoid_x1.", PuzzleAnimations.COLOR_OBSIDIAN_LESS4, MATERIAL_WHITE);
-        phase1_trapezoidy1 = register(bpinstanced, "phase1_trapezoid_y1.", PuzzleAnimations.COLOR_OBSIDIAN_LESS4, MATERIAL_WHITE);
-        phase1_trapezoidx2 = register(bpinstanced, "phase1_trapezoid_x2.", PuzzleAnimations.COLOR_OBSIDIAN_LESS4, MATERIAL_WHITE);
-        phase1_trapezoidy2 = register(bpinstanced, "phase1_trapezoid_y2.", PuzzleAnimations.COLOR_OBSIDIAN_LESS4, MATERIAL_WHITE);
+        phase1_trapezoidx1 = register(bpinstanced, "phase1_trapezoid_x1.", PuzzleAnimations.COLOR_BLUE, MATERIAL_WHITE);
+        phase1_trapezoidy1 = register(bpinstanced, "phase1_trapezoid_y1.", PuzzleAnimations.COLOR_BLUE, MATERIAL_WHITE);
+        phase1_trapezoidx2 = register(bpinstanced, "phase1_trapezoid_x2.", PuzzleAnimations.COLOR_BLUE, MATERIAL_WHITE);
+        phase1_trapezoidy2 = register(bpinstanced, "phase1_trapezoid_y2.", PuzzleAnimations.COLOR_BLUE, MATERIAL_WHITE);
+        phase1_rects = register(bpinstanced, "phase1_rect.", PuzzleAnimations.COLOR_BLUE, MATERIAL_WHITE);
         phase1_walls = register(bpinstanced, "phase1_walls.", PuzzleAnimations.COLOR_OBSIDIAN_LESS4, MATERIAL_WHITE);
         phase1_walls_stripes = register(bpinstanced, "phase1_walls_stripe.", PuzzleAnimations.COLOR_BLUE, MATERIAL_WHITE);
         phase1_walls_caps = register(bpinstanced, "phase1_walls_cap.", PuzzleAnimations.COLOR_BLUE, MATERIAL_WHITE);
@@ -146,7 +147,6 @@ public final class Gen extends FSG{
         phase1_pillars_baseframe2 = register(bpinstanced, "phase1_pillars_baseframe2.", PuzzleAnimations.COLOR_BLUE_LESS, MATERIAL_WHITE);
         phase1_pillars_baseframe3 = register(bpinstanced, "phase1_pillars_baseframe3.", PuzzleAnimations.COLOR_BLUE_LESS2, MATERIAL_WHITE);
         phase1_pillars_baseframe4 = register(bpinstanced, "phase1_pillars_baseframe4.", PuzzleAnimations.COLOR_BLUE_LESS3, MATERIAL_WHITE);
-        phase1_rects = register(bpinstanced, "phase1_rect.", PuzzleAnimations.COLOR_OBSIDIAN_LESS4, MATERIAL_WHITE);
         phase2_pillars = register(bpinstanced, "phase2_pillar.", PuzzleAnimations.COLOR_OBSIDIAN_LESS4, MATERIAL_WHITE);
         phase2_pillars_caps = register(bpinstanced, "phase2_pillars_cap.", PuzzleAnimations.COLOR_BLUE_LESS, MATERIAL_WHITE);
         phase2_pillars_caps2 = register(bpinstanced, "phase2_pillars_cap2.", PuzzleAnimations.COLOR_BLUE, MATERIAL_WHITE);
@@ -156,7 +156,7 @@ public final class Gen extends FSG{
         phase3_rect_layer1_stripes = register(bpinstanced, "phase3_rect_layer1_stripe.", PuzzleAnimations.COLOR_BLUE, MATERIAL_WHITE);
         phase3_rect_layer2_stripes = register(bpinstanced, "phase3_rect_layer2_stripe.", PuzzleAnimations.COLOR_BLUE, MATERIAL_WHITE);
         phase3_rect_layer3_stripes = register(bpinstanced, "phase3_rect_layer3_stripe.", PuzzleAnimations.COLOR_BLUE, MATERIAL_WHITE);
-        phase3_rect_layer3_caps = register(bpinstanced, "phase3_rect_layer3_cap.", PuzzleAnimations.COLOR_BLUE, MATERIAL_WHITE);
+        phase3_rect_caps = register(bpinstanced, "phase3_rect_cap.", PuzzleAnimations.COLOR_BLUE, MATERIAL_WHITE);
         phase3_trapezoidx1 = register(bpinstanced, "phase3_trapezoidx1.", PuzzleAnimations.COLOR_OBSIDIAN_LESS2, MATERIAL_WHITE);
         phase3_trapezoidy1 = register(bpinstanced, "phase3_trapezoidy1.", PuzzleAnimations.COLOR_OBSIDIAN_LESS2, MATERIAL_WHITE);
         phase3_trapezoidx2 = register(bpinstanced, "phase3_trapezoidx2.", PuzzleAnimations.COLOR_OBSIDIAN_LESS3, MATERIAL_WHITE);

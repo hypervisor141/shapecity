@@ -22,11 +22,11 @@ public final class Camera{
     private static VLVLinear controlcamera;
     private static VLVRunner control;
 
-    public static void initialize(){
-
+    public static void initialize(Gen gen){
+//        rotateCamera(gen);
     }
 
-    public static void rotateCamera(){
+    public static void rotateCamera(Gen gen){
         control = new VLVRunner(2, 0);
 
         controlcamera = new VLVLinear(0, 360, 3000, VLVariable.LOOP_FORWARD, new VLTaskContinous(new VLTask.Task<VLVLinear>(){

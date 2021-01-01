@@ -88,9 +88,11 @@ public class Start extends FSActivity{
         scene.perspective(90f, (float)width / height, 0.1F, 15000F);
         scene.updateViewPort();
 
-//        scene.eyePosition(0f, 3F, -0.01f);
-        scene.eyePosition(0f, 1000F, 1000f);
-//        scene.eyePosition(3000f, 4000F, 3000f);
+//        scene.eyePosition(0F, 3F, -0.01F);
+        scene.eyePosition(100F, 100F, 100F);
+//        scene.eyePosition(300F, 300F, 300F);
+//        scene.eyePosition(1000F, 1000F, 1000F);
+//        scene.eyePosition(3000F, 4000F, 3000F);
 
         scene.lookAt(0f, 0f, 0f, 0f, 1f, 0f);
         scene.updateViewProjection();

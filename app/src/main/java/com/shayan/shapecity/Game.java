@@ -31,6 +31,8 @@ public final class Game{
         Light.initialize(gen);
         Camera.initialize(gen);
 
+        gen.vManager().start();
+
         Gen.RANDOM.setSeed(System.currentTimeMillis());
 
         int choice = Gen.RANDOM.nextInt(3);

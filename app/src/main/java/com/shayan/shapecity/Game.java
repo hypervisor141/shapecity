@@ -22,17 +22,18 @@ public final class Game{
     public static VLListInt activatedSymbols;
     private static int[] symbols;
 
-    public static void startGame(Gen gen){
-        PuzzleAnimations.initialize(gen);
+    public static void initialize(Gen gen){
+        Platform.initialize(gen);
+        Puzzle.initialize(gen);
         Phase1.initialize(gen);
         Phase2.initialize(gen);
         Phase3.initialize(gen);
         Outbase.initialize(gen);
         Light.initialize(gen);
         Camera.initialize(gen);
+    }
 
-        gen.vManager().start();
-
+    public static void startGame(Gen gen){
         Gen.RANDOM.setSeed(System.currentTimeMillis());
 
         int choice = Gen.RANDOM.nextInt(3);
@@ -62,11 +63,11 @@ public final class Game{
 
         enabledPieces = new boolean[BPLayer.INSTANCE_COUNT];
 
-        PuzzleAnimations.raiseBases(1);
-        PuzzleAnimations.raiseBases(2);
+        Puzzle.raiseBases(1);
+        Puzzle.raiseBases(2);
 
-        PuzzleAnimations.standBy(0);
-        PuzzleAnimations.standBy(1);
+        Puzzle.standBy(0);
+        Puzzle.standBy(1);
 
         activateMatchSymForLayer(gen, 2);
     }
@@ -80,13 +81,13 @@ public final class Game{
     }
 
     private static void activateMatchSymForLayer(Gen gen, final int layer){
-        final FSMesh mesh = gen.layers[layer];
+        final FSMesh mesh = gen.puzzle_layers[layer];
         symbols = gen.bplayer.prepareMatchSymTexture(mesh);
 
         Arrays.fill(activatedSymbols.array(), -1);
         Arrays.fill(enabledPieces, true);
 
-        PuzzleAnimations.revealRepeat(layer);
+        Puzzle.revealRepeat(layer);
 
         Input.activateInputListeners(mesh, new Runnable(){
 
@@ -99,8 +100,8 @@ public final class Game{
                     activatedSymbols.set(target, symbols[target]);
                     activecount++;
 
-                    PuzzleAnimations.revealResetTimer();
-                    PuzzleAnimations.reveal(layer, target, new Runnable(){
+                    Puzzle.revealResetTimer();
+                    Puzzle.reveal(layer, target, new Runnable(){
 
                         @Override
                         public void run(){
@@ -124,8 +125,8 @@ public final class Game{
                                     enabledPieces[i] = false;
                                     activatedSymbols.set(i, -1);
 
-                                    PuzzleAnimations.deactivate(layer, i);
-                                    linkdata.set(i, PuzzleAnimations.TEXCONTROL_ACTIVE);
+                                    Puzzle.deactivate(layer, i);
+                                    linkdata.set(i, Puzzle.TEXCONTROL_ACTIVE);
 
                                     counter++;
 
@@ -142,12 +143,12 @@ public final class Game{
                                 }else{
                                     final int nextlayer = layer - 1;
 
-                                    PuzzleAnimations.unstandBy(nextlayer);
-                                    PuzzleAnimations.lowerBases(layer, new Runnable(){
+                                    Puzzle.unstandBy(nextlayer);
+                                    Puzzle.lowerBases(layer, new Runnable(){
 
                                         @Override
                                         public void run(){
-                                            PuzzleAnimations.removeDeactivationControl();
+                                            Puzzle.removeDeactivationControl();
                                             activateMatchSymForLayer(gen, nextlayer);
                                         }
                                     });

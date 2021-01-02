@@ -1,61 +1,57 @@
 package com.shayan.shapecity;
 
 import android.opengl.Matrix;
-import android.util.Log;
 
 import com.nurverek.firestorm.FSControl;
 import com.nurverek.firestorm.FSRenderer;
 import com.nurverek.firestorm.FSViewConfig;
 import com.nurverek.vanguard.VLTask;
 import com.nurverek.vanguard.VLTaskContinous;
-import com.nurverek.vanguard.VLVControl;
 import com.nurverek.vanguard.VLVCurved;
 import com.nurverek.vanguard.VLVLinear;
-import com.nurverek.vanguard.VLVManager;
 import com.nurverek.vanguard.VLVRunner;
 import com.nurverek.vanguard.VLVRunnerEntry;
-import com.nurverek.vanguard.VLVTypeManager;
 import com.nurverek.vanguard.VLVariable;
 
 public final class Camera{
 
-    private static VLVLinear controlcamera;
-    private static VLVRunner control;
+    private static final float DISTANCE_FROM_PLATFORM = 3F;
+
+    private static VLVCurved control1;
+    private static VLVRunner controller;
 
     public static void initialize(Gen gen){
-//        rotateCamera(gen);
+        controller = new VLVRunner(2, 0);
+        FSRenderer.getControlManager().add(controller);
+
+        setupPlatformRise(gen);
     }
 
-    public static void rotateCamera(Gen gen){
-        control = new VLVRunner(2, 0);
+    private static void setupPlatformRise(Gen gen){
+        final float platformy = gen.platform.instance(0).modelMatrix().getY(0).get();
 
-        controlcamera = new VLVLinear(0, 360, 3000, VLVariable.LOOP_FORWARD, new VLTaskContinous(new VLTask.Task<VLVLinear>(){
+        FSViewConfig config = FSControl.getViewConfig();
+        config.setPerspectiveMode();
+        config.viewPort(0, 0, FSControl.getMainWidth(), FSControl.getMainHeight());
+        config.perspective(70f, (float)FSControl.getMainWidth() / FSControl.getMainHeight(), 0.1F, 10000F);
+        config.updateViewPort();
+
+        control1 = new VLVCurved(platformy + DISTANCE_FROM_PLATFORM, DISTANCE_FROM_PLATFORM, Platform.CYCLES_RISE, VLVariable.LOOP_NONE, Platform.CURVE_RISE, new VLTaskContinous(new VLTask.Task<VLVCurved>(){
 
             private float[] cache = new float[16];
 
             @Override
-            public void run(VLTask<VLVLinear> task, VLVLinear var){
-                FSViewConfig c = FSControl.getViewConfig();
+            public void run(VLTask<VLVCurved> task, VLVCurved var){
+                float value = var.get();
 
-//                c.eyePosition(0F, 5F, 5F);
-//                c.eyePosition(0F, 6000, 5000);
-//                c.eyePosition(0F, 1000, 1000);
-
-                float[] eyepos = c.eyePosition().provider();
-
-                Matrix.setIdentityM(cache, 0);
-                Matrix.rotateM(cache, 0, var.get(), 0f, 1f, 0f);
-                Matrix.multiplyMV(eyepos, 0, cache, 0, eyepos, 0);
-
-                c.eyePositionDivideByW();
-                c.lookAt(0f, 2.5f, 0f, 0f, 1f, 0f);
-                c.updateViewProjection();
+                FSViewConfig config = FSControl.getViewConfig();
+                config.eyePosition(0F, value, -0.01F);
+                config.lookAt(0f, value - 10F, 0f, 0f, 1f, 0f);
+                config.updateViewProjection();
             }
         }));
 
-        control.add(new VLVRunnerEntry(controlcamera, 0));
-        control.start();
-
-        FSRenderer.getControlManager().add(control);
+        controller.add(new VLVRunnerEntry(control1, 0));
+        controller.start();
     }
 }

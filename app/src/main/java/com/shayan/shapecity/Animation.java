@@ -11,10 +11,33 @@ import com.nurverek.vanguard.VLVariable;
 
 public class Animation{
 
-    protected static void lower(VLVRunner runner, int cycles, float decrease, FSMesh[] group){
-        int size = group.length;
+    public static final float[] COLOR_WHITE = new float[]{ 1F, 1F, 1F, 1F };
+    public static final float[] COLOR_WHITE_LESS = new float[]{ 0.8F, 0.8F, 0.8F, 1F };
+    public static final float[] COLOR_WHITE_LESS2 = new float[]{ 0.6F, 0.6F, 0.6F, 1F };
+    public static final float[] COLOR_WHITE_LESS3 = new float[]{ 0.5F, 0.5F, 0.5F, 1F };
+    public static final float[] COLOR_ORANGE = new float[]{ 1.0F, 0.9F, 0F, 1F };
+    public static final float[] COLOR_OBSIDIAN = new float[]{ 0.4F, 0.4F, 0.4F, 1F };
+    public static final float[] COLOR_OBSIDIAN_LESS1 = new float[]{ 0.25F, 0.25F, 0.25F, 1F };
+    public static final float[] COLOR_OBSIDIAN_LESS2 = new float[]{ 0.2F, 0.2F, 0.2F, 1F };
+    public static final float[] COLOR_OBSIDIAN_LESS3 = new float[]{ 0.15F, 0.15F, 0.15F, 1F };
+    public static final float[] COLOR_OBSIDIAN_LESS4 = new float[]{ 0.1F, 0.1F, 0.1F, 1F };
+    public static final float[] COLOR_OBSIDIAN_LESS5 = new float[]{ 0.05F, 0.05F, 0.05F, 1F };
+    public static final float[] COLOR_GOLD = new float[]{ 0.83F, 0.68F, 0.21F, 1F };
+    public static final float[] COLOR_LIGHT_GOLD = new float[]{ 0.98F, 0.76F, 0.01F, 1F };
+    public static final float[] COLOR_BLUE = new float[]{ 0F, 0.872F, 1.0F, 1F };
+    public static final float[] COLOR_BLUE_LESS = new float[]{ 0F, 0.698F, 0.8F, 1F };
+    public static final float[] COLOR_BLUE_LESS2 = new float[]{ 0F, 0.523F, 0.6F, 1F };
+    public static final float[] COLOR_BLUE_LESS3 = new float[]{ 0F, 0.355F, 0.407F, 1F };
+    public static final float[] COLOR_RED = new float[]{ 1.0F, 0.3F, 0F, 1F };
+    public static final float[] COLOR_RED_LESS1 = new float[]{ 0.8F, 0.2F, 0F, 1F };
+    public static final float[] COLOR_RED_LESS2 = new float[]{ 0.7F, 0.1F, 0F, 1F };
+    public static final float[] COLOR_RED_LESS3 = new float[]{ 0.5F, 0F, 0F, 1F };
+    public static final float[] COLOR_PURPLE_LESS = new float[]{ 0.227F, 0.109F, 0.807F, 1F };
+    public static final float[] COLOR_PURPLE = new float[]{ 0.282F, 0.135F, 1.0F, 1F };
+    public static final float[] COLOR_PURPLE_MORE = new float[]{ 0F, 0.237F, 0.320F, 1F };
 
-        Gen.RANDOM.setSeed(System.currentTimeMillis());
+    protected static void lower(VLVRunner runner, int cycles, float decrease, VLVCurved.Curve curve, FSMesh[] group){
+        int size = group.length;
 
         for(int i = 0; i < size; i++){
             FSMesh mesh = group[i];
@@ -24,12 +47,12 @@ public class Animation{
                 FSMatrixModel model = instance.modelMatrix();
 
                 float y = model.getY(0).get();
-                VLVCurved var = new VLVCurved(y - decrease, y, 100 + Gen.RANDOM.nextInt(200), VLVariable.LOOP_NONE, VLVCurved.CURVE_DEC_SINE_SQRT);
+                VLVCurved var = new VLVCurved(y - decrease, y, cycles, VLVariable.LOOP_NONE, curve);
                 var.SYNCER.add(new VLVMatrix.Definition(model));
 
                 model.setY(0, var);
 
-                runner.add(new VLVRunnerEntry(var, 200 + Gen.RANDOM.nextInt(200)));
+                runner.add(new VLVRunnerEntry(var, 0));
             }
         }
 

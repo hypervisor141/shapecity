@@ -82,20 +82,7 @@ public class Start extends FSActivity{
 
     @Override
     public void GLPreChange(int width, int height){
-        FSViewConfig scene = FSControl.getViewConfig();
-        scene.setPerspectiveMode();
-        scene.viewPort(0, 0, width, height);
-        scene.perspective(70f, (float)width / height, 500F, 10000F);
-        scene.updateViewPort();
 
-//        scene.eyePosition(0F, 3F, -0.01F);
-//        scene.eyePosition(100F, 100F, 100F);
-//        scene.eyePosition(300F, 300F, 300F);
-//        scene.eyePosition(1000F, 1000F, 1000F);
-        scene.eyePosition(2000F, 3000F, 3500F);
-
-        scene.lookAt(0f, 0f, 0f, 0f, 1f, 0f);
-        scene.updateViewProjection();
     }
 
     @Override

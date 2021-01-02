@@ -117,7 +117,7 @@ public final class BPLayer extends CustomBluePrint{
     @Override
     public void createLinks(FSMesh mesh){
         float[] array = new float[INSTANCE_COUNT];
-        Arrays.fill(array, PuzzleAnimations.TEXCONTROL_IDLE);
+        Arrays.fill(array, Puzzle.TEXCONTROL_IDLE);
 
         VLListType<FSLinkType> links = new VLListType<>(1, 0);
         links.add(new ModColor.TextureControlLink(new VLArrayFloat(array)));

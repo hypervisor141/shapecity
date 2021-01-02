@@ -1,45 +1,37 @@
 package com.shayan.shapecity;
 
-import android.opengl.Matrix;
+import android.util.Log;
 
+import com.nurverek.firestorm.FSAttenuation;
+import com.nurverek.firestorm.FSRenderer;
+import com.nurverek.vanguard.VLArrayFloat;
+import com.nurverek.vanguard.VLFloat;
 import com.nurverek.vanguard.VLTask;
 import com.nurverek.vanguard.VLTaskContinous;
-import com.nurverek.vanguard.VLVLinear;
+import com.nurverek.vanguard.VLVControl;
+import com.nurverek.vanguard.VLVRunner;
 import com.nurverek.vanguard.VLVRunnerEntry;
 import com.nurverek.vanguard.VLVariable;
 
 public final class Light{
 
     private final static float[] CACHE = new float[16];
-    private static VLVLinear controldirect;
-    private static VLVLinear controlpoint;
+    private static VLVariable control1;
+    private static VLVRunner controller;
 
     public static void initialize(Gen gen){
-        rotatePointLight(gen);
+        controller = new VLVRunner(3, 0);
+        FSRenderer.getControlManager().add(controller);
+
+        setupPlatformRise(gen);
     }
 
-    public static void rotatePointLight(Gen gen){
-        final float[] orgpos = Gen.light.position().provider().clone();
+    private static void setupPlatformRise(Gen gen){
+        ((FSAttenuation.Radius)gen.light.attenuation()).radius().set(10F);
 
-        controlpoint = new VLVLinear(0, 360, 500, VLVariable.LOOP_FORWARD, new VLTaskContinous(new VLTask.Task<VLVLinear>(){
-
-            @Override
-            public void run(VLTask<VLVLinear> task, VLVLinear var){
-                float[] pos = Gen.light.position().provider();
-
-                Matrix.setIdentityM(CACHE, 0);
-                Matrix.rotateM(CACHE, 0, var.get(), 0f, 1f, 0f);
-                Matrix.multiplyMV(pos, 0, CACHE, 0, orgpos, 0);
-
-                pos[0] /= pos[3];
-                pos[1] /= pos[3];
-                pos[2] /= pos[3];
-
-//                Loader.shadow.updateLightVP();
-            }
-        }));
-
-        PuzzleAnimations.controlrunner.add(new VLVRunnerEntry(controlpoint, 0));
-        PuzzleAnimations.controlrunner.start();
+        VLArrayFloat position = gen.light.position();
+        position.set(0, 0F);
+        position.set(1, 0F);
+        position.set(2, 0F);
     }
 }

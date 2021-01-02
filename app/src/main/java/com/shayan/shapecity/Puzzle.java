@@ -424,7 +424,9 @@ public final class Puzzle{
         }));
 
         revealinterval.fastForward(CYCLES_REVEAL_REPEAT_FASTFORWARD_AFTER_INPUT);
+
         controller.add(new VLVRunnerEntry(revealinterval, 0));
+        controller.start();
     }
 
     public static void lowerBases(int layer, final Runnable post){

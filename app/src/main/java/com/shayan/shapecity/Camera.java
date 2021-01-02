@@ -15,7 +15,7 @@ import com.nurverek.vanguard.VLVariable;
 
 public final class Camera{
 
-    private static final float DISTANCE_FROM_PLATFORM = 3F;
+    private static final float DISTANCE_FROM_PLATFORM = 2F;
 
     private static VLVCurved control1;
     private static VLVRunner controller;

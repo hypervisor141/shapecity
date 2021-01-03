@@ -18,7 +18,7 @@ public final class Platform{
     public static void initialize(Gen gen){
         runner_platformrise = new VLVRunner(1, 0);
 
-        Animation.lower(runner_platformrise, CYCLES_RISE, 24, DELAY_RISE, CURVE_RISE, new FSMesh[]{
+        Animation.lower(runner_platformrise, CYCLES_RISE, 14, DELAY_RISE, CURVE_RISE, new FSMesh[]{
                 gen.platform
         });
 

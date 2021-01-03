@@ -16,7 +16,11 @@ import com.nurverek.vanguard.VLVariable;
 public final class Camera{
 
     private static final float DISTANCE_FROM_PLATFORM_ASCEND = 5F;
+    private static final float DISTANCE_REVEAL_PLATFORM = 5F;
     private static final float DISTANCE_FROM_PLATFORM_FINAL = 1.75F;
+
+    private static final int CYCLES_CAMERA_PLACEMENT = 100;
+    private static final VLVCurved.Curve CURVE_CAMERA_PLACEMENT = VLVCurved.CURVE_ACC_DEC_CUBIC;
 
     private static VLVCurved control1;
     private static VLVRunner controller;
@@ -41,9 +45,7 @@ public final class Camera{
         config.perspective(70f, (float)FSControl.getMainWidth() / FSControl.getMainHeight(), 0.1F, 10000F);
         config.updateViewPort();
 
-        control1 = new VLVCurved(initialvalue, DISTANCE_FROM_PLATFORM_FINAL, Platform.CYCLES_RISE, VLVariable.LOOP_NONE, Platform.CURVE_RISE, new VLTaskContinous(new VLTask.Task<VLVCurved>(){
-
-            private float[] cache = new float[16];
+        control1 = new VLVCurved(initialvalue, DISTANCE_REVEAL_PLATFORM, Platform.CYCLES_RISE, VLVariable.LOOP_NONE, Platform.CURVE_RISE, new VLTaskContinous(new VLTask.Task<VLVCurved>(){
 
             @Override
             public void run(VLTask<VLVCurved> task, VLVCurved var){
@@ -53,6 +55,29 @@ public final class Camera{
                 config.eyePosition(0F, value, -0.01F);
                 config.lookAt(0f, value - 10F, 0f, 0f, 1f, 0f);
                 config.updateViewProjection();
+
+                if(!control1.active()){
+                    control1 = new VLVCurved(DISTANCE_REVEAL_PLATFORM, DISTANCE_FROM_PLATFORM_FINAL, CYCLES_CAMERA_PLACEMENT, VLVariable.LOOP_NONE, CURVE_CAMERA_PLACEMENT, new VLTaskContinous(new VLTask.Task<VLVCurved>(){
+
+                        @Override
+                        public void run(VLTask<VLVCurved> task, VLVCurved var){
+                            float value = var.get();
+
+                            FSViewConfig config = FSControl.getViewConfig();
+                            config.eyePosition(0F, value, -0.01F);
+                            config.lookAt(0f, value - 10F, 0f, 0f, 1f, 0f);
+                            config.updateViewProjection();
+
+                            if(!control1.active()){
+                                controller.remove(0);
+                            }
+                        }
+                    }));
+
+                    controller.remove(0);
+                    controller.add(new VLVRunnerEntry(control1, 0));
+                    controller.start();
+                }
             }
         }));
 

@@ -196,7 +196,7 @@ public final class Puzzle{
             var.SYNCER.add(new VLVMatrix.Definition(model));
 
             model.setY(2, var);
-            raisecontroller.add(new VLVRunnerEntry(var, 0));
+            raisecontroller.add(new VLVRunnerEntry(var, Platform.DELAY_RISE));
         }
 
         raisecontroller.targetSync();

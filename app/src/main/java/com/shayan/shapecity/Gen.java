@@ -30,6 +30,7 @@ public final class Gen extends FSG{
     public static final FSLightMaterial MATERIAL_OBSIDIAN = new FSLightMaterial(new VLArrayFloat(new float[]{ 0.05375f, 0.05f, 0.06625f }), new VLArrayFloat(new float[]{ 0.18275f, 0.17f, 0.72525f }), new VLArrayFloat(new float[]{ 0.332741f, 0.328634f, 0.346435f }), new VLFloat(16));
     public static final FSLightMaterial MATERIAL_WHITE = new FSLightMaterial(new VLArrayFloat(new float[]{ 0.5f, 0.5f, 0.5f }), new VLArrayFloat(new float[]{ 0.5f, 0.5f, 0.5f }), new VLArrayFloat(new float[]{ 1f, 1f, 1f }), new VLFloat(32));
     public static final FSLightMaterial MATERIAL_WHITE_LESS_SPECULAR = new FSLightMaterial(new VLArrayFloat(new float[]{ 0.5f, 0.5f, 0.5f }), new VLArrayFloat(new float[]{ 0.5f, 0.5f, 0.5f }), new VLArrayFloat(new float[]{ 1f, 1f, 1f }), new VLFloat(16));
+    public static final FSLightMaterial MATERIAL_WHITE_MORE_SPECULAR = new FSLightMaterial(new VLArrayFloat(new float[]{ 0.5f, 0.5f, 0.5f }), new VLArrayFloat(new float[]{ 0.5f, 0.5f, 0.5f }), new VLArrayFloat(new float[]{ 1f, 1f, 1f }), new VLFloat(128));
     public static final FSLightMaterial MATERIAL_WHITE_RUBBER = new FSLightMaterial(new VLArrayFloat(new float[]{ 0.05f, 0.05f, 0.05f }), new VLArrayFloat(new float[]{ 0.5f, 0.5f, 0.5f }), new VLArrayFloat(new float[]{ 0.7f, 0.7f, 0.7f }), new VLFloat(16));
     public static final FSLightMaterial MATERIAL_SILVER = new FSLightMaterial(new VLArrayFloat(new float[]{ 0.19225F, 0.19225F, 0.19225F }), new VLArrayFloat(new float[]{ 0.50754F, 0.50754F, 0.50754F}), new VLArrayFloat(new float[]{ 0.508273F, 0.508273F, 0.508273F }), new VLFloat(16));
     
@@ -53,9 +54,15 @@ public final class Gen extends FSG{
     public FSMesh platform;
     public FSMesh puzzlebase;
     public FSMesh puzzlebase_lining;
-    public FSMesh puzzlebase_innerwalls1_group1;
-    public FSMesh puzzlebase_innerwalls1_group2;
-    public FSMesh puzzlebase_innerwalls1_group3;
+    public FSMesh puzzlebase_innerwalls1_frame;
+    public FSMesh puzzlebase_innerwalls1_linings1;
+    public FSMesh puzzlebase_innerwalls1_linings2;
+    public FSMesh puzzlebase_innerwalls1_linings3;
+    public FSMesh puzzlebase_innerwalls1_linings4;
+    public FSMesh puzzlebase_innerwalls1_linings5;
+    public FSMesh puzzlebase_innerwalls1_linings6;
+    public FSMesh puzzlebase_innerwalls1_linings7;
+    public FSMesh puzzlebase_innerwalls1_linings8;
     public FSMesh puzzlebase_bottom;
     public FSMesh puzzlebase_innerwalls2;
     public FSMesh pieces;
@@ -132,15 +139,21 @@ public final class Gen extends FSG{
         bpsingular = new BPBase(this);
         bpinstanced = new BPInstanced(this, 60);
 
-        pieces = register(bppieces, "pieces.", Puzzle.COLOR_LAYER, MATERIAL_WHITE);
+        pieces = register(bppieces, "pieces.", Puzzle.COLOR_LAYER, MATERIAL_WHITE_MORE_SPECULAR);
         platform = register(bpsingular, "platform_Cube.637", Animation.COLOR_ORANGE, MATERIAL_WHITE);
         puzzlebase = register(bpsingular, "puzzlebase_Cube.036", Animation.COLOR_PURPLE_MORE, MATERIAL_WHITE);
         puzzlebase_lining = register(bpsingular, "puzzlebase_lining_Cube.634", Animation.COLOR_BLUE, MATERIAL_WHITE);
-        puzzlebase_innerwalls1_group1 = register(bpsingular, "puzzlebase_innerwalls1_group1_Cube.639", Animation.COLOR_BLUE_LESS, MATERIAL_WHITE_LESS_SPECULAR);
-        puzzlebase_innerwalls1_group2 = register(bpsingular, "puzzlebase_innerwalls1_group2_Cube.638", Animation.COLOR_BLUE_LESS2, MATERIAL_WHITE_LESS_SPECULAR);
-        puzzlebase_innerwalls1_group3 = register(bpsingular, "puzzlebase_innerwalls1_group3_Cube.641", Animation.COLOR_BLUE_LESS3, MATERIAL_WHITE_LESS_SPECULAR);
-        puzzlebase_innerwalls2 = register(bpsingular, "puzzlebase_innerwalls2_Cube.636", Animation.COLOR_BLUE_LESS2, MATERIAL_WHITE_LESS_SPECULAR);
-        puzzlebase_bottom = register(bpsingular, "puzzlebase_bottom_Cube.642", Animation.COLOR_BLUE, MATERIAL_WHITE_LESS_SPECULAR);
+        puzzlebase_innerwalls1_frame = register(bpsingular, "puzzlebase_innerwalls1_frame_Cube.024", Animation.COLOR_BLUE, MATERIAL_WHITE_LESS_SPECULAR);
+        puzzlebase_innerwalls1_linings1 = register(bpsingular, "puzzlebase_innerwalls1_linings1_Cube.028", Animation.COLOR_BLUE_LESS1, MATERIAL_WHITE_LESS_SPECULAR);
+        puzzlebase_innerwalls1_linings2 = register(bpsingular, "puzzlebase_innerwalls1_linings2_Cube.029", Animation.COLOR_BLUE_LESS2, MATERIAL_WHITE_LESS_SPECULAR);
+        puzzlebase_innerwalls1_linings3 = register(bpsingular, "puzzlebase_innerwalls1_linings3_Cube.030", Animation.COLOR_BLUE_LESS3, MATERIAL_WHITE_LESS_SPECULAR);
+        puzzlebase_innerwalls1_linings4 = register(bpsingular, "puzzlebase_innerwalls1_linings4_Cube.031", Animation.COLOR_BLUE_LESS4, MATERIAL_WHITE_LESS_SPECULAR);
+        puzzlebase_innerwalls1_linings5 = register(bpsingular, "puzzlebase_innerwalls1_linings5_Cube.032", Animation.COLOR_BLUE_LESS5, MATERIAL_WHITE_LESS_SPECULAR);
+        puzzlebase_innerwalls1_linings6 = register(bpsingular, "puzzlebase_innerwalls1_linings6_Cube.033", Animation.COLOR_BLUE_LESS6, MATERIAL_WHITE_LESS_SPECULAR);
+        puzzlebase_innerwalls1_linings7 = register(bpsingular, "puzzlebase_innerwalls1_linings7_Cube.034", Animation.COLOR_BLUE_LESS7, MATERIAL_WHITE_LESS_SPECULAR);
+        puzzlebase_innerwalls1_linings8 = register(bpsingular, "puzzlebase_innerwalls1_linings8_Cube.035", Animation.COLOR_BLUE_LESS8, MATERIAL_WHITE_LESS_SPECULAR);
+        puzzlebase_innerwalls2 = register(bpsingular, "puzzlebase_innerwalls2_Cube.025", Animation.COLOR_PURPLE_MORE, MATERIAL_WHITE_LESS_SPECULAR);
+        puzzlebase_bottom = register(bpsingular, "puzzlebase_bottom_Cube.026", Animation.COLOR_BLUE, MATERIAL_WHITE_LESS_SPECULAR);
         mainbase1 = register(bpsingular, "mainbase_Cube.157", Animation.COLOR_PURPLE_MORE, MATERIAL_WHITE);
         mainbase2 = register(bpsingular, "mainbase2_Cube.612", Animation.COLOR_RED_LESS1, MATERIAL_WHITE);
         phase1_trapezoidx1 = register(bpinstanced, "phase1_trapezoid_x1.", Animation.COLOR_BLUE, MATERIAL_WHITE);
@@ -155,11 +168,11 @@ public final class Gen extends FSG{
         phase1_pillars_caps = register(bpinstanced, "phase1_pillars_cap.", Animation.COLOR_BLUE, MATERIAL_WHITE);
         phase1_pillars_blades = register(bpsingular, "phase1_pillars_blades_Cube.475", Animation.COLOR_WHITE_LESS3, MATERIAL_WHITE);
         phase1_pillars_baseframe1 = register(bpinstanced, "phase1_pillars_baseframe1.", Animation.COLOR_BLUE, MATERIAL_WHITE);
-        phase1_pillars_baseframe2 = register(bpinstanced, "phase1_pillars_baseframe2.", Animation.COLOR_BLUE_LESS, MATERIAL_WHITE);
-        phase1_pillars_baseframe3 = register(bpinstanced, "phase1_pillars_baseframe3.", Animation.COLOR_BLUE_LESS2, MATERIAL_WHITE);
-        phase1_pillars_baseframe4 = register(bpinstanced, "phase1_pillars_baseframe4.", Animation.COLOR_BLUE_LESS3, MATERIAL_WHITE);
+        phase1_pillars_baseframe2 = register(bpinstanced, "phase1_pillars_baseframe2.", Animation.COLOR_BLUE_LESS3, MATERIAL_WHITE);
+        phase1_pillars_baseframe3 = register(bpinstanced, "phase1_pillars_baseframe3.", Animation.COLOR_BLUE_LESS4, MATERIAL_WHITE);
+        phase1_pillars_baseframe4 = register(bpinstanced, "phase1_pillars_baseframe4.", Animation.COLOR_BLUE_LESS7, MATERIAL_WHITE);
         phase2_pillars = register(bpinstanced, "phase2_pillar.", Animation.COLOR_OBSIDIAN_LESS4, MATERIAL_WHITE);
-        phase2_pillars_caps = register(bpinstanced, "phase2_pillars_cap.", Animation.COLOR_BLUE_LESS, MATERIAL_WHITE);
+        phase2_pillars_caps = register(bpinstanced, "phase2_pillars_cap.", Animation.COLOR_BLUE_LESS3, MATERIAL_WHITE);
         phase2_pillars_caps2 = register(bpinstanced, "phase2_pillars_cap2.", Animation.COLOR_BLUE, MATERIAL_WHITE);
         phase3_rect_layer1 = register(bpinstanced, "phase3_rect_layer1.", Animation.COLOR_OBSIDIAN_LESS2, MATERIAL_WHITE);
         phase3_rect_layer2 = register(bpinstanced, "phase3_rect_layer2.", Animation.COLOR_OBSIDIAN_LESS3, MATERIAL_WHITE);
@@ -183,12 +196,12 @@ public final class Gen extends FSG{
         phase3_outrect_layer9 = register(bpinstanced, "phase3_outrect_layer9.", Animation.COLOR_OBSIDIAN_LESS4, MATERIAL_WHITE);
         phase3_outrect_layer10 = register(bpinstanced, "phase3_outrect_layer10.", Animation.COLOR_OBSIDIAN_LESS5, MATERIAL_WHITE);
         phase3_outrect_layer11 = register(bpinstanced, "phase3_outrect_layer11.", Animation.COLOR_BLUE, MATERIAL_WHITE);
-        outbase_powerplants = register(bpinstanced, "outbase_powerplant.", Animation.COLOR_BLUE_LESS, MATERIAL_WHITE);
+        outbase_powerplants = register(bpinstanced, "outbase_powerplant.", Animation.COLOR_BLUE_LESS3, MATERIAL_WHITE);
         outbase_powerplant_caps = register(bpinstanced, "outbase_powerplant_caps.", Animation.COLOR_BLUE, MATERIAL_WHITE);
         outbase_powerplant_caps2 = register(bpinstanced, "outbase_powerplant_caps2.", Animation.COLOR_ORANGE, MATERIAL_WHITE);
         outbase_powerplant_baseplates = register(bpsingular, "powerplants_baseplates_Cube.309", Animation.COLOR_ORANGE, MATERIAL_WHITE);
         outbase_walls_layer1 = register(bpsingular, "outbase_walls_layer1_Cube.480", Animation.COLOR_PURPLE_MORE, MATERIAL_WHITE);
-        outbase_walls_layer2 = register(bpsingular, "outbase_walls_layer2_Cube.635", Animation.COLOR_BLUE_LESS2, MATERIAL_WHITE);
+        outbase_walls_layer2 = register(bpsingular, "outbase_walls_layer2_Cube.635", Animation.COLOR_BLUE_LESS4, MATERIAL_WHITE);
         outbase_walls_stripes = register(bpsingular, "outbase_walls_stripes_Cube.449", Animation.COLOR_WHITE_LESS, MATERIAL_WHITE);
 
         automator().run(DEBUG_MODE_AUTOMATOR);

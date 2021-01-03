@@ -15,7 +15,8 @@ import com.nurverek.vanguard.VLVariable;
 
 public final class Camera{
 
-    private static final float DISTANCE_FROM_PLATFORM = 2F;
+    private static final float DISTANCE_FROM_PLATFORM_ASCEND = 5F;
+    private static final float DISTANCE_FROM_PLATFORM_FINAL = 1.75F;
 
     private static VLVCurved control1;
     private static VLVRunner controller;
@@ -29,14 +30,18 @@ public final class Camera{
 
     private static void setupPlatformRise(Gen gen){
         final float platformy = gen.platform.instance(0).modelMatrix().getY(0).get();
+        final float initialvalue = platformy + DISTANCE_FROM_PLATFORM_ASCEND;
 
         FSViewConfig config = FSControl.getViewConfig();
         config.setPerspectiveMode();
         config.viewPort(0, 0, FSControl.getMainWidth(), FSControl.getMainHeight());
+        config.eyePosition(0F, initialvalue, -0.01F);
+        config.lookAt(0f, initialvalue - 10F, 0f, 0f, 1f, 0f);
+        config.updateViewProjection();
         config.perspective(70f, (float)FSControl.getMainWidth() / FSControl.getMainHeight(), 0.1F, 10000F);
         config.updateViewPort();
 
-        control1 = new VLVCurved(platformy + DISTANCE_FROM_PLATFORM, DISTANCE_FROM_PLATFORM, Platform.CYCLES_RISE, VLVariable.LOOP_NONE, Platform.CURVE_RISE, new VLTaskContinous(new VLTask.Task<VLVCurved>(){
+        control1 = new VLVCurved(initialvalue, DISTANCE_FROM_PLATFORM_FINAL, Platform.CYCLES_RISE, VLVariable.LOOP_NONE, Platform.CURVE_RISE, new VLTaskContinous(new VLTask.Task<VLVCurved>(){
 
             private float[] cache = new float[16];
 
@@ -51,7 +56,7 @@ public final class Camera{
             }
         }));
 
-        controller.add(new VLVRunnerEntry(control1, 0));
+        controller.add(new VLVRunnerEntry(control1, Platform.DELAY_RISE));
         controller.start();
     }
 }

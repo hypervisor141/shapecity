@@ -16,7 +16,7 @@ public class Outbase{
     public static void initialize(Gen gen){
         runner_powerplants = new VLVRunner(gen.outbase_powerplants.size(), 20);
 
-        Animation.lower(runner_powerplants, CYCLES_APPEAR, 939F, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
+        Animation.lower(runner_powerplants, CYCLES_APPEAR, 939F, 0, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
                 gen.outbase_powerplants,
                 gen.outbase_powerplant_caps,
                 gen.outbase_powerplant_caps2

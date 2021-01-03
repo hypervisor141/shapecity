@@ -59,56 +59,56 @@ public class Phase3{
         runner_outrect10 = new VLVRunner(gen.phase3_outrect_layer10.size(), 20);
         runner_outrect11 = new VLVRunner(gen.phase3_outrect_layer11.size(), 20);
 
-        Animation.lower(runner_rect_layer1, CYCLES_APPEAR, 689F, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
+        Animation.lower(runner_rect_layer1, CYCLES_APPEAR, 689F, 0, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
                 gen.phase3_rect_layer1,
                 gen.phase3_rect_layer1_stripes
         });
-        Animation.lower(runner_rect_layer1, CYCLES_APPEAR, 1289F, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
+        Animation.lower(runner_rect_layer1, CYCLES_APPEAR, 1289F, 0, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
                 gen.phase3_rect_layer2,
                 gen.phase3_rect_layer2_stripes
         });
-        Animation.lower(runner_rect_layer1, CYCLES_APPEAR, 1739F, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
+        Animation.lower(runner_rect_layer1, CYCLES_APPEAR, 1739F, 0, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
                 gen.phase3_rect_layer3,
                 gen.phase3_rect_layer3_stripes,
                 gen.phase3_rect_caps
         });
-        Animation.lower(runner_trapezoids, CYCLES_APPEAR, 189F, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
+        Animation.lower(runner_trapezoids, CYCLES_APPEAR, 189F, 0, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
                 gen.phase3_trapezoidx1,
                 gen.phase3_trapezoidy1,
                 gen.phase3_trapezoidx2,
                 gen.phase3_trapezoidy2
         });
-        Animation.lower(runner_outrect1, CYCLES_APPEAR, 119F, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
+        Animation.lower(runner_outrect1, CYCLES_APPEAR, 119F, 0, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
                 gen.phase3_outrect_layer1
         });
-        Animation.lower(runner_outrect2, CYCLES_APPEAR, 242F, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
+        Animation.lower(runner_outrect2, CYCLES_APPEAR, 242F, 0, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
                 gen.phase3_outrect_layer2
         });
-        Animation.lower(runner_outrect3, CYCLES_APPEAR, 354F, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
+        Animation.lower(runner_outrect3, CYCLES_APPEAR, 354F, 0, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
                 gen.phase3_outrect_layer3
         });
-        Animation.lower(runner_outrect4, CYCLES_APPEAR, 456F, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
+        Animation.lower(runner_outrect4, CYCLES_APPEAR, 456F, 0, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
                 gen.phase3_outrect_layer4
         });
-        Animation.lower(runner_outrect5, CYCLES_APPEAR, 551F, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
+        Animation.lower(runner_outrect5, CYCLES_APPEAR, 551F, 0, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
                 gen.phase3_outrect_layer5
         });
-        Animation.lower(runner_outrect6, CYCLES_APPEAR, 639F, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
+        Animation.lower(runner_outrect6, CYCLES_APPEAR, 639F, 0, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
                 gen.phase3_outrect_layer6
         });
-        Animation.lower(runner_outrect7, CYCLES_APPEAR, 719F, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
+        Animation.lower(runner_outrect7, CYCLES_APPEAR, 719F, 0, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
                 gen.phase3_outrect_layer7
         });
-        Animation.lower(runner_outrect8, CYCLES_APPEAR, 792F, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
+        Animation.lower(runner_outrect8, CYCLES_APPEAR, 792F, 0, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
                 gen.phase3_outrect_layer8
         });
-        Animation.lower(runner_outrect9, CYCLES_APPEAR, 855F, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
+        Animation.lower(runner_outrect9, CYCLES_APPEAR, 855F, 0, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
                 gen.phase3_outrect_layer9
         });
-        Animation.lower(runner_outrect10, CYCLES_APPEAR, 897F, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
+        Animation.lower(runner_outrect10, CYCLES_APPEAR, 897F, 0, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
                 gen.phase3_outrect_layer10
         });
-        Animation.lower(runner_outrect11, CYCLES_APPEAR, 939F, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
+        Animation.lower(runner_outrect11, CYCLES_APPEAR, 939F, 0, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
                 gen.phase3_outrect_layer11
         });
 

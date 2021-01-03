@@ -31,24 +31,24 @@ public final class Phase1{
         runner_pillars = new VLVRunner(gen.phase1_pillars.size() * 2 + 1, 20);
         runner_pillars_baseframes = new VLVRunner(gen.phase1_pillars_baseframe1.size() * 4, 20);
 
-        Animation.lower(runner_centerpieces, CYCLES_APPEAR, 10F, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
+        Animation.lower(runner_centerpieces, CYCLES_APPEAR, 10F, 0, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
                 gen.phase1_trapezoidx1,
                 gen.phase1_trapezoidy1,
                 gen.phase1_trapezoidx2,
                 gen.phase1_trapezoidy2,
                 gen.phase1_rects
         });
-        Animation.lower(runner_walls, CYCLES_APPEAR, 64F, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
+        Animation.lower(runner_walls, CYCLES_APPEAR, 64F, 0, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
                 gen.phase1_walls,
                 gen.phase1_walls_stripes,
                 gen.phase1_walls_caps
         });
-        Animation.lower(runner_pillars, CYCLES_APPEAR, 289F, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
+        Animation.lower(runner_pillars, CYCLES_APPEAR, 289F, 0, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
                 gen.phase1_pillars,
                 gen.phase1_pillars_caps,
                 gen.phase1_pillars_blades
         });
-        Animation.lower(runner_pillars_baseframes, CYCLES_APPEAR, 134F, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
+        Animation.lower(runner_pillars_baseframes, CYCLES_APPEAR, 134F, 0, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
                 gen.phase1_pillars_baseframe1,
                 gen.phase1_pillars_baseframe2,
                 gen.phase1_pillars_baseframe3,

@@ -27,7 +27,7 @@ public final class Light{
     }
 
     private static void setupPlatformRise(Gen gen){
-        ((FSAttenuation.Radius)gen.light.attenuation()).radius().set(10F);
+        ((FSAttenuation.Radius)gen.light.attenuation()).radius().set(20F);
 
         VLArrayFloat position = gen.light.position();
         position.set(0, 0F);

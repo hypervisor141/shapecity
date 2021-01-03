@@ -25,9 +25,15 @@ public class Animation{
     public static final float[] COLOR_GOLD = new float[]{ 0.83F, 0.68F, 0.21F, 1F };
     public static final float[] COLOR_LIGHT_GOLD = new float[]{ 0.98F, 0.76F, 0.01F, 1F };
     public static final float[] COLOR_BLUE = new float[]{ 0F, 0.872F, 1.0F, 1F };
-    public static final float[] COLOR_BLUE_LESS = new float[]{ 0F, 0.698F, 0.8F, 1F };
-    public static final float[] COLOR_BLUE_LESS2 = new float[]{ 0F, 0.523F, 0.6F, 1F };
-    public static final float[] COLOR_BLUE_LESS3 = new float[]{ 0F, 0.355F, 0.407F, 1F };
+    public static final float[] COLOR_BLUE_LESS1 = new float[]{ 0F, 0.802F, 0.92F, 1F };
+    public static final float[] COLOR_BLUE_LESS2 = new float[]{ 0F, 0.727F, 0.83F, 1F };
+    public static final float[] COLOR_BLUE_LESS3 = new float[]{ 0F, 0.68F, 0.78F, 1F };
+    public static final float[] COLOR_BLUE_LESS4 = new float[]{ 0F, 0.523F, 0.6F, 1F };
+    public static final float[] COLOR_BLUE_LESS5 = new float[]{ 0F, 0.459F, 0.527F, 1F };
+    public static final float[] COLOR_BLUE_LESS6 = new float[]{ 0F, 0.401F, 0.460F, 1F };
+    public static final float[] COLOR_BLUE_LESS7 = new float[]{ 0F, 0.355F, 0.407F, 1F };
+    public static final float[] COLOR_BLUE_LESS8 = new float[]{ 0F, 0.285F, 0.327F, 1F };
+
     public static final float[] COLOR_RED = new float[]{ 1.0F, 0.3F, 0F, 1F };
     public static final float[] COLOR_RED_LESS1 = new float[]{ 0.8F, 0.2F, 0F, 1F };
     public static final float[] COLOR_RED_LESS2 = new float[]{ 0.7F, 0.1F, 0F, 1F };
@@ -36,7 +42,7 @@ public class Animation{
     public static final float[] COLOR_PURPLE = new float[]{ 0.282F, 0.135F, 1.0F, 1F };
     public static final float[] COLOR_PURPLE_MORE = new float[]{ 0F, 0.237F, 0.320F, 1F };
 
-    protected static void lower(VLVRunner runner, int cycles, float decrease, VLVCurved.Curve curve, FSMesh[] group){
+    protected static void lower(VLVRunner runner, int cycles, float decrease, int delay, VLVCurved.Curve curve, FSMesh[] group){
         int size = group.length;
 
         for(int i = 0; i < size; i++){
@@ -52,7 +58,7 @@ public class Animation{
 
                 model.setY(0, var);
 
-                runner.add(new VLVRunnerEntry(var, 0));
+                runner.add(new VLVRunnerEntry(var, delay));
             }
         }
 

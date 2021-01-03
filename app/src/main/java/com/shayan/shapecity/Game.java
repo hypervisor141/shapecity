@@ -59,21 +59,7 @@ public final class Game{
     private static void startMatchSymbolsGame(Gen gen){
         activatedSymbols = new VLListInt(BPLayer.INSTANCE_COUNT, 0);
         activatedSymbols.virtualSize(BPLayer.INSTANCE_COUNT);
-
         enabledPieces = new boolean[BPLayer.INSTANCE_COUNT];
-
-        activateMatchSym(gen);
-    }
-
-    private static void startMatchColorsGame(){
-
-    }
-
-    private static void startMatchRotationGame(){
-
-    }
-
-    private static void activateMatchSym(Gen gen){
         symbols = gen.bppieces.prepareMatchSymTexture(gen.pieces);
 
         Arrays.fill(activatedSymbols.array(), -1);
@@ -139,6 +125,14 @@ public final class Game{
                 }
             }
         });
+    }
+
+    private static void startMatchColorsGame(){
+
+    }
+
+    private static void startMatchRotationGame(){
+
     }
 
     private static int checkSymbolMatch(){

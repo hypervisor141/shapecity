@@ -50,6 +50,14 @@ public final class Gen extends FSG{
     public BPBase bpsingular;
     public BPInstanced bpinstanced;
 
+    public FSMesh platform;
+    public FSMesh puzzlebase;
+    public FSMesh puzzlebase_lining;
+    public FSMesh puzzlebase_innerwalls1_group1;
+    public FSMesh puzzlebase_innerwalls1_group2;
+    public FSMesh puzzlebase_innerwalls1_group3;
+    public FSMesh puzzlebase_bottom;
+    public FSMesh puzzlebase_innerwalls2;
     public FSMesh pieces;
     public FSMesh phase1_trapezoidx1;
     public FSMesh phase1_trapezoidy1;
@@ -98,11 +106,6 @@ public final class Gen extends FSG{
     public FSMesh outbase_walls_layer1;
     public FSMesh outbase_walls_layer2;
     public FSMesh outbase_walls_stripes;
-    public FSMesh platform;
-    public FSMesh puzzlebase;
-    public FSMesh puzzlebase_lining;
-    public FSMesh puzzlebase_innerwalls1;
-    public FSMesh puzzlebase_innerwalls2;
     public FSMesh mainbase1;
     public FSMesh mainbase2;
 
@@ -130,6 +133,16 @@ public final class Gen extends FSG{
         bpinstanced = new BPInstanced(this, 60);
 
         pieces = register(bppieces, "pieces.", Puzzle.COLOR_LAYER, MATERIAL_WHITE);
+        platform = register(bpsingular, "platform_Cube.637", Animation.COLOR_ORANGE, MATERIAL_WHITE);
+        puzzlebase = register(bpsingular, "puzzlebase_Cube.036", Animation.COLOR_PURPLE_MORE, MATERIAL_WHITE);
+        puzzlebase_lining = register(bpsingular, "puzzlebase_lining_Cube.634", Animation.COLOR_BLUE, MATERIAL_WHITE);
+        puzzlebase_innerwalls1_group1 = register(bpsingular, "puzzlebase_innerwalls1_group1_Cube.639", Animation.COLOR_BLUE_LESS, MATERIAL_WHITE_LESS_SPECULAR);
+        puzzlebase_innerwalls1_group2 = register(bpsingular, "puzzlebase_innerwalls1_group2_Cube.638", Animation.COLOR_BLUE_LESS2, MATERIAL_WHITE_LESS_SPECULAR);
+        puzzlebase_innerwalls1_group3 = register(bpsingular, "puzzlebase_innerwalls1_group3_Cube.641", Animation.COLOR_BLUE_LESS3, MATERIAL_WHITE_LESS_SPECULAR);
+        puzzlebase_innerwalls2 = register(bpsingular, "puzzlebase_innerwalls2_Cube.636", Animation.COLOR_BLUE_LESS2, MATERIAL_WHITE_LESS_SPECULAR);
+        puzzlebase_bottom = register(bpsingular, "puzzlebase_bottom_Cube.642", Animation.COLOR_BLUE, MATERIAL_WHITE_LESS_SPECULAR);
+        mainbase1 = register(bpsingular, "mainbase_Cube.157", Animation.COLOR_PURPLE_MORE, MATERIAL_WHITE);
+        mainbase2 = register(bpsingular, "mainbase2_Cube.612", Animation.COLOR_RED_LESS1, MATERIAL_WHITE);
         phase1_trapezoidx1 = register(bpinstanced, "phase1_trapezoid_x1.", Animation.COLOR_BLUE, MATERIAL_WHITE);
         phase1_trapezoidy1 = register(bpinstanced, "phase1_trapezoid_y1.", Animation.COLOR_BLUE, MATERIAL_WHITE);
         phase1_trapezoidx2 = register(bpinstanced, "phase1_trapezoid_x2.", Animation.COLOR_BLUE, MATERIAL_WHITE);
@@ -177,13 +190,6 @@ public final class Gen extends FSG{
         outbase_walls_layer1 = register(bpsingular, "outbase_walls_layer1_Cube.480", Animation.COLOR_PURPLE_MORE, MATERIAL_WHITE);
         outbase_walls_layer2 = register(bpsingular, "outbase_walls_layer2_Cube.635", Animation.COLOR_BLUE_LESS2, MATERIAL_WHITE);
         outbase_walls_stripes = register(bpsingular, "outbase_walls_stripes_Cube.449", Animation.COLOR_WHITE_LESS, MATERIAL_WHITE);
-        platform = register(bpsingular, "platform_Cube.637", Animation.COLOR_ORANGE, MATERIAL_WHITE);
-        puzzlebase = register(bpsingular, "puzzlebase_Cube.036", Animation.COLOR_PURPLE_MORE, MATERIAL_WHITE);
-        puzzlebase_lining = register(bpsingular, "puzzlebase_lining_Cube.634", Animation.COLOR_BLUE, MATERIAL_WHITE);
-        puzzlebase_innerwalls1 = register(bpsingular, "puzzlebase_innerwalls1_Cube.639", Animation.COLOR_BLUE_LESS, MATERIAL_WHITE_LESS_SPECULAR);
-        puzzlebase_innerwalls2 = register(bpsingular, "puzzlebase_innerwalls2_Cube.640", Animation.COLOR_BLUE_LESS2, MATERIAL_WHITE_LESS_SPECULAR);
-        mainbase1 = register(bpsingular, "mainbase_Cube.157", Animation.COLOR_PURPLE_MORE, MATERIAL_WHITE);
-        mainbase2 = register(bpsingular, "mainbase2_Cube.612", Animation.COLOR_RED_LESS1, MATERIAL_WHITE);
 
         automator().run(DEBUG_MODE_AUTOMATOR);
 

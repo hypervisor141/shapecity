@@ -4,7 +4,6 @@ import com.nurverek.firestorm.FSBounds;
 import com.nurverek.firestorm.FSBoundsCuboid;
 import com.nurverek.firestorm.FSInstance;
 import com.nurverek.firestorm.FSMatrixModel;
-import com.nurverek.firestorm.FSMesh;
 import com.nurverek.firestorm.FSSchematics;
 import com.nurverek.vanguard.VLArray;
 import com.nurverek.vanguard.VLArrayFloat;

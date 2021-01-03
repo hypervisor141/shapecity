@@ -1,15 +1,11 @@
 package com.shayan.shapecity;
 
-import android.opengl.Matrix;
-import android.util.Log;
-
 import com.nurverek.firestorm.FSControl;
 import com.nurverek.firestorm.FSRenderer;
 import com.nurverek.firestorm.FSViewConfig;
 import com.nurverek.vanguard.VLTask;
 import com.nurverek.vanguard.VLTaskContinous;
 import com.nurverek.vanguard.VLVCurved;
-import com.nurverek.vanguard.VLVLinear;
 import com.nurverek.vanguard.VLVRunner;
 import com.nurverek.vanguard.VLVRunnerEntry;
 import com.nurverek.vanguard.VLVariable;
@@ -20,7 +16,9 @@ public final class Camera{
     private static final float DISTANCE_REVEAL_PLATFORM = 5F;
     private static final float DISTANCE_FROM_PLATFORM_FINAL = 2F;
 
-    private static final int CYCLES_CAMERA_PLACEMENT = 100;
+    private static final int CYCLES_CAMERA_PLACEMENT = 10;
+//    private static final int CYCLES_CAMERA_PLACEMENT = 100;
+
     private static final VLVCurved.Curve CURVE_CAMERA_PLACEMENT = VLVCurved.CURVE_ACC_DEC_COS;
 
     private static VLVCurved control1;

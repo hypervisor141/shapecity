@@ -16,9 +16,9 @@ public final class Game{
     public static final int GAME_MATCHSYM_PICK_LIMIT = 2;
     public static final int GAME_MATCHSYM_REPEAT_ICON_LIMIT = 4;
 
-    public static boolean[] enabledPieces;
-
     public static VLListInt activatedSymbols;
+    public static boolean[] enabledPieces;
+    public static boolean[] revealedPieces;
     private static int[] symbols;
 
     public static void initialize(Gen gen){
@@ -60,11 +60,13 @@ public final class Game{
         activatedSymbols = new VLListInt(BPLayer.INSTANCE_COUNT, 0);
         activatedSymbols.virtualSize(BPLayer.INSTANCE_COUNT);
         enabledPieces = new boolean[BPLayer.INSTANCE_COUNT];
+        revealedPieces = new boolean[BPLayer.INSTANCE_COUNT];
 
         symbols = gen.bppieces.prepareMatchSymTexture(gen.pieces);
 
         Arrays.fill(activatedSymbols.array(), -1);
         Arrays.fill(enabledPieces, true);
+        Arrays.fill(revealedPieces, false);
 
         Puzzle.revealRepeat();
 
@@ -73,22 +75,15 @@ public final class Game{
             @Override
             public void run(){
                 final int target = Input.closestPoint.instanceindex;
-                int activatedcount = getActiveSymbolCount();
+                int count = getActiveSymbolCount();
 
-                if(activatedcount < GAME_MATCHSYM_PICK_LIMIT && enabledPieces[target]){
-                    activatedcount++;
+                if(enabledPieces[target] && !revealedPieces[target] && count < GAME_MATCHSYM_PICK_LIMIT){
                     activatedSymbols.set(target, symbols[target]);
+                    revealedPieces[target] = true;
 
-                    Puzzle.revealResetTimer();
-                    Puzzle.reveal(target, new Runnable(){
+                    count++;
 
-                        @Override
-                        public void run(){
-                            activatedSymbols.set(target, -1);
-                        }
-                    });
-
-                    if(activatedcount >= GAME_MATCHSYM_PICK_LIMIT){
+                    if(count >= GAME_MATCHSYM_PICK_LIMIT){
                         int match = checkSymbolMatch();
 
                         if(match != -1){
@@ -117,11 +112,16 @@ public final class Game{
 
                             if(checkFinished()){
                                 Log.d("wtf", "ALL DONE");
-                                Puzzle.removeDeactivationControl();
                             }
 
                             linkdata.sync();
+
+                        }else{
+                            reveal(target);
                         }
+
+                    }else{
+                        reveal(target);
                     }
                 }
             }
@@ -134,6 +134,18 @@ public final class Game{
 
     private static void startMatchRotationGame(){
 
+    }
+
+    private static void reveal(int index){
+        Puzzle.revealResetTimer();
+        Puzzle.reveal(index, new Runnable(){
+
+            @Override
+            public void run(){
+                revealedPieces[index] = false;
+                activatedSymbols.set(index, -1);
+            }
+        });
     }
 
     private static int checkSymbolMatch(){
@@ -178,7 +190,7 @@ public final class Game{
         for(int i = 0; i < activatedSymbols.size(); i++){
             sym = activatedSymbols.get(i);
 
-            if(sym != -1){
+            if(sym != -1 && enabledPieces[i]){
                 activecount++;
             }
         }

@@ -1,7 +1,5 @@
 package com.shayan.shapecity;
 
-import android.util.Log;
-
 import com.nurverek.firestorm.FSBounds;
 import com.nurverek.firestorm.FSBoundsCuboid;
 import com.nurverek.firestorm.FSInstance;
@@ -10,6 +8,7 @@ import com.nurverek.firestorm.FSSchematics;
 import com.nurverek.vanguard.VLArray;
 import com.nurverek.vanguard.VLArrayFloat;
 import com.nurverek.vanguard.VLTask;
+import com.nurverek.vanguard.VLTaskDone;
 import com.nurverek.vanguard.VLTaskTargetValue;
 import com.nurverek.vanguard.VLV;
 import com.nurverek.vanguard.VLVConnection;
@@ -48,18 +47,21 @@ public final class Puzzle{
     private static final float Y_BASE_HEIGHT_MULTIPLIER = 0.3f;
 
     private static VLVManager rootmanager;
-    private static VLVRunner controller;
+    private static VLVRunner controllerrevealinterval;
+    private static VLVRunner controllerpiecerecycle;
     private static VLVRunner raisecontroller;
     private static VLVControl revealinterval;
 
     public static void initialize(Gen gen){
         rootmanager = new VLVManager(2, 0);
-        controller = new VLVRunner(10, 10);
+        controllerrevealinterval = new VLVRunner(10, 10);
+        controllerpiecerecycle = new VLVRunner(10, 10);
         raisecontroller = new VLVRunner(gen.pieces.size(), 0);
 
         VLVManager vmanager = gen.vManager();
         vmanager.add(rootmanager);
-        vmanager.add(controller);
+        vmanager.add(controllerrevealinterval);
+        vmanager.add(controllerpiecerecycle);
         vmanager.add(raisecontroller);
 
         setupGameplay(gen);
@@ -296,16 +298,18 @@ public final class Puzzle{
         blink.start();
         texblink.start();
 
-        if(post != null){
-            bounce.connect(new VLVConnection.EndPoint(){
+        VLVControl recyclecontrol = new VLVControl(CYCLES_REVEAL_INPUT, VLVariable.LOOP_NONE, new VLTaskDone(new VLTask.Task(){
 
-                @Override
-                public void run(VLVConnection connections){
-                    post.run();
-                    connections.removeCurrentConnection();
-                }
-            });
-        }
+            @Override
+            public void run(VLTask task, VLVariable var){
+                post.run();
+                controllerpiecerecycle.remove(controllerrevealinterval.size() - 1);
+            }
+        }));
+
+        controllerpiecerecycle.add(new VLVRunnerEntry(recyclecontrol, 0));
+        controllerpiecerecycle.start();
+
     }
 
     public static void revealResetTimer(){
@@ -324,8 +328,8 @@ public final class Puzzle{
 
         revealinterval.fastForward(CYCLES_REVEAL_REPEAT_FASTFORWARD_AFTER_INPUT);
 
-        controller.add(new VLVRunnerEntry(revealinterval, 0));
-        controller.start();
+        controllerrevealinterval.add(new VLVRunnerEntry(revealinterval, 0));
+        controllerrevealinterval.start();
     }
 
     public static void deactivate(int instance){
@@ -368,9 +372,5 @@ public final class Puzzle{
         if(!var.isIncreasing()){
             var.reverse();
         }
-    }
-
-    public static void removeDeactivationControl(){
-        controller.remove(controller.size() - 1);
     }
 }

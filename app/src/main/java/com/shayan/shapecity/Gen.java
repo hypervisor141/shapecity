@@ -46,14 +46,11 @@ public final class Gen extends FSG{
 
     public static FSLightPoint light;
 
-    public BPLayer bplayer;
+    public BPLayer bppieces;
     public BPBase bpsingular;
     public BPInstanced bpinstanced;
 
-    public FSMesh[] puzzle_layers;
-    public FSMesh puzzle_layer1;
-    public FSMesh puzzle_layer2;
-    public FSMesh puzzle_layer3;
+    public FSMesh pieces;
     public FSMesh phase1_trapezoidx1;
     public FSMesh phase1_trapezoidy1;
     public FSMesh phase1_trapezoidx2;
@@ -128,13 +125,11 @@ public final class Gen extends FSG{
             throw new RuntimeException(ex.getMessage());
         }
 
-        bplayer = new BPLayer(this);
+        bppieces = new BPLayer(this);
         bpsingular = new BPBase(this);
         bpinstanced = new BPInstanced(this, 60);
 
-        puzzle_layer1 = register(bplayer, "pieces1.", Puzzle.COLOR_LAYER, MATERIAL_WHITE);
-        puzzle_layer2 = register(bplayer, "pieces2.", Puzzle.COLOR_LAYER, MATERIAL_WHITE);
-        puzzle_layer3 = register(bplayer, "pieces3.", Puzzle.COLOR_LAYER, MATERIAL_WHITE);
+        pieces = register(bppieces, "pieces.", Puzzle.COLOR_LAYER, MATERIAL_WHITE);
         phase1_trapezoidx1 = register(bpinstanced, "phase1_trapezoid_x1.", Animation.COLOR_BLUE, MATERIAL_WHITE);
         phase1_trapezoidy1 = register(bpinstanced, "phase1_trapezoid_y1.", Animation.COLOR_BLUE, MATERIAL_WHITE);
         phase1_trapezoidx2 = register(bpinstanced, "phase1_trapezoid_x2.", Animation.COLOR_BLUE, MATERIAL_WHITE);
@@ -191,12 +186,6 @@ public final class Gen extends FSG{
         mainbase2 = register(bpsingular, "mainbase2_Cube.612", Animation.COLOR_RED_LESS1, MATERIAL_WHITE);
 
         automator().run(DEBUG_MODE_AUTOMATOR);
-
-        puzzle_layers = new FSMesh[]{
-                puzzle_layer1,
-                puzzle_layer2,
-                puzzle_layer3
-        };
 
         Game.initialize(this);
     }

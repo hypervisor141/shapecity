@@ -2,7 +2,6 @@ package com.shayan.shapecity;
 
 import android.util.Log;
 
-import com.nurverek.firestorm.FSMesh;
 import com.nurverek.vanguard.VLArrayFloat;
 import com.nurverek.vanguard.VLListInt;
 
@@ -63,13 +62,7 @@ public final class Game{
 
         enabledPieces = new boolean[BPLayer.INSTANCE_COUNT];
 
-        Puzzle.raiseBases(1);
-        Puzzle.raiseBases(2);
-
-        Puzzle.standBy(0);
-        Puzzle.standBy(1);
-
-        activateMatchSymForLayer(gen, 2);
+        activateMatchSym(gen);
     }
 
     private static void startMatchColorsGame(){
@@ -80,16 +73,15 @@ public final class Game{
 
     }
 
-    private static void activateMatchSymForLayer(Gen gen, final int layer){
-        final FSMesh mesh = gen.puzzle_layers[layer];
-        symbols = gen.bplayer.prepareMatchSymTexture(mesh);
+    private static void activateMatchSym(Gen gen){
+        symbols = gen.bppieces.prepareMatchSymTexture(gen.pieces);
 
         Arrays.fill(activatedSymbols.array(), -1);
         Arrays.fill(enabledPieces, true);
 
-        Puzzle.revealRepeat(layer);
+        Puzzle.revealRepeat();
 
-        Input.activateInputListeners(mesh, new Runnable(){
+        Input.activateInputListeners(gen.pieces, new Runnable(){
 
             @Override
             public void run(){
@@ -101,7 +93,7 @@ public final class Game{
                     activecount++;
 
                     Puzzle.revealResetTimer();
-                    Puzzle.reveal(layer, target, new Runnable(){
+                    Puzzle.reveal(target, new Runnable(){
 
                         @Override
                         public void run(){
@@ -118,14 +110,14 @@ public final class Game{
                             int indexblink = 0;
                             int indextexblink = 0;
 
-                            VLArrayFloat linkdata = ((ModColor.TextureControlLink)mesh.link(0)).data;
+                            VLArrayFloat linkdata = ((ModColor.TextureControlLink)gen.pieces.link(0)).data;
 
                             for(int i = 0; i < activatedSymbols.size(); i++){
                                 if(activatedSymbols.get(i) == match){
                                     enabledPieces[i] = false;
                                     activatedSymbols.set(i, -1);
 
-                                    Puzzle.deactivate(layer, i);
+                                    Puzzle.deactivate(i);
                                     linkdata.set(i, Puzzle.TEXCONTROL_ACTIVE);
 
                                     counter++;
@@ -137,22 +129,8 @@ public final class Game{
                             }
 
                             if(checkLayerFinished()){
-                                if(layer == 0){
-                                    Log.d("wtf", "ALL DONE");
-
-                                }else{
-                                    final int nextlayer = layer - 1;
-
-                                    Puzzle.unstandBy(nextlayer);
-                                    Puzzle.lowerBases(layer, new Runnable(){
-
-                                        @Override
-                                        public void run(){
-                                            Puzzle.removeDeactivationControl();
-                                            activateMatchSymForLayer(gen, nextlayer);
-                                        }
-                                    });
-                                }
+                                Log.d("wtf", "ALL DONE");
+                                Puzzle.removeDeactivationControl();
                             }
 
                             linkdata.sync();

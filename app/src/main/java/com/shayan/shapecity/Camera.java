@@ -1,6 +1,7 @@
 package com.shayan.shapecity;
 
 import android.opengl.Matrix;
+import android.util.Log;
 
 import com.nurverek.firestorm.FSControl;
 import com.nurverek.firestorm.FSRenderer;
@@ -17,10 +18,10 @@ public final class Camera{
 
     private static final float DISTANCE_FROM_PLATFORM_ASCEND = 5F;
     private static final float DISTANCE_REVEAL_PLATFORM = 5F;
-    private static final float DISTANCE_FROM_PLATFORM_FINAL = 1.75F;
+    private static final float DISTANCE_FROM_PLATFORM_FINAL = 2F;
 
     private static final int CYCLES_CAMERA_PLACEMENT = 100;
-    private static final VLVCurved.Curve CURVE_CAMERA_PLACEMENT = VLVCurved.CURVE_ACC_DEC_CUBIC;
+    private static final VLVCurved.Curve CURVE_CAMERA_PLACEMENT = VLVCurved.CURVE_ACC_DEC_COS;
 
     private static VLVCurved control1;
     private static VLVRunner controller;
@@ -34,18 +35,8 @@ public final class Camera{
 
     private static void setupPlatformRise(Gen gen){
         final float platformy = gen.platform.instance(0).modelMatrix().getY(0).get();
-        final float initialvalue = platformy + DISTANCE_FROM_PLATFORM_ASCEND;
 
-        FSViewConfig config = FSControl.getViewConfig();
-        config.setPerspectiveMode();
-        config.viewPort(0, 0, FSControl.getMainWidth(), FSControl.getMainHeight());
-        config.eyePosition(0F, initialvalue, -0.01F);
-        config.lookAt(0f, initialvalue - 10F, 0f, 0f, 1f, 0f);
-        config.updateViewProjection();
-        config.perspective(70f, (float)FSControl.getMainWidth() / FSControl.getMainHeight(), 0.1F, 10000F);
-        config.updateViewPort();
-
-        control1 = new VLVCurved(initialvalue, DISTANCE_REVEAL_PLATFORM, Platform.CYCLES_RISE, VLVariable.LOOP_NONE, Platform.CURVE_RISE, new VLTaskContinous(new VLTask.Task<VLVCurved>(){
+        control1 = new VLVCurved(platformy + DISTANCE_FROM_PLATFORM_ASCEND, DISTANCE_REVEAL_PLATFORM, Platform.CYCLES_RISE, VLVariable.LOOP_NONE, Platform.CURVE_RISE, new VLTaskContinous(new VLTask.Task<VLVCurved>(){
 
             @Override
             public void run(VLTask<VLVCurved> task, VLVCurved var){

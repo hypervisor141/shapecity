@@ -60,6 +60,7 @@ public final class Game{
         activatedSymbols = new VLListInt(BPLayer.INSTANCE_COUNT, 0);
         activatedSymbols.virtualSize(BPLayer.INSTANCE_COUNT);
         enabledPieces = new boolean[BPLayer.INSTANCE_COUNT];
+
         symbols = gen.bppieces.prepareMatchSymTexture(gen.pieces);
 
         Arrays.fill(activatedSymbols.array(), -1);
@@ -72,11 +73,11 @@ public final class Game{
             @Override
             public void run(){
                 final int target = Input.closestPoint.instanceindex;
-                int activecount = getActiveSymbolCount();
+                int activatedcount = getActiveSymbolCount();
 
-                if(enabledPieces[target] && activecount < 2){
+                if(activatedcount < GAME_MATCHSYM_PICK_LIMIT && enabledPieces[target]){
+                    activatedcount++;
                     activatedSymbols.set(target, symbols[target]);
-                    activecount++;
 
                     Puzzle.revealResetTimer();
                     Puzzle.reveal(target, new Runnable(){
@@ -87,7 +88,7 @@ public final class Game{
                         }
                     });
 
-                    if(activecount >= GAME_MATCHSYM_PICK_LIMIT){
+                    if(activatedcount >= GAME_MATCHSYM_PICK_LIMIT){
                         int match = checkSymbolMatch();
 
                         if(match != -1){
@@ -114,7 +115,7 @@ public final class Game{
                                 }
                             }
 
-                            if(checkLayerFinished()){
+                            if(checkFinished()){
                                 Log.d("wtf", "ALL DONE");
                                 Puzzle.removeDeactivationControl();
                             }
@@ -158,7 +159,7 @@ public final class Game{
         return -1;
     }
 
-    private static boolean checkLayerFinished(){
+    private static boolean checkFinished(){
         int size = enabledPieces.length;
 
         for(int i = 0; i < size; i++){

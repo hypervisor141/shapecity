@@ -1,5 +1,7 @@
 package com.shayan.shapecity;
 
+import android.util.Log;
+
 import com.nurverek.firestorm.FSBounds;
 import com.nurverek.firestorm.FSBoundsCuboid;
 import com.nurverek.firestorm.FSInstance;
@@ -23,8 +25,7 @@ public final class Puzzle{
 
     public static final float[] COLOR_LAYER = Animation.COLOR_OBSIDIAN_LESS3;
     private static final float[] COLOR_BLINK = Animation.COLOR_OBSIDIAN_LESS3;
-    private static final float[] COLOR_DEACTIVATED = Animation.COLOR_OBSIDIAN_LESS5;
-    private static final float[] COLOR_STANDBY = Animation.COLOR_PURPLE_MORE;
+    private static final float[] COLOR_DEACTIVATED = Animation.COLOR_RED_LESS2;
 
     private static final VLVCurved.Curve CURVE_TYPE = VLVCurved.CURVE_DEC_COS_SQRT;
 
@@ -77,7 +78,9 @@ public final class Puzzle{
             modelmatrix.addRowRotate(0, new VLV(90f), VLV.ZERO, VLV.ONE, VLV.ZERO);
             modelmatrix.addRowRotate(0, new VLV(90f), VLV.ZERO, VLV.ZERO, VLV.ONE);
 
-            schematics.inputBounds().add(new FSBoundsCuboid(schematics, 50, 50f, 50f, FSBounds.MODE_X_OFFSET_VOLUMETRIC, FSBounds.MODE_Y_OFFSET_VOLUMETRIC, FSBounds.MODE_Z_OFFSET_VOLUMETRIC, 40f, 40f, 40f, FSBounds.MODE_X_VOLUMETRIC, FSBounds.MODE_Y_VOLUMETRIC, FSBounds.MODE_Z_VOLUMETRIC));
+            schematics.inputBounds().add(new FSBoundsCuboid(schematics, 50, 50f, 50f,
+                    FSBounds.MODE_X_OFFSET_VOLUMETRIC, FSBounds.MODE_Y_OFFSET_VOLUMETRIC, FSBounds.MODE_Z_OFFSET_VOLUMETRIC,
+                    40f, 40f, 40f, FSBounds.MODE_X_VOLUMETRIC, FSBounds.MODE_Y_VOLUMETRIC, FSBounds.MODE_Z_VOLUMETRIC));
         }
 
         // bounce

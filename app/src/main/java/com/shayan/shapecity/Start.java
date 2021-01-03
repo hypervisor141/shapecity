@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.opengl.GLES32;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -82,7 +83,11 @@ public class Start extends FSActivity{
 
     @Override
     public void GLPreChange(int width, int height){
-
+        FSViewConfig config = FSControl.getViewConfig();
+        config.setPerspectiveMode();
+        config.viewPort(0, 0, width, height);
+        config.perspective(60f, (float)width / height, 0.1F, 10000F);
+        config.updateViewPort();
     }
 
     @Override

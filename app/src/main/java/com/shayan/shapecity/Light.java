@@ -31,7 +31,7 @@ public final class Light{
 
         VLArrayFloat position = gen.light.position();
         position.set(0, 0F);
-        position.set(1, 0F);
+        position.set(1, 10F);
         position.set(2, 0F);
     }
 }

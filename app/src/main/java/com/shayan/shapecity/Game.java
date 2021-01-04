@@ -24,9 +24,7 @@ public final class Game{
     public static void initialize(Gen gen){
         Platform.initialize(gen);
         Puzzle.initialize(gen);
-        Phase1.initialize(gen);
-        Phase2.initialize(gen);
-        Phase3.initialize(gen);
+        City.initialize(gen);
         Outbase.initialize(gen);
         Light.initialize(gen);
         Camera.initialize(gen);

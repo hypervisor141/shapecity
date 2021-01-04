@@ -309,7 +309,6 @@ public final class Puzzle{
 
         controllerpiecerecycle.add(new VLVRunnerEntry(recyclecontrol, 0));
         controllerpiecerecycle.start();
-
     }
 
     public static void revealResetTimer(){

@@ -47,16 +47,23 @@ public final class Camera{
         config.lookAt(0f, initialvalue - 10F, 0f, 0f, 1f, 0f);
         config.updateViewProjection();
 
-        moveCamera(0F, DISTANCE_REVEAL_PLATFORM, -0.01F, 0, -1000F, 0F, Platform.DELAY_RISE, Platform.CYCLES_RISE, Platform.CURVE_RISE, new Runnable(){
+        move(0F, DISTANCE_REVEAL_PLATFORM, -0.01F, 0, -1000F, 0F, Platform.DELAY_RISE, Platform.CYCLES_RISE, Platform.CURVE_RISE, new Runnable(){
 
             @Override
             public void run(){
-                moveCamera(0F, DISTANCE_FROM_PLATFORM_FINAL, -0.01F, 0, -1000F, 0F, 0, CYCLES_CAMERA_PLACEMENT, CURVE_CAMERA_PLACEMENT, null);
+                move(0F, DISTANCE_FROM_PLATFORM_FINAL, -0.01F, 0, -1000F, 0F, 0, CYCLES_CAMERA_PLACEMENT, CURVE_CAMERA_PLACEMENT, null);
             }
         });
     }
 
-    public static void moveCamera(float x, float y, float z, float viewx, float viewy, float viewz, int delay, int cycles, VLVCurved.Curve curve, final Runnable post){
+    public static void set(float x, float y, float z, float viewx, float viewy, float viewz){
+        FSViewConfig config = FSControl.getViewConfig();
+        config.eyePosition(x, y, z);
+        config.lookAt(viewx, viewy, viewz, 0f, 1f, 0f);
+        config.updateViewProjection();
+    }
+
+    public static void move(float x, float y, float z, float viewx, float viewy, float viewz, int delay, int cycles, VLVCurved.Curve curve, final Runnable post){
         FSViewConfig config = FSControl.getViewConfig();
         final float[] orgviewsettings = config.viewMatrixSettings().provider().clone();
 
@@ -71,12 +78,7 @@ public final class Camera{
 
             @Override
             public void run(VLTask task, VLVariable var){
-                float value = var.get();
-
-                FSViewConfig config = FSControl.getViewConfig();
-                config.eyePosition(controlx.get(), controly.get(), controlz.get());
-                config.lookAt(controlviewx.get(), controlviewy.get(), controlviewz.get(), 0f, 1f, 0f);
-                config.updateViewProjection();
+                set(controlx.get(), controly.get(), controlz.get(), controlviewx.get(), controlviewy.get(), controlviewz.get());
 
                 if(!var.active()){
                     controller.clear();

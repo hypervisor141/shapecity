@@ -1,11 +1,10 @@
 package com.shayan.shapecity;
 
-import android.util.Log;
-
 import com.nurverek.firestorm.FSAttenuation;
+import com.nurverek.firestorm.FSControl;
 import com.nurverek.firestorm.FSRenderer;
+import com.nurverek.firestorm.FSViewConfig;
 import com.nurverek.vanguard.VLArrayFloat;
-import com.nurverek.vanguard.VLFloat;
 import com.nurverek.vanguard.VLTask;
 import com.nurverek.vanguard.VLTaskContinous;
 import com.nurverek.vanguard.VLVControl;
@@ -19,7 +18,11 @@ public final class Light{
     private static final int CYCLES_PHASE_CHANGE = 200;
 
     private final static float[] CACHE = new float[16];
-    private static VLVariable control1;
+    private static VLVCurved controlx;
+    private static VLVCurved controly;
+    private static VLVCurved controlz;
+    private static VLVCurved controlradius;
+    private static VLVControl update;
     private static VLVRunner controller;
 
     public static void initialize(Gen gen){
@@ -30,36 +33,48 @@ public final class Light{
     }
 
     private static void setupPlatformRise(Gen gen){
-        ((FSAttenuation.Radius)gen.light.attenuation()).radius().set(20F);
-
-        VLArrayFloat position = gen.light.position();
-        position.set(0, 0F);
-        position.set(1, 10F);
-        position.set(2, 0F);
+        set(gen,0, 10, 0, 20F);
     }
 
-    public static void revealNextPhase(Gen gen){
-        final float initialY = gen.light.position().get(1);
-        final float initialradius = ((FSAttenuation.Radius)gen.light.attenuation()).radius().get();
+    public static void set(Gen gen, float x, float y, float z, float radius){
+        float[] pos = gen.light.position().provider();
+        pos[0] = x;
+        pos[1] = y;
+        pos[2] = z;
 
-        control1 = new VLVCurved(0, 100F, CYCLES_PHASE_CHANGE, VLVariable.LOOP_NONE, VLVCurved.CURVE_DEC_SINE, new VLTaskContinous<VLVCurved>(new VLTask.Task<VLVCurved>(){
+        ((FSAttenuation.Radius)gen.light.attenuation()).radius().set(radius);
+    }
+
+    public static void move(final Gen gen, float x, float y, float z, float radius, int delay, int cycles, VLVCurved.Curve curve, final Runnable post){
+        final float[] orgpos = gen.light.position().provider().clone();
+        float orgradius = ((FSAttenuation.Radius)gen.light.attenuation()).radius().get();
+
+        controlx = new VLVCurved(orgpos[0], x, cycles, VLVariable.LOOP_NONE, curve);
+        controly = new VLVCurved(orgpos[1], y, cycles, VLVariable.LOOP_NONE, curve);
+        controlz = new VLVCurved(orgpos[2], z, cycles, VLVariable.LOOP_NONE, curve);
+        controlradius = new VLVCurved(orgradius, radius, cycles, VLVariable.LOOP_NONE, curve);
+
+        update = new VLVControl(cycles, VLVariable.LOOP_NONE, new VLTaskContinous(new VLTask.Task(){
 
             @Override
-            public void run(VLTask<VLVCurved> task, VLVCurved var){
-                float value = var.get();
-
-                ((FSAttenuation.Radius)gen.light.attenuation()).radius().set(initialradius + value * 10F);
-
-                VLArrayFloat position = gen.light.position();
-                position.set(1, initialY + value * 5F);
+            public void run(VLTask task, VLVariable var){
+                set(gen, controlx.get(), controly.get(), controlz.get(), controlradius.get());
 
                 if(!var.active()){
                     controller.clear();
+
+                    if(post != null){
+                        post.run();
+                    }
                 }
             }
         }));
 
-        controller.add(new VLVRunnerEntry(control1, 0));
+        controller.add(new VLVRunnerEntry(controlx, delay));
+        controller.add(new VLVRunnerEntry(controly, delay));
+        controller.add(new VLVRunnerEntry(controlz, delay));
+        controller.add(new VLVRunnerEntry(controlradius, delay));
+        controller.add(new VLVRunnerEntry(update, delay));
         controller.start();
     }
 }

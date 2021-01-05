@@ -14,12 +14,12 @@ public class Outbase{
     private static VLVRunner runner_powerplants;
 
     public static void initialize(Gen gen){
-        runner_powerplants = new VLVRunner(gen.outbase_powerplants.size(), 20);
+        runner_powerplants = new VLVRunner(gen.phase7.size(), 20);
 
         Animation.lower(runner_powerplants, CYCLES_APPEAR, 939F, 0, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
-                gen.outbase_powerplants,
-                gen.outbase_powerplant_caps,
-                gen.outbase_powerplant_caps2
+                gen.phase7,
+                gen.phase7_caps,
+                gen.phase7_caps2
         });
 
         VLVManager m = gen.vManager();

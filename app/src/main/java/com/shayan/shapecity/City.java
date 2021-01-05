@@ -60,26 +60,26 @@ public final class City{
 
     public static void initialize(Gen gen){
         phase1_runner_centerpieces = new VLVRunner(gen.phase1_trapezoidx1.size() * 4 * 4 + gen.phase1_rects.size(), 20);
-        phase1_runner_walls = new VLVRunner(gen.phase1_walls.size() * 3, 20);
-        phase1_runner_pillars = new VLVRunner(gen.phase1_pillars.size() * 2 + 1, 20);
-        phase1_runner_pillars_baseframes = new VLVRunner(gen.phase1_pillars_baseframe1.size() * 4, 20);
-        phase2_runner_pillars = new VLVRunner(gen.phase2_pillars.size(), 20);
-        phase2_runner_pillars_caps = new VLVRunner(gen.phase2_pillars_caps.size() * 2, 20);
-        phase3_runner_rect_layer1 = new VLVRunner(gen.phase3_rect_layer1.size() * 2, 20);
-        phase3_runner_rect_layer2 = new VLVRunner(gen.phase3_rect_layer2.size() * 2, 20);
-        phase3_runner_rect_layer3 = new VLVRunner(gen.phase3_rect_layer3.size() * 3, 20);
-        phase3_runner_trapezoids = new VLVRunner(gen.phase3_trapezoidx1.size() * 4, 20);
-        phase3_runner_outrect1 = new VLVRunner(gen.phase3_outrect_layer1.size(), 20);
-        phase3_runner_outrect2 = new VLVRunner(gen.phase3_outrect_layer2.size(), 20);
-        phase3_runner_outrect3 = new VLVRunner(gen.phase3_outrect_layer3.size(), 20);
-        phase3_runner_outrect4 = new VLVRunner(gen.phase3_outrect_layer4.size(), 20);
-        phase3_runner_outrect5 = new VLVRunner(gen.phase3_outrect_layer5.size(), 20);
-        phase3_runner_outrect6 = new VLVRunner(gen.phase3_outrect_layer6.size(), 20);
-        phase3_runner_outrect7 = new VLVRunner(gen.phase3_outrect_layer7.size(), 20);
-        phase3_runner_outrect8 = new VLVRunner(gen.phase3_outrect_layer8.size(), 20);
-        phase3_runner_outrect9 = new VLVRunner(gen.phase3_outrect_layer9.size(), 20);
-        phase3_runner_outrect10 = new VLVRunner(gen.phase3_outrect_layer10.size(), 20);
-        phase3_runner_outrect11 = new VLVRunner(gen.phase3_outrect_layer11.size(), 20);
+        phase1_runner_walls = new VLVRunner(gen.phase2.size() * 3, 20);
+        phase1_runner_pillars = new VLVRunner(gen.phase3.size() * 2 + 1, 20);
+        phase1_runner_pillars_baseframes = new VLVRunner(gen.phase3_baseframe1.size() * 4, 20);
+        phase2_runner_pillars = new VLVRunner(gen.phase4.size(), 20);
+        phase2_runner_pillars_caps = new VLVRunner(gen.phase4_caps.size() * 2, 20);
+        phase3_runner_rect_layer1 = new VLVRunner(gen.phase5_layer1.size() * 2, 20);
+        phase3_runner_rect_layer2 = new VLVRunner(gen.phase5_layer2.size() * 2, 20);
+        phase3_runner_rect_layer3 = new VLVRunner(gen.phase5_layer3.size() * 3, 20);
+        phase3_runner_trapezoids = new VLVRunner(gen.phase5_trapezoidx1.size() * 4, 20);
+        phase3_runner_outrect1 = new VLVRunner(gen.phase6_layer1.size(), 20);
+        phase3_runner_outrect2 = new VLVRunner(gen.phase6_layer2.size(), 20);
+        phase3_runner_outrect3 = new VLVRunner(gen.phase6_layer3.size(), 20);
+        phase3_runner_outrect4 = new VLVRunner(gen.phase6_layer4.size(), 20);
+        phase3_runner_outrect5 = new VLVRunner(gen.phase6_layer5.size(), 20);
+        phase3_runner_outrect6 = new VLVRunner(gen.phase6_layer6.size(), 20);
+        phase3_runner_outrect7 = new VLVRunner(gen.phase6_layer7.size(), 20);
+        phase3_runner_outrect8 = new VLVRunner(gen.phase6_layer8.size(), 20);
+        phase3_runner_outrect9 = new VLVRunner(gen.phase6_layer9.size(), 20);
+        phase3_runner_outrect10 = new VLVRunner(gen.phase6_layer10.size(), 20);
+        phase3_runner_outrect11 = new VLVRunner(gen.phase6_layer11.size(), 20);
 
         Animation.lower(phase1_runner_centerpieces, CYCLES_APPEAR, 10F, 0, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
                 gen.phase1_trapezoidx1,
@@ -89,79 +89,79 @@ public final class City{
                 gen.phase1_rects
         });
         Animation.lower(phase1_runner_walls, CYCLES_APPEAR, 64F, 0, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
-                gen.phase1_walls,
-                gen.phase1_walls_stripes,
-                gen.phase1_walls_caps
+                gen.phase2,
+                gen.phase2_stripes,
+                gen.phase2_caps
         });
         Animation.lower(phase1_runner_pillars, CYCLES_APPEAR, 289F, 0, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
-                gen.phase1_pillars,
-                gen.phase1_pillars_caps,
-                gen.phase1_pillars_blades
+                gen.phase3,
+                gen.phase3_caps,
+                gen.phase3_blades
         });
         Animation.lower(phase1_runner_pillars_baseframes, CYCLES_APPEAR, 134F, 0, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
-                gen.phase1_pillars_baseframe1,
-                gen.phase1_pillars_baseframe2,
-                gen.phase1_pillars_baseframe3,
-                gen.phase1_pillars_baseframe4
+                gen.phase3_baseframe1,
+                gen.phase3_baseframe2,
+                gen.phase3_baseframe3,
+                gen.phase3_baseframe4
         });
         Animation.lower(phase2_runner_pillars, CYCLES_APPEAR, 309, 0, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
-                gen.phase2_pillars
+                gen.phase4
         });
         Animation.lower(phase2_runner_pillars_caps, CYCLES_APPEAR, 139, 0, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
-                gen.phase2_pillars_caps,
-                gen.phase2_pillars_caps2
+                gen.phase4_caps,
+                gen.phase4_caps2
         });
         Animation.lower(phase3_runner_rect_layer1, CYCLES_APPEAR, 689F, 0, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
-                gen.phase3_rect_layer1,
-                gen.phase3_rect_layer1_stripes
+                gen.phase5_layer1,
+                gen.phase5_layer1_stripes
         });
         Animation.lower(phase3_runner_rect_layer1, CYCLES_APPEAR, 1289F, 0, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
-                gen.phase3_rect_layer2,
-                gen.phase3_rect_layer2_stripes
+                gen.phase5_layer2,
+                gen.phase5_layer2_stripes
         });
         Animation.lower(phase3_runner_rect_layer1, CYCLES_APPEAR, 1739F, 0, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
-                gen.phase3_rect_layer3,
-                gen.phase3_rect_layer3_stripes,
-                gen.phase3_rect_caps
+                gen.phase5_layer3,
+                gen.phase5_layer3_stripes,
+                gen.phase5_caps
         });
         Animation.lower(phase3_runner_trapezoids, CYCLES_APPEAR, 189F, 0, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
-                gen.phase3_trapezoidx1,
-                gen.phase3_trapezoidy1,
-                gen.phase3_trapezoidx2,
-                gen.phase3_trapezoidy2
+                gen.phase5_trapezoidx1,
+                gen.phase5_trapezoidy1,
+                gen.phase5_trapezoidx2,
+                gen.phase5_trapezoidy2
         });
         Animation.lower(phase3_runner_outrect1, CYCLES_APPEAR, 119F, 0, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
-                gen.phase3_outrect_layer1
+                gen.phase6_layer1
         });
         Animation.lower(phase3_runner_outrect2, CYCLES_APPEAR, 242F, 0, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
-                gen.phase3_outrect_layer2
+                gen.phase6_layer2
         });
         Animation.lower(phase3_runner_outrect3, CYCLES_APPEAR, 354F, 0, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
-                gen.phase3_outrect_layer3
+                gen.phase6_layer3
         });
         Animation.lower(phase3_runner_outrect4, CYCLES_APPEAR, 456F, 0, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
-                gen.phase3_outrect_layer4
+                gen.phase6_layer4
         });
         Animation.lower(phase3_runner_outrect5, CYCLES_APPEAR, 551F, 0, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
-                gen.phase3_outrect_layer5
+                gen.phase6_layer5
         });
         Animation.lower(phase3_runner_outrect6, CYCLES_APPEAR, 639F, 0, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
-                gen.phase3_outrect_layer6
+                gen.phase6_layer6
         });
         Animation.lower(phase3_runner_outrect7, CYCLES_APPEAR, 719F, 0, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
-                gen.phase3_outrect_layer7
+                gen.phase6_layer7
         });
         Animation.lower(phase3_runner_outrect8, CYCLES_APPEAR, 792F, 0, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
-                gen.phase3_outrect_layer8
+                gen.phase6_layer8
         });
         Animation.lower(phase3_runner_outrect9, CYCLES_APPEAR, 855F, 0, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
-                gen.phase3_outrect_layer9
+                gen.phase6_layer9
         });
         Animation.lower(phase3_runner_outrect10, CYCLES_APPEAR, 897F, 0, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
-                gen.phase3_outrect_layer10
+                gen.phase6_layer10
         });
         Animation.lower(phase3_runner_outrect11, CYCLES_APPEAR, 939F, 0, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
-                gen.phase3_outrect_layer11
+                gen.phase6_layer11
         });
 
         VLVManager m = gen.vManager();

@@ -41,6 +41,7 @@ public final class Puzzle{
 
     private static final int CYCLES_REVEAL_REPEAT = 300;
     private static final int CYCLES_REVEAL_REPEAT_FASTFORWARD_AFTER_INPUT = 180;
+    private static final int CYCLES_REVEAL_REPEAT_FASTFORWARD_FIRST = 250;
     private static final int CYCLES_REVEAL_INPUT = 20;
 
     private static final float Y_BOUNCE_HEIGHT_MULTIPLIER = 0.4f;
@@ -212,6 +213,8 @@ public final class Puzzle{
             @Override
             public void run(VLVConnection connection){
                 raisecontroller.purge();
+                raisecontroller = null;
+
                 Game.startGame(gen);
             }
         });
@@ -311,11 +314,6 @@ public final class Puzzle{
         controllerpiecerecycle.start();
     }
 
-    public static void revealResetTimer(){
-        revealinterval.reset();
-        revealinterval.fastForward(CYCLES_REVEAL_REPEAT_FASTFORWARD_AFTER_INPUT);
-    }
-
     public static void revealRepeat(){
         revealinterval = new VLVControl(CYCLES_REVEAL_REPEAT, VLVariable.LOOP_FORWARD, new VLTaskTargetValue(new VLTask.Task<VLVControl>(){
 
@@ -325,10 +323,15 @@ public final class Puzzle{
             }
         }));
 
-        revealinterval.fastForward(CYCLES_REVEAL_REPEAT_FASTFORWARD_AFTER_INPUT);
+        revealinterval.fastForward(CYCLES_REVEAL_REPEAT_FASTFORWARD_FIRST);
 
         controllerrevealinterval.add(new VLVRunnerEntry(revealinterval, 0));
         controllerrevealinterval.start();
+    }
+
+    public static void revealResetTimer(){
+        revealinterval.reset();
+        revealinterval.fastForward(CYCLES_REVEAL_REPEAT_FASTFORWARD_AFTER_INPUT);
     }
 
     public static void deactivate(int instance){
@@ -371,5 +374,16 @@ public final class Puzzle{
         if(!var.isIncreasing()){
             var.reverse();
         }
+    }
+
+    public static void reset(){
+        controllerpiecerecycle.clear();
+        controllerrevealinterval.clear();
+
+        getReveal().reset();
+
+        VLVManager deactivate = getDeactivate();
+        deactivate.reverse();
+        deactivate.reset();
     }
 }

@@ -55,16 +55,16 @@ public final class Game{
 
     private static void startMatchSymbolsGame(Gen gen){
         activatedSymbols = new VLListInt(BPLayer.INSTANCE_COUNT, 0);
-        activatedSymbols.virtualSize(BPLayer.INSTANCE_COUNT);
         enabledPieces = new boolean[BPLayer.INSTANCE_COUNT];
         revealedPieces = new boolean[BPLayer.INSTANCE_COUNT];
 
-        symbols = gen.bppieces.prepareMatchSymTexture(gen.pieces);
+        activatedSymbols.virtualSize(BPLayer.INSTANCE_COUNT);
 
         Arrays.fill(activatedSymbols.array(), -1);
         Arrays.fill(enabledPieces, true);
         Arrays.fill(revealedPieces, false);
 
+        symbols = gen.bppieces.prepareMatchSymTexture(gen.pieces);
         Puzzle.revealRepeat();
 
         Input.activateInputListeners(gen.pieces, new Runnable(){
@@ -108,7 +108,9 @@ public final class Game{
                             }
 
                             if(checkFinished()){
-                                Log.d("wtf", "ALL DONE");
+                                Puzzle.reset();
+                                startMatchSymbolsGame(gen);
+//                                City.initiateNextPhase();
                             }
 
                             linkdata.sync();

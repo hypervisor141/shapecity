@@ -5,6 +5,8 @@ import com.nurverek.vanguard.VLVCurved;
 import com.nurverek.vanguard.VLVManager;
 import com.nurverek.vanguard.VLVRunner;
 
+import java.util.Random;
+
 public final class City{
 
     //phase1 center items : 0 to -10
@@ -64,7 +66,11 @@ public final class City{
 
     private static VLVRunner phase7;
 
+    private static int phaseindex;
+
     public static void initialize(Gen gen){
+        phaseindex = 0;
+
         phase1 = new VLVRunner(gen.phase1_trapezoidx1.size() * 4 * 4 + gen.phase1_rects.size(), 20);
         phase2 = new VLVRunner(gen.phase2.size() * 3, 20);
         phase3 = new VLVRunner(gen.phase3.size() * 2 + 1, 20);
@@ -195,30 +201,58 @@ public final class City{
         m.add(phase7);
     }
 
-    public void raisePhase1(){
+    public static void initiateNextPhase(){
+        Camera.set(1000F, 1000F, 1000F, 0F, 0F, 0F);
+
+        if(phaseindex == 0){
+            raisePhase1();
+
+        }else if(phaseindex == 1){
+            raisePhase2();
+
+        }else if(phaseindex == 2){
+            raisePhase3();
+
+        }else if(phaseindex == 3){
+            raisePhase4();
+
+        }else if(phaseindex == 4){
+            raisePhase5();
+
+        }else if(phaseindex == 5){
+            raisePhase6();
+
+        }else if(phaseindex == 6){
+            raisePhase7();
+        }
+
+        phaseindex++;
+    }
+
+    public static void raisePhase1(){
         phase1.start();
     }
 
-    public void raisePhase2(){
+    public static void raisePhase2(){
         phase2.start();
     }
 
-    public void raisePhase3(){
+    public static void raisePhase3(){
         phase3.start();
         phase3_baseframes.start();
     }
 
-    public void raisePhase4(){
+    public static void raisePhase4(){
         phase4.start();
         phase4_caps.start();
     }
-    public void raisePhase5(){
+    public static void raisePhase5(){
         phase5_layer1.start();
         phase5_layer2.start();
         phase5_layer3.start();
         phase5_trapezoids.start();
     }
-    public void raisePhase6(){
+    public static void raisePhase6(){
         phase6_layer2.start();
         phase6_layer3.start();
         phase6_layer4.start();
@@ -231,7 +265,7 @@ public final class City{
         phase6_layer11.start();
     }
 
-    public void raisePhase7(){
+    public static void raisePhase7(){
         phase7.start();
     }
 }

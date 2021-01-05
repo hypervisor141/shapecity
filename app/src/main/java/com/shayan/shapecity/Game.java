@@ -72,7 +72,7 @@ public final class Game{
             @Override
             public void run(){
                 final int target = Input.closestPoint.instanceindex;
-                int count = getActiveSymbolCount();
+                int count = getRevealPiecesCount();
 
                 if(enabledPieces[target] && !revealedPieces[target] && count < GAME_MATCHSYM_PICK_LIMIT){
                     activatedSymbols.set(target, symbols[target]);
@@ -180,14 +180,11 @@ public final class Game{
         return true;
     }
 
-    private static int getActiveSymbolCount(){
-        int sym = 0;
+    private static int getRevealPiecesCount(){
         int activecount = 0;
 
-        for(int i = 0; i < activatedSymbols.size(); i++){
-            sym = activatedSymbols.get(i);
-
-            if(sym != -1 && enabledPieces[i]){
+        for(int i = 0; i < revealedPieces.length; i++){
+            if(revealedPieces[i] && enabledPieces[i]){
                 activecount++;
             }
         }

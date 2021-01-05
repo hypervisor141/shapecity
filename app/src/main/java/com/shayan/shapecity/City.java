@@ -194,4 +194,44 @@ public final class City{
         m.add(phase6_layer11);
         m.add(phase7);
     }
+
+    public void raisePhase1(){
+        phase1.start();
+    }
+
+    public void raisePhase2(){
+        phase2.start();
+    }
+
+    public void raisePhase3(){
+        phase3.start();
+        phase3_baseframes.start();
+    }
+
+    public void raisePhase4(){
+        phase4.start();
+        phase4_caps.start();
+    }
+    public void raisePhase5(){
+        phase5_layer1.start();
+        phase5_layer2.start();
+        phase5_layer3.start();
+        phase5_trapezoids.start();
+    }
+    public void raisePhase6(){
+        phase6_layer2.start();
+        phase6_layer3.start();
+        phase6_layer4.start();
+        phase6_layer5.start();
+        phase6_layer6.start();
+        phase6_layer7.start();
+        phase6_layer8.start();
+        phase6_layer9.start();
+        phase6_layer10.start();
+        phase6_layer11.start();
+    }
+
+    public void raisePhase7(){
+        phase7.start();
+    }
 }

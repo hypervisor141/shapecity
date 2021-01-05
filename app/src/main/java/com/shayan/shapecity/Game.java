@@ -25,7 +25,6 @@ public final class Game{
         Platform.initialize(gen);
         Puzzle.initialize(gen);
         City.initialize(gen);
-        Outbase.initialize(gen);
         Light.initialize(gen);
         Camera.initialize(gen);
     }

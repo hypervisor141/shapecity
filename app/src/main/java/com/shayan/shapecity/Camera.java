@@ -18,9 +18,7 @@ public final class Camera{
     private static final float DISTANCE_FROM_PLATFORM_FINAL = 2F;
 
     private static final int CYCLES_CAMERA_PLACEMENT = 100;
-    private static final int CYCLES_DESCEND = 180;
-
-    private static final int DELAY_DESCEND = 120;
+    private static final int CYCLES_DESCEND = 240;
 
     private static final VLVCurved.Curve CURVE_CAMERA_PLACEMENT = VLVCurved.CURVE_ACC_DEC_COS;
     private static final VLVCurved.Curve CURVE_DESCEND = VLVCurved.CURVE_ACC_DEC_COS;
@@ -37,14 +35,15 @@ public final class Camera{
         final float initialvalue = platformy + DISTANCE_FROM_PLATFORM_ASCEND;
 
         set(0F, 1000F, 0.01F,0F, -1000F, 0);
-        move(0F, initialvalue, -0.01F, 0F, initialvalue - 10F, 0, DELAY_DESCEND, CYCLES_DESCEND, CURVE_DESCEND, post);
+        move(0F, initialvalue, -0.01F, 0F, initialvalue - 10F, 0, 0, CYCLES_DESCEND, CURVE_DESCEND, post);
     }
 
-    public static void riseWithPlatform(Gen gen){
+    public static void riseWithPlatform(final Gen gen){
         move(0F, DISTANCE_REVEAL_PLATFORM, -0.01F, 0, -1000F, 0F, Platform.DELAY_RISE, Platform.CYCLES_RISE, Platform.CURVE_RISE, new Runnable(){
 
             @Override
             public void run(){
+                Light.radiateForPuzzle(gen);
                 move(0F, DISTANCE_FROM_PLATFORM_FINAL, -0.01F, 0, -1000F, 0F, 0, CYCLES_CAMERA_PLACEMENT, CURVE_CAMERA_PLACEMENT, null);
             }
         });

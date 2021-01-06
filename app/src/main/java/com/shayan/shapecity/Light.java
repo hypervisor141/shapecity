@@ -1,10 +1,10 @@
 package com.shayan.shapecity;
 
+import android.opengl.Matrix;
+import android.util.Log;
+
 import com.nurverek.firestorm.FSAttenuation;
-import com.nurverek.firestorm.FSControl;
 import com.nurverek.firestorm.FSRenderer;
-import com.nurverek.firestorm.FSViewConfig;
-import com.nurverek.vanguard.VLArrayFloat;
 import com.nurverek.vanguard.VLTask;
 import com.nurverek.vanguard.VLTaskContinous;
 import com.nurverek.vanguard.VLVControl;
@@ -16,13 +16,9 @@ import com.nurverek.vanguard.VLVariable;
 public final class Light{
 
     private static final int CYCLES_PHASE_CHANGE = 200;
-    private static final int CYCLES_DESCEND = 180;
-
-    private static final int DELAY_DESCEND = 120;
-
-    private static final VLVCurved.Curve CURVE_DESCEND = VLVCurved.CURVE_ACC_DEC_COS;
-
-    private final static float[] CACHE = new float[16];
+    private static final int CYCLES_DESCEND = 120;
+    private static final int CYCLES_RADIATE_FOR_PUZZLE = 60;
+    private static final VLVCurved.Curve CURVE_DEFAULT = VLVCurved.CURVE_ACC_DEC_COS;
     private static VLVRunner controller;
 
     public static void initialize(Gen gen){
@@ -31,12 +27,22 @@ public final class Light{
     }
 
     public static void descend(Gen gen){
-        set(gen, 0, 0, 0,10000F);
-        move(gen, 0, 0, 0, 20F, 0, CYCLES_DESCEND, CURVE_DESCEND, null);
+        set(gen, 0F, 0F, 0F,10000F);
+        move(gen, 0F, 0F, 0F, 20F, 0, CYCLES_DESCEND, CURVE_DEFAULT, null);
     }
 
     public static void placeAbovePlatform(Gen gen){
-        set(gen,0, 10, 0, 20F);
+        set(gen,0F, 10F, 0F, 20F);
+    }
+
+    public static void radiateForPuzzle(final Gen gen){
+        move(gen, 0.75F, 1.25F, 0.75F, 5F, 0, CYCLES_RADIATE_FOR_PUZZLE, CURVE_DEFAULT, new Runnable(){
+
+            @Override
+            public void run(){
+                rotate(gen,0F, 360F, 0F, 1F, 0F,0,300, VLVCurved.CURVE_LINEAR, VLVariable.LOOP_FORWARD);
+            }
+        });
     }
 
     public static void set(Gen gen, float x, float y, float z, float radius){
@@ -79,5 +85,30 @@ public final class Light{
         controller.add(new VLVRunnerEntry(controlradius, delay));
         controller.add(new VLVRunnerEntry(update, delay));
         controller.start();
+    }
+
+    public static void rotate(final Gen gen, float fromangle, float toangle, final float x, final float y, final float z, int delay, int cycles, VLVCurved.Curve curve, VLVariable.Loop loop){
+        final float[] orgpos = gen.light.position().provider().clone();
+
+        VLVCurved angle = new VLVCurved(fromangle, toangle, cycles, loop, curve, new VLTaskContinous(new VLTask.Task(){
+
+            private float[] cache = new float[16];
+
+            @Override
+            public void run(VLTask task, VLVariable var){
+                final float[] pos = gen.light.position().provider();
+
+                Matrix.setIdentityM(cache, 0);
+                Matrix.rotateM(cache, 0, var.get(), x, y, z);
+                Matrix.multiplyMV(pos, 0, cache, 0, orgpos, 0);
+            }
+        }));
+
+        controller.add(new VLVRunnerEntry(angle, delay));
+        controller.start();
+    }
+
+    public static void clearController(){
+        controller.clear();
     }
 }

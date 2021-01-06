@@ -17,36 +17,30 @@ public final class Camera{
     private static final float DISTANCE_REVEAL_PLATFORM = 5F;
     private static final float DISTANCE_FROM_PLATFORM_FINAL = 2F;
 
-    private static final int CYCLES_CAMERA_PLACEMENT = 10;
-//    private static final int CYCLES_CAMERA_PLACEMENT = 100;
+    private static final int CYCLES_CAMERA_PLACEMENT = 100;
+    private static final int CYCLES_DESCEND = 180;
+
+    private static final int DELAY_DESCEND = 120;
 
     private static final VLVCurved.Curve CURVE_CAMERA_PLACEMENT = VLVCurved.CURVE_ACC_DEC_COS;
+    private static final VLVCurved.Curve CURVE_DESCEND = VLVCurved.CURVE_ACC_DEC_COS;
 
-    private static VLVCurved controlx;
-    private static VLVCurved controly;
-    private static VLVCurved controlz;
-    private static VLVCurved controlviewx;
-    private static VLVCurved controlviewy;
-    private static VLVCurved controlviewz;
-    private static VLVControl update;
     private static VLVRunner controller;
 
     public static void initialize(Gen gen){
         controller = new VLVRunner(10, 10);
         FSRenderer.getControlManager().add(controller);
-
-        setupPlatformRise(gen);
     }
 
-    private static void setupPlatformRise(Gen gen){
+    public static void descend(Gen gen, Runnable post){
         final float platformy = gen.platform.instance(0).modelMatrix().getY(0).get();
         final float initialvalue = platformy + DISTANCE_FROM_PLATFORM_ASCEND;
 
-        FSViewConfig config = FSControl.getViewConfig();
-        config.eyePosition(0F, initialvalue, -0.01F);
-        config.lookAt(0f, initialvalue - 10F, 0f, 0f, 1f, 0f);
-        config.updateViewProjection();
+        set(0F, 1000F, 0.01F,0F, -1000F, 0);
+        move(0F, initialvalue, -0.01F, 0F, initialvalue - 10F, 0, DELAY_DESCEND, CYCLES_DESCEND, CURVE_DESCEND, post);
+    }
 
+    public static void riseWithPlatform(Gen gen){
         move(0F, DISTANCE_REVEAL_PLATFORM, -0.01F, 0, -1000F, 0F, Platform.DELAY_RISE, Platform.CYCLES_RISE, Platform.CURVE_RISE, new Runnable(){
 
             @Override
@@ -64,17 +58,16 @@ public final class Camera{
     }
 
     public static void move(float x, float y, float z, float viewx, float viewy, float viewz, int delay, int cycles, VLVCurved.Curve curve, final Runnable post){
-        FSViewConfig config = FSControl.getViewConfig();
-        final float[] orgviewsettings = config.viewMatrixSettings().provider().clone();
+        final float[] orgviewsettings = FSControl.getViewConfig().viewMatrixSettings().provider().clone();
 
-        controlx = new VLVCurved(orgviewsettings[0], x, cycles, VLVariable.LOOP_NONE, curve);
-        controly = new VLVCurved(orgviewsettings[1], y, cycles, VLVariable.LOOP_NONE, curve);
-        controlz = new VLVCurved(orgviewsettings[2], z, cycles, VLVariable.LOOP_NONE, curve);
-        controlviewx = new VLVCurved(orgviewsettings[3], viewx, cycles, VLVariable.LOOP_NONE, curve);
-        controlviewy = new VLVCurved(orgviewsettings[4], viewx, cycles, VLVariable.LOOP_NONE, curve);
-        controlviewz = new VLVCurved(orgviewsettings[5], viewx, cycles, VLVariable.LOOP_NONE, curve);
+        VLVCurved controlx = new VLVCurved(orgviewsettings[0], x, cycles, VLVariable.LOOP_NONE, curve);
+        VLVCurved controly = new VLVCurved(orgviewsettings[1], y, cycles, VLVariable.LOOP_NONE, curve);
+        VLVCurved controlz = new VLVCurved(orgviewsettings[2], z, cycles, VLVariable.LOOP_NONE, curve);
+        VLVCurved controlviewx = new VLVCurved(orgviewsettings[3], viewx, cycles, VLVariable.LOOP_NONE, curve);
+        VLVCurved controlviewy = new VLVCurved(orgviewsettings[4], viewy, cycles, VLVariable.LOOP_NONE, curve);
+        VLVCurved controlviewz = new VLVCurved(orgviewsettings[5], viewz, cycles, VLVariable.LOOP_NONE, curve);
 
-        update = new VLVControl(cycles, VLVariable.LOOP_NONE, new VLTaskContinous(new VLTask.Task(){
+        VLVControl update = new VLVControl(cycles, VLVariable.LOOP_NONE, new VLTaskContinous(new VLTask.Task(){
 
             @Override
             public void run(VLTask task, VLVariable var){

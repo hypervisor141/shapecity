@@ -201,8 +201,8 @@ public final class City{
         m.add(phase7);
     }
 
-    public static void initiateNextPhase(){
-        Camera.set(1000F, 1000F, 1000F, 0F, 0F, 0F);
+    public static void initiateNextPhase(Runnable post){
+//        Camera.move(1000F, 1000F, 1000F, 0F, 0F, 0F, 0, 1000, VLVCurved.CURVE_ACC_DEC_COS, null);
 
         if(phaseindex == 0){
             raisePhase1();
@@ -227,6 +227,8 @@ public final class City{
         }
 
         phaseindex++;
+
+        post.run();
     }
 
     public static void raisePhase1(){

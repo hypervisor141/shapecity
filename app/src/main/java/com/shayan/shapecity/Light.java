@@ -16,23 +16,26 @@ import com.nurverek.vanguard.VLVariable;
 public final class Light{
 
     private static final int CYCLES_PHASE_CHANGE = 200;
+    private static final int CYCLES_DESCEND = 180;
+
+    private static final int DELAY_DESCEND = 120;
+
+    private static final VLVCurved.Curve CURVE_DESCEND = VLVCurved.CURVE_ACC_DEC_COS;
 
     private final static float[] CACHE = new float[16];
-    private static VLVCurved controlx;
-    private static VLVCurved controly;
-    private static VLVCurved controlz;
-    private static VLVCurved controlradius;
-    private static VLVControl update;
     private static VLVRunner controller;
 
     public static void initialize(Gen gen){
-        controller = new VLVRunner(3, 0);
+        controller = new VLVRunner(10, 10);
         FSRenderer.getControlManager().add(controller);
-
-        setupPlatformRise(gen);
     }
 
-    private static void setupPlatformRise(Gen gen){
+    public static void descend(Gen gen){
+        set(gen, 0, 0, 0,10000F);
+        move(gen, 0, 0, 0, 20F, 0, CYCLES_DESCEND, CURVE_DESCEND, null);
+    }
+
+    public static void placeAbovePlatform(Gen gen){
         set(gen,0, 10, 0, 20F);
     }
 
@@ -49,12 +52,12 @@ public final class Light{
         final float[] orgpos = gen.light.position().provider().clone();
         float orgradius = ((FSAttenuation.Radius)gen.light.attenuation()).radius().get();
 
-        controlx = new VLVCurved(orgpos[0], x, cycles, VLVariable.LOOP_NONE, curve);
-        controly = new VLVCurved(orgpos[1], y, cycles, VLVariable.LOOP_NONE, curve);
-        controlz = new VLVCurved(orgpos[2], z, cycles, VLVariable.LOOP_NONE, curve);
-        controlradius = new VLVCurved(orgradius, radius, cycles, VLVariable.LOOP_NONE, curve);
+        VLVCurved controlx = new VLVCurved(orgpos[0], x, cycles, VLVariable.LOOP_NONE, curve);
+        VLVCurved controly = new VLVCurved(orgpos[1], y, cycles, VLVariable.LOOP_NONE, curve);
+        VLVCurved controlz = new VLVCurved(orgpos[2], z, cycles, VLVariable.LOOP_NONE, curve);
+        VLVCurved controlradius = new VLVCurved(orgradius, radius, cycles, VLVariable.LOOP_NONE, curve);
 
-        update = new VLVControl(cycles, VLVariable.LOOP_NONE, new VLTaskContinous(new VLTask.Task(){
+        VLVControl update = new VLVControl(cycles, VLVariable.LOOP_NONE, new VLTaskContinous(new VLTask.Task(){
 
             @Override
             public void run(VLTask task, VLVariable var){

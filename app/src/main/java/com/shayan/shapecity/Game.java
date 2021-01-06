@@ -1,7 +1,5 @@
 package com.shayan.shapecity;
 
-import android.util.Log;
-
 import com.nurverek.vanguard.VLArrayFloat;
 import com.nurverek.vanguard.VLListInt;
 
@@ -27,6 +25,18 @@ public final class Game{
         City.initialize(gen);
         Light.initialize(gen);
         Camera.initialize(gen);
+
+        Light.descend(gen);
+        Camera.descend(gen, new Runnable(){
+
+            @Override
+            public void run(){
+                Platform.raisePlatform();
+                Puzzle.raisePuzzleAndStartGame(gen);
+                Camera.riseWithPlatform(gen);
+                Light.placeAbovePlatform(gen);
+            }
+        });
     }
 
     public static void startGame(Gen gen){
@@ -108,9 +118,14 @@ public final class Game{
                             }
 
                             if(checkFinished()){
-                                Puzzle.reset();
-                                startMatchSymbolsGame(gen);
-//                                City.initiateNextPhase();
+                                City.initiateNextPhase(new Runnable(){
+
+                                    @Override
+                                    public void run(){
+                                        Puzzle.reset(gen);
+                                        startMatchSymbolsGame(gen);
+                                    }
+                                });
                             }
 
                             linkdata.sync();

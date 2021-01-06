@@ -9,8 +9,8 @@ public final class Platform{
     //max puzzlebase height : -10 to 1990
     //platform : -24 to 0
 
-//    public static final int CYCLES_RISE = 500;
-    public static final int CYCLES_RISE = 10;
+    public static final int CYCLES_RISE = 400;
+//    public static final int CYCLES_RISE = 10;
     public static final int DELAY_RISE = 20;
     public static final VLVCurved.Curve CURVE_RISE = VLVCurved.CURVE_DEC_SINE_SQRT;
 
@@ -24,7 +24,9 @@ public final class Platform{
         });
 
         gen.vManager().add(runner_platformrise);
+    }
 
+    public static void raisePlatform(){
         runner_platformrise.start();
     }
 }

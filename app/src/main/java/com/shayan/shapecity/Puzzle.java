@@ -66,7 +66,6 @@ public final class Puzzle{
         vmanager.add(raisecontroller);
 
         setupGameplay(gen);
-        raisePuzzleAndStartGame(gen);
     }
 
     public static void setupGameplay(Gen gen){
@@ -376,14 +375,29 @@ public final class Puzzle{
         }
     }
 
-    public static void reset(){
+    public static void reset(Gen gen){
         controllerpiecerecycle.clear();
         controllerrevealinterval.clear();
 
-        getReveal().reset();
+        VLVRunner bounce = getBounce();
+        VLVManager blink = getBlink();
+        VLVRunner texblink = getTexBlink();
+
+        VLVariable var;
+
+        for(int i = 0; i < gen.pieces.size(); i++){
+            ((VLVariable)((VLVRunnerEntry)bounce.get(i)).target).setLoop(VLVariable.LOOP_RETURN_ONCE);
+
+            for(int i2 = 0; i2 < 4; i2++){
+                ((VLVariable)((VLVRunnerEntry)blink.get(i2).get(i)).target).setLoop(VLVariable.LOOP_RETURN_ONCE);
+            }
+
+            ((VLVariable)((VLVRunnerEntry)texblink.get(i)).target).setLoop(VLVariable.LOOP_RETURN_ONCE);
+        }
 
         VLVManager deactivate = getDeactivate();
         deactivate.reverse();
         deactivate.reset();
+        deactivate.start();
     }
 }

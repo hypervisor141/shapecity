@@ -36,7 +36,7 @@ public final class Light{
     }
 
     public static void radiateForPuzzle(final Gen gen){
-        move(gen, 0.75F, 1.25F, 0.75F, 5F, 0, CYCLES_RADIATE_FOR_PUZZLE, CURVE_DEFAULT, new Runnable(){
+        move(gen, 0.1F, 1.5F, 0.1F, 1.5F, 0, CYCLES_RADIATE_FOR_PUZZLE, CURVE_DEFAULT, new Runnable(){
 
             @Override
             public void run(){

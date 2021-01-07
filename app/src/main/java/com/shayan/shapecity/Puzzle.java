@@ -275,7 +275,7 @@ public final class Puzzle{
         VLVManager blink = getBlink();
         VLVRunner texblink = getTexBlink();
         VLVRunnerEntry entry;
-
+        
         entry = bounce.get(instance);
         entry.initialize(CYCLES_REVEAL_INPUT);
         entry.delay(0);

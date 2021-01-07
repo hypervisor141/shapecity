@@ -34,7 +34,7 @@ public final class Camera{
         final float platformy = gen.platform.instance(0).modelMatrix().getY(0).get();
         final float initialvalue = platformy + DISTANCE_FROM_PLATFORM_ASCEND;
 
-        set(0F, 1000F, 0.01F,0F, -1000F, 0);
+        set(0F, 4000F, 0.01F,0F, -1000F, 0);
         move(0F, initialvalue, -0.01F, 0F, initialvalue - 10F, 0, 0, CYCLES_DESCEND, CURVE_DESCEND, post);
     }
 

@@ -2,6 +2,7 @@ package com.shayan.shapecity;
 
 import com.nurverek.vanguard.VLArrayFloat;
 import com.nurverek.vanguard.VLListInt;
+import com.nurverek.vanguard.VLVCurved;
 
 import java.util.Arrays;
 
@@ -84,60 +85,55 @@ public final class Game{
                 final int target = Input.closestPoint.instanceindex;
                 int count = getRevealPiecesCount();
 
-                if(enabledPieces[target] && !revealedPieces[target] && count < GAME_MATCHSYM_PICK_LIMIT){
-                    activatedSymbols.set(target, symbols[target]);
-                    revealedPieces[target] = true;
+                startNextPhase(gen);
 
-                    count++;
-
-                    if(count >= GAME_MATCHSYM_PICK_LIMIT){
-                        int match = checkSymbolMatch();
-
-                        if(match != -1){
-                            int counter = 0;
-                            int indexbounce = 0;
-                            int indexblink = 0;
-                            int indextexblink = 0;
-
-                            VLArrayFloat linkdata = ((ModColor.TextureControlLink)gen.pieces.link(0)).data;
-
-                            for(int i = 0; i < activatedSymbols.size(); i++){
-                                if(activatedSymbols.get(i) == match){
-                                    enabledPieces[i] = false;
-                                    activatedSymbols.set(i, -1);
-
-                                    Puzzle.deactivate(i);
-                                    linkdata.set(i, Puzzle.TEXCONTROL_ACTIVE);
-
-                                    counter++;
-
-                                    if(counter >= GAME_MATCHSYM_PICK_LIMIT){
-                                        break;
-                                    }
-                                }
-                            }
-
-                            if(checkFinished()){
-                                City.initiateNextPhase(new Runnable(){
-
-                                    @Override
-                                    public void run(){
-                                        Puzzle.reset(gen);
-                                        startMatchSymbolsGame(gen);
-                                    }
-                                });
-                            }
-
-                            linkdata.sync();
-
-                        }else{
-                            reveal(target);
-                        }
-
-                    }else{
-                        reveal(target);
-                    }
-                }
+//                if(enabledPieces[target] && !revealedPieces[target] && count < GAME_MATCHSYM_PICK_LIMIT){
+//                    activatedSymbols.set(target, symbols[target]);
+//                    revealedPieces[target] = true;
+//
+//                    count++;
+//
+//                    if(count >= GAME_MATCHSYM_PICK_LIMIT){
+//                        int match = checkSymbolMatch();
+//
+//                        if(match != -1){
+//                            int counter = 0;
+//                            int indexbounce = 0;
+//                            int indexblink = 0;
+//                            int indextexblink = 0;
+//
+//                            VLArrayFloat linkdata = ((ModColor.TextureControlLink)gen.pieces.link(0)).data;
+//
+//                            for(int i = 0; i < activatedSymbols.size(); i++){
+//                                if(activatedSymbols.get(i) == match){
+//                                    enabledPieces[i] = false;
+//                                    activatedSymbols.set(i, -1);
+//
+//                                    Puzzle.deactivate(i);
+//                                    linkdata.set(i, Puzzle.TEXCONTROL_ACTIVE);
+//
+//                                    counter++;
+//
+//                                    if(counter >= GAME_MATCHSYM_PICK_LIMIT){
+//                                        break;
+//                                    }
+//                                }
+//                            }
+//
+//                            if(checkFinished()){
+//                                startNextPhase(gen);
+//                            }
+//
+//                            linkdata.sync();
+//
+//                        }else{
+//                            reveal(target);
+//                        }
+//
+//                    }else{
+//                        reveal(target);
+//                    }
+//                }
             }
         });
     }
@@ -207,5 +203,34 @@ public final class Game{
         }
 
         return activecount;
+    }
+
+    private static void startNextPhase(Gen gen){
+        Puzzle.reset(gen);
+
+//        City.initiateNextPhase(new Runnable(){
+//
+//            @Override
+//            public void run(){
+//
+//            }
+//        });
+
+        Camera.move(0, 25F, -0.01F, 0, 0, 0, 60, 120, VLVCurved.CURVE_ACC_DEC_CUBIC, new Runnable(){
+
+            @Override
+            public void run(){
+                Light.move(gen, 0, 100F, 0, 700F, 0,240,VLVCurved.CURVE_ACC_DEC_CUBIC, null);
+
+                Camera.move(500F, 300F, 500F, 0, 0, 0, 0, 120, VLVCurved.CURVE_ACC_DEC_CUBIC, new Runnable(){
+
+                    @Override
+                    public void run(){
+                        City.raisePhase2();
+//                startMatchSymbolsGame(gen);
+                    }
+                });
+            }
+        });
     }
 }

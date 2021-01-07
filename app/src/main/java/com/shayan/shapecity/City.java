@@ -179,6 +179,7 @@ public final class City{
         });
 
         VLVManager m = gen.vManager();
+        m.add(phase1);
         m.add(phase2);
         m.add(phase3);
         m.add(phase3_baseframes);

@@ -220,13 +220,23 @@ public final class Game{
 
             @Override
             public void run(){
-                Light.move(gen, 0, 100F, 0, 700F, 0,240,VLVCurved.CURVE_ACC_DEC_CUBIC, null);
+                Light.move(gen, 0, 100F, 0, 700F, 0,120, VLVCurved.CURVE_ACC_DEC_CUBIC, null);
 
-                Camera.move(500F, 300F, 500F, 0, 0, 0, 0, 120, VLVCurved.CURVE_ACC_DEC_CUBIC, new Runnable(){
+                Camera.move(750F, 300F, 750F, 0, 0, 0, 0, 120, VLVCurved.CURVE_ACC_DEC_CUBIC, new Runnable(){
 
                     @Override
                     public void run(){
                         City.raisePhase2();
+
+                        Camera.move(750F, 300F, 750F, 0, 0, 0, 0, 120, VLVCurved.CURVE_ACC_DEC_CUBIC, new Runnable(){
+
+                            @Override
+                            public void run(){
+                                City.raisePhase2();
+//                startMatchSymbolsGame(gen);
+                            }
+                        });
+
 //                startMatchSymbolsGame(gen);
                     }
                 });

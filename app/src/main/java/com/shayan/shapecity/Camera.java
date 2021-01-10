@@ -1,5 +1,7 @@
 package com.shayan.shapecity;
 
+import android.opengl.Matrix;
+
 import com.nurverek.firestorm.FSControl;
 import com.nurverek.firestorm.FSRenderer;
 import com.nurverek.firestorm.FSViewConfig;
@@ -56,6 +58,19 @@ public final class Camera{
         config.updateViewProjection();
     }
 
+    public static void position(float x, float y, float z){
+        FSViewConfig config = FSControl.getViewConfig();
+        config.eyePosition(x, y, z);
+        config.lookAtUpdate();
+        config.updateViewProjection();
+    }
+
+    public static void lookAt(float viewx, float viewy, float viewz){
+        FSViewConfig config = FSControl.getViewConfig();
+        config.lookAt(viewx, viewy, viewz, 0f, 1f, 0f);
+        config.updateViewProjection();
+    }
+
     public static void move(float x, float y, float z, float viewx, float viewy, float viewz, int delay, int cycles, VLVCurved.Curve curve, final Runnable post){
         final float[] orgviewsettings = FSControl.getViewConfig().viewMatrixSettings().provider().clone();
 
@@ -90,5 +105,56 @@ public final class Camera{
         controller.add(new VLVRunnerEntry(controlviewz, delay));
         controller.add(new VLVRunnerEntry(update, delay));
         controller.start();
+    }
+
+    public static void rotate(float fromangle, float toangle, float x, float y, float z, float viewx, float viewy, float viewz, int delay, int cycles, VLVCurved.Curve curve, VLVariable.Loop loop){
+        final float[] orgviewsettings = FSControl.getViewConfig().viewMatrixSettings().provider().clone();
+        VLVCurved angle = new VLVCurved(fromangle, toangle, cycles, loop, curve, new VLTaskContinous(new VLTask.Task(){
+
+            private float[] cache = new float[16];
+
+            @Override
+            public void run(VLTask task, VLVariable var){
+                FSViewConfig config = FSControl.getViewConfig();
+                final float[] pos = config.eyePosition().provider();
+
+                Matrix.setIdentityM(cache, 0);
+                Matrix.rotateM(cache, 0, var.get(), x, y, z);
+                Matrix.multiplyMV(pos, 0, cache, 0, orgviewsettings, 0);
+
+                config.eyePositionDivideByW();
+                config.lookAtUpdate();
+            }
+        }));
+
+        VLVCurved controlviewx = new VLVCurved(orgviewsettings[3], viewx, cycles, VLVariable.LOOP_NONE, curve);
+        VLVCurved controlviewy = new VLVCurved(orgviewsettings[4], viewy, cycles, VLVariable.LOOP_NONE, curve);
+        VLVCurved controlviewz = new VLVCurved(orgviewsettings[5], viewz, cycles, VLVariable.LOOP_NONE, curve);
+
+        VLVControl update = new VLVControl(cycles, loop, new VLTaskContinous(new VLTask.Task(){
+
+            @Override
+            public void run(VLTask task, VLVariable var){
+                lookAt(controlviewx.get(), controlviewy.get(), controlviewz.get());
+
+                if(!var.active()){
+                    controller.clear();
+                }
+            }
+        }));
+
+        controller.add(new VLVRunnerEntry(angle, delay));
+        controller.start();
+
+        controller.add(new VLVRunnerEntry(angle, delay));
+        controller.add(new VLVRunnerEntry(controlviewx, delay));
+        controller.add(new VLVRunnerEntry(controlviewy, delay));
+        controller.add(new VLVRunnerEntry(controlviewz, delay));
+        controller.add(new VLVRunnerEntry(update, delay));
+        controller.start();
+    }
+
+    public static void clear(){
+        controller.clear();
     }
 }

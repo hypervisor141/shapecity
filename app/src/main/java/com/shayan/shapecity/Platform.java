@@ -12,6 +12,7 @@ public final class Platform{
     public static final int CYCLES_RISE = 400;
 //    public static final int CYCLES_RISE = 10;
     public static final int DELAY_RISE = 20;
+
     public static final VLVCurved.Curve CURVE_RISE = VLVCurved.CURVE_DEC_SINE_SQRT;
 
     private static VLVRunner runner_platformrise;
@@ -19,7 +20,7 @@ public final class Platform{
     public static void initialize(Gen gen){
         runner_platformrise = new VLVRunner(1, 0);
 
-        Animation.lower(runner_platformrise, CYCLES_RISE, 14, DELAY_RISE, CURVE_RISE, new FSMesh[]{
+        Animation.lower(runner_platformrise, CYCLES_RISE, CYCLES_RISE, 14, DELAY_RISE, DELAY_RISE, CURVE_RISE, new FSMesh[]{
                 gen.platform
         });
 

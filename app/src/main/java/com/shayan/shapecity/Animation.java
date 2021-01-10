@@ -42,8 +42,10 @@ public class Animation{
     public static final float[] COLOR_PURPLE = new float[]{ 0.282F, 0.135F, 1.0F, 1F };
     public static final float[] COLOR_PURPLE_MORE = new float[]{ 0F, 0.237F, 0.320F, 1F };
 
-    protected static void lower(VLVRunner runner, int cycles, float decrease, int delay, VLVCurved.Curve curve, FSMesh[] group){
+    protected static void lower(VLVRunner runner, int mincycles, int maxcycles, float decrease, int mindelay, int maxdelay, VLVCurved.Curve curve, FSMesh[] group){
         int size = group.length;
+        int cyclediff = maxcycles - mincycles;
+        int delaydiff = maxdelay - mindelay;
 
         for(int i = 0; i < size; i++){
             FSMesh mesh = group[i];
@@ -53,12 +55,13 @@ public class Animation{
                 FSMatrixModel model = instance.modelMatrix();
 
                 float y = model.getY(0).get();
-                VLVCurved var = new VLVCurved(y - decrease, y, cycles, VLVariable.LOOP_NONE, curve);
+
+                VLVCurved var = new VLVCurved(y - decrease, y, cyclediff == 0 ? maxcycles : mincycles + Gen.RANDOM.nextInt(cyclediff), VLVariable.LOOP_NONE, curve);
                 var.SYNCER.add(new VLVMatrix.Definition(model));
 
                 model.setY(0, var);
 
-                runner.add(new VLVRunnerEntry(var, delay));
+                runner.add(new VLVRunnerEntry(var, delaydiff == 0 ? maxdelay : mindelay + Gen.RANDOM.nextInt(delaydiff)));
             }
         }
 

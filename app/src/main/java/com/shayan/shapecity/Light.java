@@ -108,7 +108,7 @@ public final class Light{
         controller.start();
     }
 
-    public static void clearController(){
+    public static void clear(){
         controller.clear();
     }
 }

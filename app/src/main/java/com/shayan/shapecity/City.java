@@ -5,8 +5,6 @@ import com.nurverek.vanguard.VLVCurved;
 import com.nurverek.vanguard.VLVManager;
 import com.nurverek.vanguard.VLVRunner;
 
-import java.util.Random;
-
 public final class City{
 
     //phase1 center items : 0 to -10
@@ -38,7 +36,10 @@ public final class City{
 
     //phase7 powerplants : -950 to -10
 
-    private static int CYCLES_APPEAR = 100;
+    private static int CYCLES_APPEAR_MIN = 120;
+    private static int CYCLES_APPEAR_MAX = 240;
+    private static int DELAY_APPEAR_MIN = 0;
+    private static int DELAY_APPEAR_MAX = 200;
 
     private static VLVRunner phase1;
     private static VLVRunner phase2;
@@ -93,86 +94,86 @@ public final class City{
         phase6_layer11 = new VLVRunner(gen.phase6_layer11.size(), 20);
         phase7 = new VLVRunner(gen.phase7.size(), 20);
 
-        Animation.lower(phase1, CYCLES_APPEAR, 10F, 0, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
+        Animation.lower(phase1, CYCLES_APPEAR_MIN, CYCLES_APPEAR_MAX, 10F, DELAY_APPEAR_MIN, DELAY_APPEAR_MAX, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
                 gen.phase1_trapezoidx1,
                 gen.phase1_trapezoidy1,
                 gen.phase1_trapezoidx2,
                 gen.phase1_trapezoidy2,
                 gen.phase1_rects
         });
-        Animation.lower(phase2, CYCLES_APPEAR, 64F, 0, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
+        Animation.lower(phase2, CYCLES_APPEAR_MIN, CYCLES_APPEAR_MAX, 64F, DELAY_APPEAR_MIN, DELAY_APPEAR_MAX, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
                 gen.phase2,
                 gen.phase2_stripes,
                 gen.phase2_caps
         });
-        Animation.lower(phase3, CYCLES_APPEAR, 289F, 0, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
+        Animation.lower(phase3, CYCLES_APPEAR_MIN, CYCLES_APPEAR_MAX, 289F, DELAY_APPEAR_MIN, DELAY_APPEAR_MAX, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
                 gen.phase3,
                 gen.phase3_caps,
                 gen.phase3_blades
         });
-        Animation.lower(phase3_baseframes, CYCLES_APPEAR, 134F, 0, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
+        Animation.lower(phase3_baseframes, CYCLES_APPEAR_MIN, CYCLES_APPEAR_MAX, 134F, DELAY_APPEAR_MIN, DELAY_APPEAR_MAX, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
                 gen.phase3_baseframe1,
                 gen.phase3_baseframe2,
                 gen.phase3_baseframe3,
                 gen.phase3_baseframe4
         });
-        Animation.lower(phase4, CYCLES_APPEAR, 309, 0, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
+        Animation.lower(phase4, CYCLES_APPEAR_MIN, CYCLES_APPEAR_MAX, 309, DELAY_APPEAR_MIN, DELAY_APPEAR_MAX, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
                 gen.phase4
         });
-        Animation.lower(phase4_caps, CYCLES_APPEAR, 139, 0, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
+        Animation.lower(phase4_caps, CYCLES_APPEAR_MIN, CYCLES_APPEAR_MAX, 139, DELAY_APPEAR_MIN, DELAY_APPEAR_MAX, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
                 gen.phase4_caps,
                 gen.phase4_caps2
         });
-        Animation.lower(phase5_layer1, CYCLES_APPEAR, 689F, 0, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
+        Animation.lower(phase5_layer1, CYCLES_APPEAR_MIN, CYCLES_APPEAR_MAX, 689F, DELAY_APPEAR_MIN, DELAY_APPEAR_MAX, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
                 gen.phase5_layer1,
                 gen.phase5_layer1_stripes
         });
-        Animation.lower(phase5_layer1, CYCLES_APPEAR, 1289F, 0, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
+        Animation.lower(phase5_layer1, CYCLES_APPEAR_MIN, CYCLES_APPEAR_MAX, 1289F, DELAY_APPEAR_MIN, DELAY_APPEAR_MAX, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
                 gen.phase5_layer2,
                 gen.phase5_layer2_stripes
         });
-        Animation.lower(phase5_layer1, CYCLES_APPEAR, 1739F, 0, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
+        Animation.lower(phase5_layer1, CYCLES_APPEAR_MIN, CYCLES_APPEAR_MAX, 1739F, DELAY_APPEAR_MIN, DELAY_APPEAR_MAX, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
                 gen.phase5_layer3,
                 gen.phase5_layer3_stripes,
                 gen.phase5_caps
         });
-        Animation.lower(phase5_trapezoids, CYCLES_APPEAR, 189F, 0, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
+        Animation.lower(phase5_trapezoids, CYCLES_APPEAR_MIN, CYCLES_APPEAR_MAX, 189F, DELAY_APPEAR_MIN, DELAY_APPEAR_MAX, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
                 gen.phase5_trapezoidx1,
                 gen.phase5_trapezoidy1,
                 gen.phase5_trapezoidx2,
                 gen.phase5_trapezoidy2
         });
-        Animation.lower(phase6_layer2, CYCLES_APPEAR, 169F, 0, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
+        Animation.lower(phase6_layer2, CYCLES_APPEAR_MIN, CYCLES_APPEAR_MAX, 169F, DELAY_APPEAR_MIN, DELAY_APPEAR_MAX, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
                 gen.phase6_layer2
         });
-        Animation.lower(phase6_layer3, CYCLES_APPEAR, 444F, 0, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
+        Animation.lower(phase6_layer3, CYCLES_APPEAR_MIN, CYCLES_APPEAR_MAX, 444F, DELAY_APPEAR_MIN, DELAY_APPEAR_MAX, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
                 gen.phase6_layer3
         });
-        Animation.lower(phase6_layer4, CYCLES_APPEAR, 756F, 0, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
+        Animation.lower(phase6_layer4, CYCLES_APPEAR_MIN, CYCLES_APPEAR_MAX, 756F, DELAY_APPEAR_MIN, DELAY_APPEAR_MAX, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
                 gen.phase6_layer4
         });
-        Animation.lower(phase6_layer5, CYCLES_APPEAR, 1051F, 0, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
+        Animation.lower(phase6_layer5, CYCLES_APPEAR_MIN, CYCLES_APPEAR_MAX, 1051F, DELAY_APPEAR_MIN, DELAY_APPEAR_MAX, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
                 gen.phase6_layer5
         });
-        Animation.lower(phase6_layer6, CYCLES_APPEAR, 1339F, 0, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
+        Animation.lower(phase6_layer6, CYCLES_APPEAR_MIN, CYCLES_APPEAR_MAX, 1339F, DELAY_APPEAR_MIN, DELAY_APPEAR_MAX, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
                 gen.phase6_layer6
         });
-        Animation.lower(phase6_layer7, CYCLES_APPEAR, 1619F, 0, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
+        Animation.lower(phase6_layer7, CYCLES_APPEAR_MIN, CYCLES_APPEAR_MAX, 1619F, DELAY_APPEAR_MIN, DELAY_APPEAR_MAX, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
                 gen.phase6_layer7
         });
-        Animation.lower(phase6_layer8, CYCLES_APPEAR, 1892F, 0, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
+        Animation.lower(phase6_layer8, CYCLES_APPEAR_MIN, CYCLES_APPEAR_MAX, 1892F, DELAY_APPEAR_MIN, DELAY_APPEAR_MAX, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
                 gen.phase6_layer8
         });
-        Animation.lower(phase6_layer9, CYCLES_APPEAR, 2155F, 0, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
+        Animation.lower(phase6_layer9, CYCLES_APPEAR_MIN, CYCLES_APPEAR_MAX, 2155F, DELAY_APPEAR_MIN, DELAY_APPEAR_MAX, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
                 gen.phase6_layer9
         });
-        Animation.lower(phase6_layer10, CYCLES_APPEAR, 2297F, 0, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
+        Animation.lower(phase6_layer10, CYCLES_APPEAR_MIN, CYCLES_APPEAR_MAX, 2297F, DELAY_APPEAR_MIN, DELAY_APPEAR_MAX, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
                 gen.phase6_layer10
         });
-        Animation.lower(phase6_layer11, CYCLES_APPEAR, 2297F, 0, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
+        Animation.lower(phase6_layer11, CYCLES_APPEAR_MIN, CYCLES_APPEAR_MAX, 2297F, DELAY_APPEAR_MIN, DELAY_APPEAR_MAX, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
                 gen.phase6_layer11
         });
-        Animation.lower(phase7, CYCLES_APPEAR, 939F, 0, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
+        Animation.lower(phase7, CYCLES_APPEAR_MIN, CYCLES_APPEAR_MAX, 939F, DELAY_APPEAR_MIN, DELAY_APPEAR_MAX, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
                 gen.phase7,
                 gen.phase7_caps,
                 gen.phase7_caps2
@@ -203,7 +204,7 @@ public final class City{
     }
 
     public static void initiateNextPhase(Runnable post){
-//        Camera.move(1000F, 1000F, 1000F, 0F, 0F, 0F, 0, 1000, VLVCurved.CURVE_ACC_DEC_COS, null);
+//        Camera.move(1000F, 1000F, 1000F, 0F, 0F, 0F, 0, 1000, DELAY_APPEAR_MIN, DELAY_APPEAR_MAX, VLVCurved.CURVE_ACC_DEC_COS, null);
 
         if(phaseindex == 0){
             raisePhase1();

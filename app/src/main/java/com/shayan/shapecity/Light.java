@@ -31,8 +31,8 @@ public final class Light{
         move(gen, 0F, 0F, 0F, 20F, 0, CYCLES_DESCEND, CURVE_DEFAULT, null);
     }
 
-    public static void placeAbovePlatform(Gen gen){
-        set(gen,0F, 10F, 0F, 20F);
+    public static void setForPlatformRise(Gen gen){
+        set(gen,0F, 0F, 0F, 20F);
     }
 
     public static void radiateForPuzzle(final Gen gen){

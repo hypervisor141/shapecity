@@ -1,8 +1,8 @@
 package com.shayan.shapecity;
 
-import com.nurverek.vanguard.VLArrayFloat;
 import com.nurverek.vanguard.VLListInt;
 import com.nurverek.vanguard.VLVCurved;
+import com.nurverek.vanguard.VLVariable;
 
 import java.util.Arrays;
 
@@ -35,7 +35,6 @@ public final class Game{
                 Platform.raisePlatform();
                 Puzzle.raisePuzzleAndStartGame(gen);
                 Camera.riseWithPlatform(gen);
-                Light.placeAbovePlatform(gen);
             }
         });
     }
@@ -220,7 +219,7 @@ public final class Game{
 
             @Override
             public void run(){
-                Light.move(gen, 0, 100F, 0, 700F, 0,120, VLVCurved.CURVE_ACC_DEC_CUBIC, null);
+                Light.move(gen, 0, 100F, 0, 1000F, 0,120, VLVCurved.CURVE_ACC_DEC_CUBIC, null);
 
                 Camera.move(750F, 300F, 750F, 0, 0, 0, 0, 120, VLVCurved.CURVE_ACC_DEC_CUBIC, new Runnable(){
 
@@ -228,16 +227,10 @@ public final class Game{
                     public void run(){
                         City.raisePhase2();
 
-                        Camera.move(750F, 300F, 750F, 0, 0, 0, 0, 120, VLVCurved.CURVE_ACC_DEC_CUBIC, new Runnable(){
+                        Camera.rotate(0F, 360F, 750F, 500F, 750F, 0F,
+                                0F,0F,0,240, VLVCurved.CURVE_ACC_DEC_CUBIC, VLVariable.LOOP_NONE);
 
-                            @Override
-                            public void run(){
-                                City.raisePhase2();
-//                startMatchSymbolsGame(gen);
-                            }
-                        });
-
-//                startMatchSymbolsGame(gen);
+//                        startMatchSymbolsGame(gen);
                     }
                 });
             }

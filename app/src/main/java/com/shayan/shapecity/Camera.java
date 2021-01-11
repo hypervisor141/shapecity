@@ -41,6 +41,8 @@ public final class Camera{
     }
 
     public static void riseWithPlatform(final Gen gen){
+        Light.setForPlatformRise(gen);
+
         move(0F, DISTANCE_REVEAL_PLATFORM, -0.01F, 0, -1000F, 0F, Platform.DELAY_RISE, Platform.CYCLES_RISE, Platform.CURVE_RISE, new Runnable(){
 
             @Override
@@ -142,9 +144,6 @@ public final class Camera{
                 }
             }
         }));
-
-        controller.add(new VLVRunnerEntry(angle, delay));
-        controller.start();
 
         controller.add(new VLVRunnerEntry(angle, delay));
         controller.add(new VLVRunnerEntry(controlviewx, delay));

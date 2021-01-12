@@ -242,8 +242,16 @@ public final class City{
                     public void run(){
                         phase1.start();
 
-                        Camera.rotate(0F, 180F, 100F, 700F, 100F,0,540, VLVCurved.CURVE_ACC_DEC_COS, VLVariable.LOOP_NONE, null);
-                        post.run();
+                        Camera.rotate(0F, 180F, 100F, 700F, 100F, 0, 540, VLVCurved.CURVE_ACC_DEC_COS, VLVariable.LOOP_NONE, new Runnable(){
+
+                            @Override
+                            public void run(){
+
+                                //add random height animations to elements
+
+                                post.run();
+                            }
+                        });
                     }
                 });
             }
@@ -262,10 +270,8 @@ public final class City{
 
                     @Override
                     public void run(){
-                        Camera.rotate(0F, 180F, 100F, 700F, 100F,0,540, VLVCurved.CURVE_ACC_DEC_COS, VLVariable.LOOP_NONE, null);
-
                         phase2.start();
-                        post.run();
+                        Camera.rotate(0F, 180F, 100F, 700F, 100F,0,540, VLVCurved.CURVE_ACC_DEC_COS, VLVariable.LOOP_NONE, post);
                     }
                 });
             }

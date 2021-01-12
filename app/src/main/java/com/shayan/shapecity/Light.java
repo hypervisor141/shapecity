@@ -1,7 +1,6 @@
 package com.shayan.shapecity;
 
 import android.opengl.Matrix;
-import android.util.Log;
 
 import com.nurverek.firestorm.FSAttenuation;
 import com.nurverek.firestorm.FSRenderer;
@@ -35,19 +34,20 @@ public final class Light{
     }
 
     public static void descend(Gen gen){
-        setPosition(gen, 0F, 0F, 0F);
-        setRadius(gen, 10000F);
+        position(gen, 0F, 0F, 0F);
+        radiate(gen, 10000F);
 
-        move(gen, 0F, 0F, 0F, 20F, 0, CYCLES_DESCEND, CURVE_DEFAULT, null);
+        moveRadius(gen, 20F, 0, CYCLES_DESCEND, CURVE_DEFAULT, null);
     }
 
     public static void setForPlatformRise(Gen gen){
-        setPosition(gen,0F, 0F, 0F);
-        setRadius(gen,20F);
+        position(gen,0F, 0F, 0F);
+        radiate(gen,20F);
     }
 
     public static void radiateForPuzzle(final Gen gen){
-        move(gen, 0.1F, 1.5F, 0.1F, 1.5F, 0, CYCLES_RADIATE_FOR_PUZZLE, CURVE_DEFAULT, new Runnable(){
+        moveRadius(gen, 1.5F, 0, CYCLES_RADIATE_FOR_PUZZLE, CURVE_DEFAULT, null);
+        movePosition(gen, 0.1F, 1.5F, 0.1F, 0, CYCLES_RADIATE_FOR_PUZZLE, CURVE_DEFAULT, new Runnable(){
 
             @Override
             public void run(){
@@ -56,14 +56,14 @@ public final class Light{
         });
     }
 
-    public static void setPosition(Gen gen, float x, float y, float z){
+    public static void position(Gen gen, float x, float y, float z){
         float[] pos = gen.light.position().provider();
         pos[0] = x;
         pos[1] = y;
         pos[2] = z;
     }
 
-    public static void setRadius(Gen gen, float radius){
+    public static void radiate(Gen gen, float radius){
         ((FSAttenuation.Radius)gen.light.attenuation()).radius().set(radius);
     }
 
@@ -78,7 +78,7 @@ public final class Light{
 
             @Override
             public void run(VLTask task, VLVariable var){
-                setPosition(gen, controlx.get(), controly.get(), controlz.get());
+                position(gen, controlx.get(), controly.get(), controlz.get());
 
                 if(!var.active()){
                     controllerpos.clear();
@@ -105,7 +105,7 @@ public final class Light{
 
             @Override
             public void run(VLTask task, VLVariable var){
-                setRadius(gen, controlradius.get());
+                radiate(gen, controlradius.get());
 
                 if(!var.active()){
                     controllerradius.clear();
@@ -120,11 +120,6 @@ public final class Light{
         controllerradius.add(new VLVRunnerEntry(controlradius, delay));
         controllerradius.add(new VLVRunnerEntry(update, delay));
         controllerradius.start();
-    }
-
-    public static void move(final Gen gen, float x, float y, float z, float radius, int delay, int cycles, VLVCurved.Curve curve, final Runnable post){
-        movePosition(gen, x, y, z, delay, cycles, curve, post);
-        moveRadius(gen, radius, delay, cycles, curve, null);
     }
 
     public static void rotate(final Gen gen, float fromangle, float toangle, final float x, final float y, final float z, int delay, int cycles, VLVCurved.Curve curve, VLVariable.Loop loop){

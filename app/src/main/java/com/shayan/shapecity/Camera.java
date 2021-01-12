@@ -44,19 +44,23 @@ public final class Camera{
         final float platformy = gen.platform.instance(0).modelMatrix().getY(0).get();
         final float initialvalue = platformy + DISTANCE_FROM_PLATFORM_ASCEND;
 
-        set(0F, 4000F, 0.01F,0F, -1000F, 0);
-        move(0F, initialvalue, -0.01F, 0F, initialvalue - 10F, 0, 0, CYCLES_DESCEND, CURVE_DESCEND, post);
+        position(0F, 4000F, 0.01F);
+        lookAt(0F, -1000F, 0F);
+
+        movePosition(0F, initialvalue, -0.01F, 0, CYCLES_DESCEND, CURVE_DESCEND, post);
+        moveView(0F, initialvalue - 10F, 0, 0, CYCLES_DESCEND, CURVE_DESCEND, null);
     }
 
     public static void riseWithPlatform(final Gen gen){
         Light.setForPlatformRise(gen);
 
-        move(0F, DISTANCE_REVEAL_PLATFORM, -0.01F, 0, -1000F, 0F, Platform.DELAY_RISE, Platform.CYCLES_RISE, Platform.CURVE_RISE, new Runnable(){
+        movePosition(0F, DISTANCE_REVEAL_PLATFORM, -0.01F, Platform.DELAY_RISE, Platform.CYCLES_RISE, Platform.CURVE_RISE, new Runnable(){
 
             @Override
             public void run(){
                 Light.radiateForPuzzle(gen);
-                move(0F, DISTANCE_FROM_PLATFORM_FINAL, -0.01F, 0, -1000F, 0F, 0, CYCLES_CAMERA_PLACEMENT, CURVE_CAMERA_PLACEMENT, null);
+                lookAt(0F, 0F, 0F);
+                movePosition(0F, DISTANCE_FROM_PLATFORM_FINAL, -0.01F, 0, CYCLES_CAMERA_PLACEMENT, CURVE_CAMERA_PLACEMENT, null);
             }
         });
     }
@@ -70,13 +74,6 @@ public final class Camera{
 
     public static void lookAt(float viewx, float viewy, float viewz){
         FSViewConfig config = FSControl.getViewConfig();
-        config.lookAt(viewx, viewy, viewz, 0f, 1f, 0f);
-        config.updateViewProjection();
-    }
-
-    public static void set(float x, float y, float z, float viewx, float viewy, float viewz){
-        FSViewConfig config = FSControl.getViewConfig();
-        config.eyePosition(x, y, z);
         config.lookAt(viewx, viewy, viewz, 0f, 1f, 0f);
         config.updateViewProjection();
     }
@@ -139,11 +136,6 @@ public final class Camera{
         controllerview.add(new VLVRunnerEntry(controlviewz, delay));
         controllerview.add(new VLVRunnerEntry(update, delay));
         controllerview.start();
-    }
-
-    public static void move(float x, float y, float z, float viewx, float viewy, float viewz, int delay, int cycles, VLVCurved.Curve curve, final Runnable post){
-        movePosition(x, y, z,delay, cycles, curve, post);
-        moveView(viewx, viewy, viewz, delay, cycles, curve, null);
     }
 
     public static void rotate(float fromangle, float toangle, float rotationx, float rotationy, float rotationz, float viewx, float viewy, float viewz, int delay, int cycles, VLVCurved.Curve curve, VLVariable.Loop loop){

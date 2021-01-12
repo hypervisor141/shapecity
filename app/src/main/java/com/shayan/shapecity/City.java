@@ -231,7 +231,9 @@ public final class City{
     }
 
     public static void raisePhase1(Gen gen, Runnable post){
-        Light.move(gen, 0, 40F, 0, 175F, 0,180, VLVCurved.CURVE_ACC_DEC_CUBIC, null);
+        Light.movePosition(gen, 0, 40F, 0, 0, 180, VLVCurved.CURVE_ACC_DEC_CUBIC, null);
+        Light.moveRadius(gen, 175F, 0, 180, VLVCurved.CURVE_ACC_DEC_CUBIC, null);
+
         Camera.movePosition(80F, 50F, 80F, 0, 120, VLVCurved.CURVE_ACC_DEC_CUBIC, new Runnable(){
 
             @Override
@@ -247,16 +249,17 @@ public final class City{
     }
 
     public static void raisePhase2(Gen gen, Runnable post){
-        Light.move(gen, 0, 100F, 0, 1000F, 0,120, VLVCurved.CURVE_ACC_DEC_CUBIC, null);
-        Camera.move(750F, 300F, 750F, 0, 0, 0, 0, 120, VLVCurved.CURVE_ACC_DEC_CUBIC, new Runnable(){
+        Light.movePosition(gen, 0, 100F, 0, 0, 120, VLVCurved.CURVE_ACC_DEC_CUBIC, null);
+        Light.moveRadius(gen, 1000F, 0, 120, VLVCurved.CURVE_ACC_DEC_CUBIC, null);
+
+        Camera.movePosition(750F, 300F, 750F, 0, 120, VLVCurved.CURVE_ACC_DEC_CUBIC, new Runnable(){
 
             @Override
             public void run(){
-                phase2.start();
-
                 Camera.rotate(0F, 180F, 100F, 700F, 100F, 0F,
                         0F,0F,0,540, VLVCurved.CURVE_ACC_DEC_COS, VLVariable.LOOP_NONE);
 
+                phase2.start();
                 post.run();
             }
         });

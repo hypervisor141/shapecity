@@ -160,7 +160,10 @@ public final class Camera{
 
                 if(!var.active()){
                     controllerrotate.clear();
-                    post.run();
+
+                    if(post != null){
+                        post.run();
+                    }
                 }
             }
         }));

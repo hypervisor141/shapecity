@@ -38,9 +38,9 @@ public class Animation{
     public static final float[] COLOR_RED_LESS1 = new float[]{ 0.8F, 0.2F, 0F, 1F };
     public static final float[] COLOR_RED_LESS2 = new float[]{ 0.7F, 0.1F, 0F, 1F };
     public static final float[] COLOR_RED_LESS3 = new float[]{ 0.5F, 0F, 0F, 1F };
-    public static final float[] COLOR_PURPLE_LESS = new float[]{ 0.227F, 0.109F, 0.807F, 1F };
-    public static final float[] COLOR_PURPLE = new float[]{ 0.282F, 0.135F, 1.0F, 1F };
-    public static final float[] COLOR_PURPLE_MORE = new float[]{ 0F, 0.237F, 0.320F, 1F };
+    public static final float[] COLOR_PURPLE_LESS = new float[]{ 0F, 0.087F, 0.140F, 1F };
+    public static final float[] COLOR_PURPLE = new float[]{ 0F, 0.137F, 0.22F, 1F };
+    public static final float[] COLOR_PURPLE_MORE = new float[]{ 0F, 0.237F, 0.380F, 1F };
 
     protected static void lower(VLVRunner runner, int mincycles, int maxcycles, float decrease, int mindelay, int maxdelay, VLVCurved.Curve curve, FSMesh[] group){
         int size = group.length;

@@ -51,7 +51,7 @@ public final class Light{
 
             @Override
             public void run(){
-                rotate(gen,0F, 360F, 0F, 1F, 0F,0,300, VLVCurved.CURVE_LINEAR, VLVariable.LOOP_FORWARD);
+                rotate(gen,0F, 360F, 0F, 1F, 0F,0,300, VLVCurved.CURVE_LINEAR, VLVariable.LOOP_FORWARD, null);
             }
         });
     }
@@ -122,7 +122,7 @@ public final class Light{
         controllerradius.start();
     }
 
-    public static void rotate(final Gen gen, float fromangle, float toangle, final float x, final float y, final float z, int delay, int cycles, VLVCurved.Curve curve, VLVariable.Loop loop){
+    public static void rotate(final Gen gen, float fromangle, float toangle, final float x, final float y, final float z, int delay, int cycles, VLVCurved.Curve curve, VLVariable.Loop loop, final Runnable post){
         final float[] orgpos = gen.light.position().provider().clone();
 
         VLVCurved angle = new VLVCurved(fromangle, toangle, cycles, loop, curve, new VLTaskContinous(new VLTask.Task(){
@@ -139,6 +139,10 @@ public final class Light{
 
                 if(!var.active()){
                     controllerotate.clear();
+
+                    if(post != null){
+                        post.run();
+                    }
                 }
             }
         }));

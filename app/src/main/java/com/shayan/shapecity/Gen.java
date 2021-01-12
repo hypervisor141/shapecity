@@ -156,9 +156,9 @@ public final class Gen extends FSG{
         puzzlebase_bottom = register(bpsingular, "puzzlebase_bottom_Cube.026", Animation.COLOR_BLUE, MATERIAL_WHITE_LESS_SPECULAR);
         mainbase1 = register(bpsingular, "mainbase_Cube.157", Animation.COLOR_PURPLE_MORE, MATERIAL_WHITE);
         mainbase2 = register(bpsingular, "mainbase2_Cube.612", Animation.COLOR_RED_LESS1, MATERIAL_WHITE);
-        phase1_base = register(bpinstanced, "phase1_base_Cube.027", Animation.COLOR_OBSIDIAN_LESS3, MATERIAL_WHITE);
-        phase1_base_inner = register(bpinstanced, "phase1_base_inner_Cube.039", Animation.COLOR_PURPLE_MORE, MATERIAL_WHITE);
-        phase1_base_inner_lining = register(bpinstanced, "phase1_base_inner_lining_Cube.040", Animation.COLOR_RED_LESS1, MATERIAL_WHITE);
+        phase1_base = register(bpinstanced, "phase1_base_Cube.027", Animation.COLOR_PURPLE_MORE, MATERIAL_WHITE);
+        phase1_base_inner = register(bpinstanced, "phase1_base_inner_Cube.039", Animation.COLOR_PURPLE_LESS, MATERIAL_WHITE);
+        phase1_base_inner_lining = register(bpinstanced, "phase1_base_inner_lining_Cube.040", Animation.COLOR_BLUE, MATERIAL_WHITE);
         phase1_pillars = register(bpinstanced, "phase1_pillar.", Animation.COLOR_OBSIDIAN_LESS5, MATERIAL_WHITE);
         phase1_pillars_stripes = register(bpinstanced, "phase1_pillars_stripe.", Animation.COLOR_BLUE, MATERIAL_WHITE);
         phase2 = register(bpinstanced, "phase2.", Animation.COLOR_OBSIDIAN_LESS4, MATERIAL_WHITE);

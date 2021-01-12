@@ -4,6 +4,7 @@ import com.nurverek.firestorm.FSMesh;
 import com.nurverek.vanguard.VLVCurved;
 import com.nurverek.vanguard.VLVManager;
 import com.nurverek.vanguard.VLVRunner;
+import com.nurverek.vanguard.VLVariable;
 
 public final class City{
 
@@ -37,7 +38,7 @@ public final class City{
     //phase7 powerplants : -950 to -10
 
     private static int CYCLES_APPEAR_MIN = 120;
-    private static int CYCLES_APPEAR_MAX = 240;
+    private static int CYCLES_APPEAR_MAX = 200;
     private static int DELAY_APPEAR_MIN = 0;
     private static int DELAY_APPEAR_MAX = 200;
 
@@ -203,60 +204,80 @@ public final class City{
         m.add(phase7);
     }
 
-    public static void initiateNextPhase(Runnable post){
-//        Camera.move(1000F, 1000F, 1000F, 0F, 0F, 0F, 0, 1000, DELAY_APPEAR_MIN, DELAY_APPEAR_MAX, VLVCurved.CURVE_ACC_DEC_COS, null);
-
+    public static void initiateNextPhase(Gen gen, Runnable post){
         if(phaseindex == 0){
-            raisePhase1();
+            raisePhase1(gen, post);
 
         }else if(phaseindex == 1){
-            raisePhase2();
+            raisePhase2(gen, post);
 
         }else if(phaseindex == 2){
-            raisePhase3();
+            raisePhase3(gen, post);
 
         }else if(phaseindex == 3){
-            raisePhase4();
+            raisePhase4(gen, post);
 
         }else if(phaseindex == 4){
-            raisePhase5();
+            raisePhase5(gen, post);
 
         }else if(phaseindex == 5){
-            raisePhase6();
+            raisePhase6(gen, post);
 
         }else if(phaseindex == 6){
-            raisePhase7();
+            raisePhase7(gen, post);
         }
 
         phaseindex++;
-
-        post.run();
     }
 
-    public static void raisePhase1(){
-        phase1.start();
+    public static void raisePhase1(Gen gen, Runnable post){
+        Light.move(gen, 0, 40F, 0, 175F, 0,180, VLVCurved.CURVE_ACC_DEC_CUBIC, null);
+        Camera.movePosition(80F, 50F, 80F, 0, 120, VLVCurved.CURVE_ACC_DEC_CUBIC, new Runnable(){
+
+            @Override
+            public void run(){
+                phase1.start();
+
+                Camera.rotate(0F, 180F, 100F, 700F, 100F, 0F,
+                        0F,0F,0,540, VLVCurved.CURVE_ACC_DEC_COS, VLVariable.LOOP_NONE);
+
+                post.run();
+            }
+        });
     }
 
-    public static void raisePhase2(){
-        phase2.start();
+    public static void raisePhase2(Gen gen, Runnable post){
+        Light.move(gen, 0, 100F, 0, 1000F, 0,120, VLVCurved.CURVE_ACC_DEC_CUBIC, null);
+        Camera.move(750F, 300F, 750F, 0, 0, 0, 0, 120, VLVCurved.CURVE_ACC_DEC_CUBIC, new Runnable(){
+
+            @Override
+            public void run(){
+                phase2.start();
+
+                Camera.rotate(0F, 180F, 100F, 700F, 100F, 0F,
+                        0F,0F,0,540, VLVCurved.CURVE_ACC_DEC_COS, VLVariable.LOOP_NONE);
+
+                post.run();
+            }
+        });
     }
 
-    public static void raisePhase3(){
+    public static void raisePhase3(Gen gen, Runnable post){
         phase3.start();
         phase3_baseframes.start();
     }
 
-    public static void raisePhase4(){
+    public static void raisePhase4(Gen gen, Runnable post){
         phase4.start();
         phase4_caps.start();
     }
-    public static void raisePhase5(){
+    public static void raisePhase5(Gen gen, Runnable post){
         phase5_layer1.start();
         phase5_layer2.start();
         phase5_layer3.start();
         phase5_trapezoids.start();
     }
-    public static void raisePhase6(){
+    public static void raisePhase6(Gen gen, Runnable post){
         phase6_layer2.start();
         phase6_layer3.start();
         phase6_layer4.start();
@@ -269,7 +290,7 @@ public final class City{
         phase6_layer11.start();
     }
 
-    public static void raisePhase7(){
+    public static void raisePhase7(Gen gen, Runnable post){
         phase7.start();
     }
 }

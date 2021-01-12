@@ -20,16 +20,24 @@ public final class Camera{
     private static final float DISTANCE_FROM_PLATFORM_FINAL = 2F;
 
     private static final int CYCLES_CAMERA_PLACEMENT = 100;
-    private static final int CYCLES_DESCEND = 240;
+//    private static final int CYCLES_DESCEND = 240;
+    private static final int CYCLES_DESCEND = 10;
 
     private static final VLVCurved.Curve CURVE_CAMERA_PLACEMENT = VLVCurved.CURVE_ACC_DEC_COS;
     private static final VLVCurved.Curve CURVE_DESCEND = VLVCurved.CURVE_ACC_DEC_COS;
 
-    private static VLVRunner controller;
+    private static VLVRunner controllerview;
+    private static VLVRunner controllerpos;
+    private static VLVRunner controllerrotate;
 
     public static void initialize(Gen gen){
-        controller = new VLVRunner(10, 10);
-        FSRenderer.getControlManager().add(controller);
+        controllerpos = new VLVRunner(10, 10);
+        controllerview = new VLVRunner(10, 10);
+        controllerrotate = new VLVRunner(10, 10);
+
+        FSRenderer.getControlManager().add(controllerpos);
+        FSRenderer.getControlManager().add(controllerview);
+        FSRenderer.getControlManager().add(controllerrotate);
     }
 
     public static void descend(Gen gen, Runnable post){
@@ -53,13 +61,6 @@ public final class Camera{
         });
     }
 
-    public static void set(float x, float y, float z, float viewx, float viewy, float viewz){
-        FSViewConfig config = FSControl.getViewConfig();
-        config.eyePosition(x, y, z);
-        config.lookAt(viewx, viewy, viewz, 0f, 1f, 0f);
-        config.updateViewProjection();
-    }
-
     public static void position(float x, float y, float z){
         FSViewConfig config = FSControl.getViewConfig();
         config.eyePosition(x, y, z);
@@ -73,24 +74,28 @@ public final class Camera{
         config.updateViewProjection();
     }
 
-    public static void move(float x, float y, float z, float viewx, float viewy, float viewz, int delay, int cycles, VLVCurved.Curve curve, final Runnable post){
+    public static void set(float x, float y, float z, float viewx, float viewy, float viewz){
+        FSViewConfig config = FSControl.getViewConfig();
+        config.eyePosition(x, y, z);
+        config.lookAt(viewx, viewy, viewz, 0f, 1f, 0f);
+        config.updateViewProjection();
+    }
+
+    public static void movePosition(float x, float y, float z, int delay, int cycles, VLVCurved.Curve curve, final Runnable post){
         final float[] orgviewsettings = FSControl.getViewConfig().viewMatrixSettings().provider().clone();
 
         VLVCurved controlx = new VLVCurved(orgviewsettings[0], x, cycles, VLVariable.LOOP_NONE, curve);
         VLVCurved controly = new VLVCurved(orgviewsettings[1], y, cycles, VLVariable.LOOP_NONE, curve);
         VLVCurved controlz = new VLVCurved(orgviewsettings[2], z, cycles, VLVariable.LOOP_NONE, curve);
-        VLVCurved controlviewx = new VLVCurved(orgviewsettings[3], viewx, cycles, VLVariable.LOOP_NONE, curve);
-        VLVCurved controlviewy = new VLVCurved(orgviewsettings[4], viewy, cycles, VLVariable.LOOP_NONE, curve);
-        VLVCurved controlviewz = new VLVCurved(orgviewsettings[5], viewz, cycles, VLVariable.LOOP_NONE, curve);
 
         VLVControl update = new VLVControl(cycles, VLVariable.LOOP_NONE, new VLTaskContinous(new VLTask.Task(){
 
             @Override
             public void run(VLTask task, VLVariable var){
-                set(controlx.get(), controly.get(), controlz.get(), controlviewx.get(), controlviewy.get(), controlviewz.get());
+                position(controlx.get(), controly.get(), controlz.get());
 
                 if(!var.active()){
-                    controller.clear();
+                    controllerpos.clear();
 
                     if(post != null){
                         post.run();
@@ -99,17 +104,49 @@ public final class Camera{
             }
         }));
 
-        controller.add(new VLVRunnerEntry(controlx, delay));
-        controller.add(new VLVRunnerEntry(controly, delay));
-        controller.add(new VLVRunnerEntry(controlz, delay));
-        controller.add(new VLVRunnerEntry(controlviewx, delay));
-        controller.add(new VLVRunnerEntry(controlviewy, delay));
-        controller.add(new VLVRunnerEntry(controlviewz, delay));
-        controller.add(new VLVRunnerEntry(update, delay));
-        controller.start();
+        controllerpos.add(new VLVRunnerEntry(controlx, delay));
+        controllerpos.add(new VLVRunnerEntry(controly, delay));
+        controllerpos.add(new VLVRunnerEntry(controlz, delay));
+        controllerpos.add(new VLVRunnerEntry(update, delay));
+        controllerpos.start();
     }
 
-    public static void rotate(float fromangle, float toangle, float x, float y, float z, float viewx, float viewy, float viewz, int delay, int cycles, VLVCurved.Curve curve, VLVariable.Loop loop){
+    public static void moveView(float viewx, float viewy, float viewz, int delay, int cycles, VLVCurved.Curve curve, final Runnable post){
+        final float[] orgviewsettings = FSControl.getViewConfig().viewMatrixSettings().provider().clone();
+
+        VLVCurved controlviewx = new VLVCurved(orgviewsettings[3], viewx, cycles, VLVariable.LOOP_NONE, curve);
+        VLVCurved controlviewy = new VLVCurved(orgviewsettings[4], viewy, cycles, VLVariable.LOOP_NONE, curve);
+        VLVCurved controlviewz = new VLVCurved(orgviewsettings[5], viewz, cycles, VLVariable.LOOP_NONE, curve);
+
+        VLVControl update = new VLVControl(cycles, VLVariable.LOOP_NONE, new VLTaskContinous(new VLTask.Task(){
+
+            @Override
+            public void run(VLTask task, VLVariable var){
+                lookAt(controlviewx.get(), controlviewy.get(), controlviewz.get());
+
+                if(!var.active()){
+                    controllerview.clear();
+
+                    if(post != null){
+                        post.run();
+                    }
+                }
+            }
+        }));
+
+        controllerview.add(new VLVRunnerEntry(controlviewx, delay));
+        controllerview.add(new VLVRunnerEntry(controlviewy, delay));
+        controllerview.add(new VLVRunnerEntry(controlviewz, delay));
+        controllerview.add(new VLVRunnerEntry(update, delay));
+        controllerview.start();
+    }
+
+    public static void move(float x, float y, float z, float viewx, float viewy, float viewz, int delay, int cycles, VLVCurved.Curve curve, final Runnable post){
+        movePosition(x, y, z,delay, cycles, curve, post);
+        moveView(viewx, viewy, viewz, delay, cycles, curve, null);
+    }
+
+    public static void rotate(float fromangle, float toangle, float rotationx, float rotationy, float rotationz, float viewx, float viewy, float viewz, int delay, int cycles, VLVCurved.Curve curve, VLVariable.Loop loop){
         final float[] orgviewsettings = FSControl.getViewConfig().viewMatrixSettings().provider().clone();
         VLVCurved angle = new VLVCurved(fromangle, toangle, cycles, loop, curve, new VLTaskContinous(new VLTask.Task(){
 
@@ -121,10 +158,10 @@ public final class Camera{
                 final float[] pos = config.eyePosition().provider();
 
                 Matrix.setIdentityM(cache, 0);
-                Matrix.rotateM(cache, 0, var.get(), x, y, z);
+                Matrix.rotateM(cache, 0, var.get(), rotationx, rotationy, rotationz);
                 Matrix.multiplyMV(pos, 0, cache, 0, orgviewsettings, 0);
 
-                config.eyePositionDivideByW();
+                config.eyePositionUpdate();
                 config.lookAtUpdate();
             }
         }));
@@ -140,20 +177,34 @@ public final class Camera{
                 lookAt(controlviewx.get(), controlviewy.get(), controlviewz.get());
 
                 if(!var.active()){
-                    controller.clear();
+                    controllerrotate.clear();
                 }
             }
         }));
 
-        controller.add(new VLVRunnerEntry(angle, delay));
-        controller.add(new VLVRunnerEntry(controlviewx, delay));
-        controller.add(new VLVRunnerEntry(controlviewy, delay));
-        controller.add(new VLVRunnerEntry(controlviewz, delay));
-        controller.add(new VLVRunnerEntry(update, delay));
-        controller.start();
+        controllerrotate.add(new VLVRunnerEntry(angle, delay));
+        controllerrotate.add(new VLVRunnerEntry(controlviewx, delay));
+        controllerrotate.add(new VLVRunnerEntry(controlviewy, delay));
+        controllerrotate.add(new VLVRunnerEntry(controlviewz, delay));
+        controllerrotate.add(new VLVRunnerEntry(update, delay));
+        controllerrotate.start();
     }
 
-    public static void clear(){
-        controller.clear();
+    public static void stopPosition(){
+        controllerpos.clear();
+    }
+
+    public static void stopView(){
+        controllerview.clear();
+    }
+
+    public static void stopRotation(){
+        controllerrotate.clear();
+    }
+
+    public static void stop(){
+        stopPosition();
+        stopView();
+        stopRotation();
     }
 }

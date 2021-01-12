@@ -65,6 +65,7 @@ public class Animation{
             }
         }
 
+        runner.findEndPointIndex();
         runner.targetSync();
     }
 }

@@ -63,7 +63,7 @@ public final class Game{
         }
     }
 
-    private static void startMatchSymbolsGame(Gen gen){
+    public static void startMatchSymbolsGame(Gen gen){
         activatedSymbols = new VLListInt(BPLayer.INSTANCE_COUNT, 0);
         enabledPieces = new boolean[BPLayer.INSTANCE_COUNT];
         revealedPieces = new boolean[BPLayer.INSTANCE_COUNT];
@@ -206,33 +206,11 @@ public final class Game{
 
     private static void startNextPhase(Gen gen){
         Puzzle.reset(gen);
-
-//        City.initiateNextPhase(new Runnable(){
-//
-//            @Override
-//            public void run(){
-//
-//            }
-//        });
-
-        Camera.move(0, 25F, -0.01F, 0, 0, 0, 60, 120, VLVCurved.CURVE_ACC_DEC_CUBIC, new Runnable(){
+        City.initiateNextPhase(gen, new Runnable(){
 
             @Override
             public void run(){
-                Light.move(gen, 0, 100F, 0, 1000F, 0,120, VLVCurved.CURVE_ACC_DEC_CUBIC, null);
-
-                Camera.move(750F, 300F, 750F, 0, 0, 0, 0, 120, VLVCurved.CURVE_ACC_DEC_CUBIC, new Runnable(){
-
-                    @Override
-                    public void run(){
-                        City.raisePhase2();
-
-                        Camera.rotate(0F, 360F, 750F, 500F, 750F, 0F,
-                                0F,0F,0,240, VLVCurved.CURVE_ACC_DEC_CUBIC, VLVariable.LOOP_NONE);
-
-//                        startMatchSymbolsGame(gen);
-                    }
-                });
+                startMatchSymbolsGame(gen);
             }
         });
     }

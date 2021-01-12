@@ -8,7 +8,7 @@ import com.nurverek.vanguard.VLVariable;
 
 public final class City{
 
-    //phase1 center items : 0 to -10
+    //phase1 center items : -27 to -10
 
     //phase2 walls : -75 to -10
 
@@ -37,10 +37,11 @@ public final class City{
 
     //phase7 powerplants : -950 to -10
 
-    private static int CYCLES_APPEAR_MIN = 120;
-    private static int CYCLES_APPEAR_MAX = 200;
-    private static int DELAY_APPEAR_MIN = 0;
-    private static int DELAY_APPEAR_MAX = 200;
+    private static final int CYCLES_APPEAR_MIN = 120;
+    private static final int CYCLES_APPEAR_MAX = 200;
+    private static final int DELAY_APPEAR_MIN = 0;
+    private static final int DELAY_APPEAR_MAX = 200;
+    private static final VLVCurved.Curve CURVE_DEFAULT = VLVCurved.CURVE_ACC_DEC_CUBIC;
 
     private static VLVRunner phase1;
     private static VLVRunner phase2;
@@ -73,7 +74,7 @@ public final class City{
     public static void initialize(Gen gen){
         phaseindex = 0;
 
-        phase1 = new VLVRunner(gen.phase1_trapezoidx1.size() * 4 * 4 + gen.phase1_rects.size(), 20);
+        phase1 = new VLVRunner(gen.phase1_pillars.size() * 2, 20);
         phase2 = new VLVRunner(gen.phase2.size() * 3, 20);
         phase3 = new VLVRunner(gen.phase3.size() * 2 + 1, 20);
         phase3_baseframes = new VLVRunner(gen.phase3_baseframe1.size() * 4, 20);
@@ -95,12 +96,9 @@ public final class City{
         phase6_layer11 = new VLVRunner(gen.phase6_layer11.size(), 20);
         phase7 = new VLVRunner(gen.phase7.size(), 20);
 
-        Animation.lower(phase1, CYCLES_APPEAR_MIN, CYCLES_APPEAR_MAX, 10F, DELAY_APPEAR_MIN, DELAY_APPEAR_MAX, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
-                gen.phase1_trapezoidx1,
-                gen.phase1_trapezoidy1,
-                gen.phase1_trapezoidx2,
-                gen.phase1_trapezoidy2,
-                gen.phase1_rects
+        Animation.lower(phase1, CYCLES_APPEAR_MIN, CYCLES_APPEAR_MAX, 17F, DELAY_APPEAR_MIN, DELAY_APPEAR_MAX, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
+                gen.phase1_pillars,
+                gen.phase1_pillars_stripes
         });
         Animation.lower(phase2, CYCLES_APPEAR_MIN, CYCLES_APPEAR_MAX, 64F, DELAY_APPEAR_MIN, DELAY_APPEAR_MAX, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
                 gen.phase2,
@@ -231,36 +229,45 @@ public final class City{
     }
 
     public static void raisePhase1(Gen gen, Runnable post){
-        Light.movePosition(gen, 0, 40F, 0, 0, 180, VLVCurved.CURVE_ACC_DEC_CUBIC, null);
-        Light.moveRadius(gen, 175F, 0, 180, VLVCurved.CURVE_ACC_DEC_CUBIC, null);
+        Light.movePosition(gen, 0F, 70F, 0F, 0, 180, CURVE_DEFAULT, null);
+        Light.moveRadius(gen, 200F, 0, 180, CURVE_DEFAULT, null);
 
-        Camera.movePosition(80F, 50F, 80F, 0, 120, VLVCurved.CURVE_ACC_DEC_CUBIC, new Runnable(){
+        Camera.rotate(0F, 45F, 0F, 1F, 0F, 0, 60, CURVE_DEFAULT, VLVariable.LOOP_NONE, new Runnable(){
 
             @Override
             public void run(){
-                phase1.start();
+                Camera.movePosition(130F, 80F, 130F, 0, 120, CURVE_DEFAULT, new Runnable(){
 
-                Camera.rotate(0F, 180F, 100F, 700F, 100F, 0F,
-                        0F,0F,0,540, VLVCurved.CURVE_ACC_DEC_COS, VLVariable.LOOP_NONE);
+                    @Override
+                    public void run(){
+                        phase1.start();
 
-                post.run();
+                        Camera.rotate(0F, 180F, 100F, 700F, 100F,0,540, VLVCurved.CURVE_ACC_DEC_COS, VLVariable.LOOP_NONE, null);
+                        post.run();
+                    }
+                });
             }
         });
     }
 
     public static void raisePhase2(Gen gen, Runnable post){
-        Light.movePosition(gen, 0, 100F, 0, 0, 120, VLVCurved.CURVE_ACC_DEC_CUBIC, null);
-        Light.moveRadius(gen, 1000F, 0, 120, VLVCurved.CURVE_ACC_DEC_CUBIC, null);
+        Light.movePosition(gen, 0, 100F, 0, 0, 120, CURVE_DEFAULT, null);
+        Light.moveRadius(gen, 1000F, 0, 120, CURVE_DEFAULT, null);
 
-        Camera.movePosition(750F, 300F, 750F, 0, 120, VLVCurved.CURVE_ACC_DEC_CUBIC, new Runnable(){
+        Camera.rotate(0F, 45F, 0F, 1F, 0F, 0, 60, CURVE_DEFAULT, VLVariable.LOOP_NONE, new Runnable(){
 
             @Override
             public void run(){
-                Camera.rotate(0F, 180F, 100F, 700F, 100F, 0F,
-                        0F,0F,0,540, VLVCurved.CURVE_ACC_DEC_COS, VLVariable.LOOP_NONE);
+                Camera.movePosition(750F, 300F, 750F, 0, 120, CURVE_DEFAULT, new Runnable(){
 
-                phase2.start();
-                post.run();
+                    @Override
+                    public void run(){
+                        Camera.rotate(0F, 180F, 100F, 700F, 100F,0,540, VLVCurved.CURVE_ACC_DEC_COS, VLVariable.LOOP_NONE, null);
+
+                        phase2.start();
+                        post.run();
+                    }
+                });
             }
         });
     }

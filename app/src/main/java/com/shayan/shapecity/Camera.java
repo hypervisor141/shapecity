@@ -138,8 +138,9 @@ public final class Camera{
         controllerview.start();
     }
 
-    public static void rotate(float fromangle, float toangle, float rotationx, float rotationy, float rotationz, float viewx, float viewy, float viewz, int delay, int cycles, VLVCurved.Curve curve, VLVariable.Loop loop){
-        final float[] orgviewsettings = FSControl.getViewConfig().viewMatrixSettings().provider().clone();
+    public static void rotate(float fromangle, float toangle, float rotationx, float rotationy, float rotationz, int delay, int cycles, VLVCurved.Curve curve, VLVariable.Loop loop, final Runnable post){
+        final float[] settings = FSControl.getViewConfig().viewMatrixSettings().provider().clone();
+
         VLVCurved angle = new VLVCurved(fromangle, toangle, cycles, loop, curve, new VLTaskContinous(new VLTask.Task(){
 
             private float[] cache = new float[16];
@@ -151,34 +152,20 @@ public final class Camera{
 
                 Matrix.setIdentityM(cache, 0);
                 Matrix.rotateM(cache, 0, var.get(), rotationx, rotationy, rotationz);
-                Matrix.multiplyMV(pos, 0, cache, 0, orgviewsettings, 0);
+                Matrix.multiplyMV(pos, 0, cache, 0, settings, 0);
 
                 config.eyePositionUpdate();
                 config.lookAtUpdate();
-            }
-        }));
-
-        VLVCurved controlviewx = new VLVCurved(orgviewsettings[3], viewx, cycles, VLVariable.LOOP_NONE, curve);
-        VLVCurved controlviewy = new VLVCurved(orgviewsettings[4], viewy, cycles, VLVariable.LOOP_NONE, curve);
-        VLVCurved controlviewz = new VLVCurved(orgviewsettings[5], viewz, cycles, VLVariable.LOOP_NONE, curve);
-
-        VLVControl update = new VLVControl(cycles, loop, new VLTaskContinous(new VLTask.Task(){
-
-            @Override
-            public void run(VLTask task, VLVariable var){
-                lookAt(controlviewx.get(), controlviewy.get(), controlviewz.get());
+                config.updateViewProjection();
 
                 if(!var.active()){
                     controllerrotate.clear();
+                    post.run();
                 }
             }
         }));
 
         controllerrotate.add(new VLVRunnerEntry(angle, delay));
-        controllerrotate.add(new VLVRunnerEntry(controlviewx, delay));
-        controllerrotate.add(new VLVRunnerEntry(controlviewy, delay));
-        controllerrotate.add(new VLVRunnerEntry(controlviewz, delay));
-        controllerrotate.add(new VLVRunnerEntry(update, delay));
         controllerrotate.start();
     }
 

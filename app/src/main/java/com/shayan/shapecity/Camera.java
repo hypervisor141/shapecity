@@ -20,8 +20,6 @@ public final class Camera{
     private static final float DISTANCE_FROM_PLATFORM_FINAL = 2F;
 
     private static final int CYCLES_CAMERA_PLACEMENT = 100;
-//    private static final int CYCLES_DESCEND = 240;
-    private static final int CYCLES_DESCEND = 10;
 
     private static final VLVCurved.Curve CURVE_CAMERA_PLACEMENT = VLVCurved.CURVE_ACC_DEC_COS;
     private static final VLVCurved.Curve CURVE_DESCEND = VLVCurved.CURVE_ACC_DEC_COS;
@@ -59,8 +57,8 @@ public final class Camera{
         position(0F, 4000F, 0.01F);
         lookAt(0F, -1000F, 0F);
 
-        movePosition(0F, initialvalue, -0.01F, 0, CYCLES_DESCEND, CURVE_DESCEND, post);
-        moveView(0F, initialvalue - 10F, 0, 0, CYCLES_DESCEND, CURVE_DESCEND, null);
+        movePosition(0F, initialvalue, -0.01F, 0, 10, CURVE_DESCEND, post);
+        moveView(0F, initialvalue - 10F, 0, 0, 10, CURVE_DESCEND, null);
     }
 
     public static void riseWithPlatform(final Gen gen){
@@ -70,15 +68,16 @@ public final class Camera{
 
             @Override
             public void run(){
-                Light.radiateForPuzzle(gen);
-                lookAtPuzzle();
+                Light.radiateForPuzzle(gen, 60);
+                lookAtPuzzle(100);
             }
         });
     }
 
-    public static void lookAtPuzzle(){
-        lookAt(0F, 0F, 0F);
-        movePosition(0F, DISTANCE_FROM_PLATFORM_FINAL, -0.01F, 0, CYCLES_CAMERA_PLACEMENT, CURVE_CAMERA_PLACEMENT, null);
+    public static void lookAtPuzzle(int cycles){
+        moveView(0F, 0F, 0F, 0, cycles, CURVE_CAMERA_PLACEMENT, null);
+        movePosition(0F, DISTANCE_FROM_PLATFORM_FINAL, -0.01F, 0, cycles, CURVE_CAMERA_PLACEMENT, null);
+        moveNear(0.1F, 0, cycles, CURVE_CAMERA_PLACEMENT, null);
     }
 
     public static void perspective(float fov, float aspect, float near, float far){

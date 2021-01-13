@@ -14,9 +14,6 @@ import com.nurverek.vanguard.VLVariable;
 
 public final class Light{
 
-    private static final int CYCLES_PHASE_CHANGE = 200;
-    private static final int CYCLES_DESCEND = 120;
-    private static final int CYCLES_RADIATE_FOR_PUZZLE = 60;
     private static final VLVCurved.Curve CURVE_DEFAULT = VLVCurved.CURVE_ACC_DEC_COS;
 
     private static VLVRunner controllerpos;
@@ -37,7 +34,7 @@ public final class Light{
         position(gen, 0F, 0F, 0F);
         radiate(gen, 10000F);
 
-        moveRadius(gen, 20F, 0, CYCLES_DESCEND, CURVE_DEFAULT, null);
+        moveRadius(gen, 20F, 0, 200, CURVE_DEFAULT, null);
     }
 
     public static void setForPlatformRise(Gen gen){
@@ -45,9 +42,9 @@ public final class Light{
         radiate(gen,20F);
     }
 
-    public static void radiateForPuzzle(final Gen gen){
-        moveRadius(gen, 1.5F, 0, CYCLES_RADIATE_FOR_PUZZLE, CURVE_DEFAULT, null);
-        movePosition(gen, 0.1F, 1.5F, 0.1F, 0, CYCLES_RADIATE_FOR_PUZZLE, CURVE_DEFAULT, new Runnable(){
+    public static void radiateForPuzzle(final Gen gen, int cycles){
+        moveRadius(gen, 1.5F, 0, cycles, CURVE_DEFAULT, null);
+        movePosition(gen, 0.1F, 1.5F, 0.1F, 0, cycles, CURVE_DEFAULT, new Runnable(){
 
             @Override
             public void run(){

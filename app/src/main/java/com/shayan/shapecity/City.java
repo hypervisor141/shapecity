@@ -235,7 +235,7 @@ public final class City{
 //                phase1
 //        }, post);
 
-        reveal(gen, 1500F, 3000F,3500F, 480,120, new VLVRunner[]{
+        reveal(gen, 1500F, 3000F,3500F, 100F, 480,120, new VLVRunner[]{
                 phase6_layer2,
                 phase6_layer3,
                 phase6_layer4,
@@ -250,27 +250,27 @@ public final class City{
     }
 
     public static void raisePhase2(Gen gen, Runnable post){
-        reveal(gen, 200F, 300F,750F, 240,120, new VLVRunner[]{
+        reveal(gen, 200F, 300F,750F, 5F, 240,120, new VLVRunner[]{
                 phase2
         }, post);
     }
 
     public static void raisePhase3(Gen gen, Runnable post){
-        reveal(gen, 400F, 600F,1200F, 300,120, new VLVRunner[]{
+        reveal(gen, 400F, 600F,1200F, 10F, 300,120, new VLVRunner[]{
                 phase3,
                 phase3_baseframes
         }, post);
     }
 
     public static void raisePhase4(Gen gen, Runnable post){
-        reveal(gen, 600F, 600F,1800F, 360,120, new VLVRunner[]{
+        reveal(gen, 600F, 600F,1800F, 25F, 360,120, new VLVRunner[]{
                 phase4,
                 phase4_caps
         }, post);
     }
 
     public static void raisePhase5(Gen gen, Runnable post){
-        reveal(gen, 1000F, 2000F,2750F, 420,120, new VLVRunner[]{
+        reveal(gen, 1000F, 2000F,2750F, 50F, 420,120, new VLVRunner[]{
                 phase5_layer1,
                 phase5_layer2,
                 phase5_layer3,
@@ -279,7 +279,7 @@ public final class City{
     }
 
     public static void raisePhase6(Gen gen, Runnable post){
-        reveal(gen, 1500F, 2000F,3200F, 480,120, new VLVRunner[]{
+        reveal(gen, 1500F, 2000F,3200F, 100F, 480,120, new VLVRunner[]{
                 phase6_layer2,
                 phase6_layer3,
                 phase6_layer4,
@@ -297,7 +297,7 @@ public final class City{
         phase7.start();
     }
 
-    private static void reveal(final Gen gen, final float lighty, final float cameray, final float cameraxz, final int ascendcycles, final int rotatecyclesbae, final VLVRunner[] phases, final Runnable post){
+    private static void reveal(final Gen gen, final float lighty, final float cameray, final float cameraxz, float near, final int ascendcycles, final int rotatecyclesbae, final VLVRunner[] phases, final Runnable post){
         Camera.rotate(0F, 45F, 0F, 1F, 0F, 0, rotatecyclesbae / 2, CURVE_DEFAULT, VLVariable.LOOP_NONE, new Runnable(){
 
             @Override
@@ -305,6 +305,7 @@ public final class City{
                 Light.movePosition(gen, 0, lighty, 0, 0, ascendcycles, CURVE_DEFAULT, null);
                 Light.moveRadius(gen, lighty * 5F, 0, (int)Math.floor(ascendcycles * 1.25F), CURVE_DEFAULT, null);
 
+                Camera.moveNear(near, 0, ascendcycles, CURVE_DEFAULT, null);
                 Camera.movePosition(cameraxz, cameray, cameraxz, 0, ascendcycles, CURVE_DEFAULT, new Runnable(){
 
                     @Override
@@ -321,8 +322,8 @@ public final class City{
 
                             @Override
                             public void run(){
-                                Light.radiateForPuzzle(gen);
-                                Camera.lookAtPuzzle();
+                                Light.radiateForPuzzle(gen, rotatecyclesbae);
+                                Camera.lookAtPuzzle((int)Math.floor(rotatecyclesbae * 1.25F));
 
                                 post.run();
                             }

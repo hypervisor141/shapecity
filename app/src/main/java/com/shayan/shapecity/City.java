@@ -1,6 +1,8 @@
 package com.shayan.shapecity;
 
+import com.nurverek.firestorm.FSControl;
 import com.nurverek.firestorm.FSMesh;
+import com.nurverek.firestorm.FSViewConfig;
 import com.nurverek.vanguard.VLVCurved;
 import com.nurverek.vanguard.VLVManager;
 import com.nurverek.vanguard.VLVRunner;
@@ -229,53 +231,11 @@ public final class City{
     }
 
     public static void raisePhase1(Gen gen, Runnable post){
-        Light.movePosition(gen, 0F, 70F, 0F, 0, 180, CURVE_DEFAULT, null);
-        Light.moveRadius(gen, 200F, 0, 180, CURVE_DEFAULT, null);
-
-        Camera.rotate(0F, 45F, 0F, 1F, 0F, 0, 60, CURVE_DEFAULT, VLVariable.LOOP_NONE, new Runnable(){
-
-            @Override
-            public void run(){
-                Camera.movePosition(130F, 80F, 130F, 0, 120, CURVE_DEFAULT, new Runnable(){
-
-                    @Override
-                    public void run(){
-                        phase1.start();
-
-                        Camera.rotate(0F, 180F, 100F, 700F, 100F, 0, 540, VLVCurved.CURVE_ACC_DEC_COS, VLVariable.LOOP_NONE, new Runnable(){
-
-                            @Override
-                            public void run(){
-
-                                //add random height animations to elements
-
-                                post.run();
-                            }
-                        });
-                    }
-                });
-            }
-        });
+        reveal(gen, 70F, 80F,130F, 120,120, phase1, post);
     }
 
     public static void raisePhase2(Gen gen, Runnable post){
-        Light.movePosition(gen, 0, 100F, 0, 0, 120, CURVE_DEFAULT, null);
-        Light.moveRadius(gen, 1000F, 0, 120, CURVE_DEFAULT, null);
-
-        Camera.rotate(0F, 45F, 0F, 1F, 0F, 0, 60, CURVE_DEFAULT, VLVariable.LOOP_NONE, new Runnable(){
-
-            @Override
-            public void run(){
-                Camera.movePosition(750F, 300F, 750F, 0, 120, CURVE_DEFAULT, new Runnable(){
-
-                    @Override
-                    public void run(){
-                        phase2.start();
-                        Camera.rotate(0F, 180F, 100F, 700F, 100F,0,540, VLVCurved.CURVE_ACC_DEC_COS, VLVariable.LOOP_NONE, post);
-                    }
-                });
-            }
-        });
+        reveal(gen, 200F, 300F,750F, 240,120, phase2, post);
     }
 
     public static void raisePhase3(Gen gen, Runnable post){
@@ -287,12 +247,14 @@ public final class City{
         phase4.start();
         phase4_caps.start();
     }
+
     public static void raisePhase5(Gen gen, Runnable post){
         phase5_layer1.start();
         phase5_layer2.start();
         phase5_layer3.start();
         phase5_trapezoids.start();
     }
+
     public static void raisePhase6(Gen gen, Runnable post){
         phase6_layer2.start();
         phase6_layer3.start();
@@ -308,5 +270,36 @@ public final class City{
 
     public static void raisePhase7(Gen gen, Runnable post){
         phase7.start();
+    }
+
+    private static void reveal(final Gen gen, final float lighty, final float cameray, final float cameraxz, final int ascendcycles, final int rotatecyclesbase, final VLVRunner phase, final Runnable post){
+        Camera.rotate(0F, Gen.RANDOM.nextBoolean() ? 45F : -315F, 0F, 1F, 0F, 0, rotatecyclesbase / 2, CURVE_DEFAULT, VLVariable.LOOP_NONE, new Runnable(){
+
+            @Override
+            public void run(){
+                Light.movePosition(gen, 0, lighty, 0, 0, ascendcycles, CURVE_DEFAULT, null);
+                Light.moveRadius(gen, lighty * 5F, 0, (int)Math.floor(ascendcycles * 1.5F), CURVE_DEFAULT, null);
+
+                Camera.movePosition(cameraxz, cameray, cameraxz, 0, ascendcycles, CURVE_DEFAULT, new Runnable(){
+
+                    @Override
+                    public void run(){
+                        phase.start();
+
+                        Camera.rotate(0F, Gen.RANDOM.nextBoolean() ? 180F : -180F, lighty, lighty * 7F, lighty,
+                                0, rotatecyclesbase * 4, VLVCurved.CURVE_ACC_DEC_COS, VLVariable.LOOP_NONE, new Runnable(){
+
+                            @Override
+                            public void run(){
+                                Light.radiateForPuzzle(gen);
+                                Camera.lookAtPuzzle();
+
+                                post.run();
+                            }
+                        });
+                    }
+                });
+            }
+        });
     }
 }

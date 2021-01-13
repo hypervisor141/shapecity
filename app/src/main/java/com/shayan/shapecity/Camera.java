@@ -59,10 +59,14 @@ public final class Camera{
             @Override
             public void run(){
                 Light.radiateForPuzzle(gen);
-                lookAt(0F, 0F, 0F);
-                movePosition(0F, DISTANCE_FROM_PLATFORM_FINAL, -0.01F, 0, CYCLES_CAMERA_PLACEMENT, CURVE_CAMERA_PLACEMENT, null);
+                lookAtPuzzle();
             }
         });
+    }
+
+    public static void lookAtPuzzle(){
+        lookAt(0F, 0F, 0F);
+        movePosition(0F, DISTANCE_FROM_PLATFORM_FINAL, -0.01F, 0, CYCLES_CAMERA_PLACEMENT, CURVE_CAMERA_PLACEMENT, null);
     }
 
     public static void position(float x, float y, float z){

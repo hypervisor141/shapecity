@@ -29,12 +29,24 @@ public final class Camera{
     private static VLVRunner controllerview;
     private static VLVRunner controllerpos;
     private static VLVRunner controllerrotate;
+    private static VLVRunner controllerfov;
+    private static VLVRunner controlleraspect;
+    private static VLVRunner controllernear;
+    private static VLVRunner controllerfar;
 
     public static void initialize(Gen gen){
-        controllerpos = new VLVRunner(10, 10);
-        controllerview = new VLVRunner(10, 10);
-        controllerrotate = new VLVRunner(10, 10);
+        controllerfov = new VLVRunner(1, 5);
+        controlleraspect = new VLVRunner(1, 5);
+        controllernear = new VLVRunner(1, 5);
+        controllerfar = new VLVRunner(1, 5);
+        controllerpos = new VLVRunner(4, 5);
+        controllerview = new VLVRunner(4, 5);
+        controllerrotate = new VLVRunner(1, 5);
 
+        FSRenderer.getControlManager().add(controllerfov);
+        FSRenderer.getControlManager().add(controlleraspect);
+        FSRenderer.getControlManager().add(controllernear);
+        FSRenderer.getControlManager().add(controllerfar);
         FSRenderer.getControlManager().add(controllerpos);
         FSRenderer.getControlManager().add(controllerview);
         FSRenderer.getControlManager().add(controllerrotate);
@@ -67,6 +79,40 @@ public final class Camera{
     public static void lookAtPuzzle(){
         lookAt(0F, 0F, 0F);
         movePosition(0F, DISTANCE_FROM_PLATFORM_FINAL, -0.01F, 0, CYCLES_CAMERA_PLACEMENT, CURVE_CAMERA_PLACEMENT, null);
+    }
+
+    public static void perspective(float fov, float aspect, float near, float far){
+        FSViewConfig config = FSControl.getViewConfig();
+        config.perspective(fov, aspect, near, far);
+        config.updateViewProjection();
+    }
+
+    public static void fov(float fov){
+        FSViewConfig config = FSControl.getViewConfig();
+        float[] settings = config.perspectiveSettings().provider();
+        config.perspective(fov, settings[1], settings[2], settings[3]);
+        config.updateViewProjection();
+    }
+
+    public static void aspect(float aspect){
+        FSViewConfig config = FSControl.getViewConfig();
+        float[] settings = config.perspectiveSettings().provider();
+        config.perspective(settings[0], aspect, settings[2], settings[3]);
+        config.updateViewProjection();
+    }
+
+    public static void near(float near){
+        FSViewConfig config = FSControl.getViewConfig();
+        float[] settings = config.perspectiveSettings().provider();
+        config.perspective(settings[0], settings[1], near, settings[3]);
+        config.updateViewProjection();
+    }
+
+    public static void far(float far){
+        FSViewConfig config = FSControl.getViewConfig();
+        float[] settings = config.perspectiveSettings().provider();
+        config.perspective(settings[0], settings[1], settings[2], far);
+        config.updateViewProjection();
     }
 
     public static void position(float x, float y, float z){
@@ -110,6 +156,90 @@ public final class Camera{
         controllerpos.add(new VLVRunnerEntry(controlz, delay));
         controllerpos.add(new VLVRunnerEntry(update, delay));
         controllerpos.start();
+    }
+
+    public static void moveFOV(float fov, int delay, int cycles, VLVCurved.Curve curve, final Runnable post){
+        VLVCurved control = new VLVCurved(FSControl.getViewConfig().perspectiveSettings().get(0), fov, cycles, VLVariable.LOOP_NONE, curve, new VLTaskContinous(new VLTask.Task(){
+
+            @Override
+            public void run(VLTask task, VLVariable var){
+                fov(var.get());
+
+                if(!var.active()){
+                    controllerfov.clear();
+
+                    if(post != null){
+                        post.run();
+                    }
+                }
+            }
+        }));
+
+        controllerfov.add(new VLVRunnerEntry(control, delay));
+        controllerfov.start();
+    }
+
+    public static void moveAspect(float aspect, int delay, int cycles, VLVCurved.Curve curve, final Runnable post){
+        VLVCurved control = new VLVCurved(FSControl.getViewConfig().perspectiveSettings().get(1), aspect, cycles, VLVariable.LOOP_NONE, curve, new VLTaskContinous(new VLTask.Task(){
+
+            @Override
+            public void run(VLTask task, VLVariable var){
+                aspect(var.get());
+
+                if(!var.active()){
+                    controlleraspect.clear();
+
+                    if(post != null){
+                        post.run();
+                    }
+                }
+            }
+        }));
+
+        controlleraspect.add(new VLVRunnerEntry(control, delay));
+        controlleraspect.start();
+    }
+
+    public static void moveNear(float near, int delay, int cycles, VLVCurved.Curve curve, final Runnable post){
+        VLVCurved control = new VLVCurved(FSControl.getViewConfig().perspectiveSettings().get(2), near, cycles, VLVariable.LOOP_NONE, curve, new VLTaskContinous(new VLTask.Task(){
+
+            @Override
+            public void run(VLTask task, VLVariable var){
+                near(var.get());
+
+                if(!var.active()){
+                    controllernear.clear();
+
+                    if(post != null){
+                        post.run();
+                    }
+                }
+            }
+        }));
+
+        controllernear.add(new VLVRunnerEntry(control, delay));
+        controllernear.start();
+    }
+
+    public static void moveFar(float far, int delay, int cycles, VLVCurved.Curve curve, final Runnable post){
+        VLVCurved control = new VLVCurved(FSControl.getViewConfig().perspectiveSettings().get(3), far, cycles, VLVariable.LOOP_NONE, curve, new VLTaskContinous(new VLTask.Task(){
+
+            @Override
+            public void run(VLTask task, VLVariable var){
+                far(var.get());
+
+                if(!var.active()){
+                    controllerfar.clear();
+
+                    if(post != null){
+                        post.run();
+                    }
+                }
+            }
+        }));
+
+        controllerfar.add(new VLVRunnerEntry(control, delay));
+        controllerfar.start();
     }
 
     public static void moveView(float viewx, float viewy, float viewz, int delay, int cycles, VLVCurved.Curve curve, final Runnable post){

@@ -231,63 +231,93 @@ public final class City{
     }
 
     public static void raisePhase1(Gen gen, Runnable post){
-        reveal(gen, 70F, 80F,130F, 120,120, phase1, post);
+//        reveal(gen, 70F, 80F,130F, 120,120, new VLVRunner[]{
+//                phase1
+//        }, post);
+
+        reveal(gen, 1500F, 3000F,3500F, 480,120, new VLVRunner[]{
+                phase6_layer2,
+                phase6_layer3,
+                phase6_layer4,
+                phase6_layer5,
+                phase6_layer6,
+                phase6_layer7,
+                phase6_layer8,
+                phase6_layer9,
+                phase6_layer10,
+                phase6_layer11
+        }, post);
     }
 
     public static void raisePhase2(Gen gen, Runnable post){
-        reveal(gen, 200F, 300F,750F, 240,120, phase2, post);
+        reveal(gen, 200F, 300F,750F, 240,120, new VLVRunner[]{
+                phase2
+        }, post);
     }
 
     public static void raisePhase3(Gen gen, Runnable post){
-        phase3.start();
-        phase3_baseframes.start();
+        reveal(gen, 400F, 600F,1200F, 300,120, new VLVRunner[]{
+                phase3,
+                phase3_baseframes
+        }, post);
     }
 
     public static void raisePhase4(Gen gen, Runnable post){
-        phase4.start();
-        phase4_caps.start();
+        reveal(gen, 600F, 600F,1800F, 360,120, new VLVRunner[]{
+                phase4,
+                phase4_caps
+        }, post);
     }
 
     public static void raisePhase5(Gen gen, Runnable post){
-        phase5_layer1.start();
-        phase5_layer2.start();
-        phase5_layer3.start();
-        phase5_trapezoids.start();
+        reveal(gen, 1000F, 2000F,2750F, 420,120, new VLVRunner[]{
+                phase5_layer1,
+                phase5_layer2,
+                phase5_layer3,
+                phase5_trapezoids,
+        }, post);
     }
 
     public static void raisePhase6(Gen gen, Runnable post){
-        phase6_layer2.start();
-        phase6_layer3.start();
-        phase6_layer4.start();
-        phase6_layer5.start();
-        phase6_layer6.start();
-        phase6_layer7.start();
-        phase6_layer8.start();
-        phase6_layer9.start();
-        phase6_layer10.start();
-        phase6_layer11.start();
+        reveal(gen, 1500F, 2000F,3200F, 480,120, new VLVRunner[]{
+                phase6_layer2,
+                phase6_layer3,
+                phase6_layer4,
+                phase6_layer5,
+                phase6_layer6,
+                phase6_layer7,
+                phase6_layer8,
+                phase6_layer9,
+                phase6_layer10,
+                phase6_layer11
+        }, post);
     }
 
     public static void raisePhase7(Gen gen, Runnable post){
         phase7.start();
     }
 
-    private static void reveal(final Gen gen, final float lighty, final float cameray, final float cameraxz, final int ascendcycles, final int rotatecyclesbase, final VLVRunner phase, final Runnable post){
-        Camera.rotate(0F, Gen.RANDOM.nextBoolean() ? 45F : -315F, 0F, 1F, 0F, 0, rotatecyclesbase / 2, CURVE_DEFAULT, VLVariable.LOOP_NONE, new Runnable(){
+    private static void reveal(final Gen gen, final float lighty, final float cameray, final float cameraxz, final int ascendcycles, final int rotatecyclesbae, final VLVRunner[] phases, final Runnable post){
+        Camera.rotate(0F, 45F, 0F, 1F, 0F, 0, rotatecyclesbae / 2, CURVE_DEFAULT, VLVariable.LOOP_NONE, new Runnable(){
 
             @Override
             public void run(){
                 Light.movePosition(gen, 0, lighty, 0, 0, ascendcycles, CURVE_DEFAULT, null);
-                Light.moveRadius(gen, lighty * 5F, 0, (int)Math.floor(ascendcycles * 1.5F), CURVE_DEFAULT, null);
+                Light.moveRadius(gen, lighty * 5F, 0, (int)Math.floor(ascendcycles * 1.25F), CURVE_DEFAULT, null);
 
                 Camera.movePosition(cameraxz, cameray, cameraxz, 0, ascendcycles, CURVE_DEFAULT, new Runnable(){
 
                     @Override
                     public void run(){
-                        phase.start();
+                        for(int i = 0; i < phases.length; i++){
+                            phases[i].start();
+                        }
 
-                        Camera.rotate(0F, Gen.RANDOM.nextBoolean() ? 180F : -180F, lighty, lighty * 7F, lighty,
-                                0, rotatecyclesbase * 4, VLVCurved.CURVE_ACC_DEC_COS, VLVariable.LOOP_NONE, new Runnable(){
+                        float angle = (45F + Gen.RANDOM.nextInt(180));
+                        angle = Gen.RANDOM.nextBoolean() ? angle : -angle;
+
+                        Camera.rotate(0F, angle, lighty, lighty * 7F, lighty,
+                                0, rotatecyclesbae * 4, CURVE_DEFAULT, VLVariable.LOOP_NONE, new Runnable(){
 
                             @Override
                             public void run(){

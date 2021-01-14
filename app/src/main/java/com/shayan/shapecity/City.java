@@ -37,8 +37,6 @@ public final class City{
     //phase6 layer10 : -2308 to 1500
     //phase6 layer11 : -2308 to 1500
 
-    //phase7 powerplants : -950 to -10
-
     private static final int CYCLES_APPEAR_MIN = 120;
     private static final int CYCLES_APPEAR_MAX = 200;
     private static final int DELAY_APPEAR_MIN = 0;
@@ -69,8 +67,6 @@ public final class City{
     private static VLVRunner phase6_layer10;
     private static VLVRunner phase6_layer11;
 
-    private static VLVRunner phase7;
-
     private static int phaseindex;
 
     public static void initialize(Gen gen){
@@ -96,7 +92,6 @@ public final class City{
         phase6_layer9 = new VLVRunner(gen.phase6_layer9.size(), 20);
         phase6_layer10 = new VLVRunner(gen.phase6_layer10.size(), 20);
         phase6_layer11 = new VLVRunner(gen.phase6_layer11.size(), 20);
-        phase7 = new VLVRunner(gen.phase7.size(), 20);
 
         Animation.lower(phase1, CYCLES_APPEAR_MIN, CYCLES_APPEAR_MAX, 17F, DELAY_APPEAR_MIN, DELAY_APPEAR_MAX, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
                 gen.phase1_pillars,
@@ -174,11 +169,6 @@ public final class City{
         Animation.lower(phase6_layer11, CYCLES_APPEAR_MIN, CYCLES_APPEAR_MAX, 2297F, DELAY_APPEAR_MIN, DELAY_APPEAR_MAX, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
                 gen.phase6_layer11
         });
-        Animation.lower(phase7, CYCLES_APPEAR_MIN, CYCLES_APPEAR_MAX, 939F, DELAY_APPEAR_MIN, DELAY_APPEAR_MAX, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
-                gen.phase7,
-                gen.phase7_caps,
-                gen.phase7_caps2
-        });
 
         VLVManager m = gen.vManager();
         m.add(phase1);
@@ -201,7 +191,6 @@ public final class City{
         m.add(phase6_layer9);
         m.add(phase6_layer10);
         m.add(phase6_layer11);
-        m.add(phase7);
     }
 
     public static void initiateNextPhase(Gen gen, Runnable post){
@@ -222,30 +211,14 @@ public final class City{
 
         }else if(phaseindex == 5){
             raisePhase6(gen, post);
-
-        }else if(phaseindex == 6){
-            raisePhase7(gen, post);
         }
 
         phaseindex++;
     }
 
     public static void raisePhase1(Gen gen, Runnable post){
-//        reveal(gen, 70F, 80F,130F, 120,120, new VLVRunner[]{
-//                phase1
-//        }, post);
-
-        reveal(gen, 1500F, 3000F,3500F, 100F, 480,120, new VLVRunner[]{
-                phase6_layer2,
-                phase6_layer3,
-                phase6_layer4,
-                phase6_layer5,
-                phase6_layer6,
-                phase6_layer7,
-                phase6_layer8,
-                phase6_layer9,
-                phase6_layer10,
-                phase6_layer11
+        reveal(gen, 70F, 80F,130F, 1F, 120,120, new VLVRunner[]{
+                phase1
         }, post);
     }
 
@@ -279,7 +252,7 @@ public final class City{
     }
 
     public static void raisePhase6(Gen gen, Runnable post){
-        reveal(gen, 1500F, 2000F,3200F, 100F, 480,120, new VLVRunner[]{
+        reveal(gen, 1500F, 3000F,3500F, 100F, 480,120, new VLVRunner[]{
                 phase6_layer2,
                 phase6_layer3,
                 phase6_layer4,
@@ -291,10 +264,6 @@ public final class City{
                 phase6_layer10,
                 phase6_layer11
         }, post);
-    }
-
-    public static void raisePhase7(Gen gen, Runnable post){
-        phase7.start();
     }
 
     private static void reveal(final Gen gen, final float lighty, final float cameray, final float cameraxz, float near, final int ascendcycles, final int rotatecyclesbae, final VLVRunner[] phases, final Runnable post){

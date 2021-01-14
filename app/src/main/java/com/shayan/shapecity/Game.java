@@ -1,8 +1,7 @@
 package com.shayan.shapecity;
 
+import com.nurverek.vanguard.VLArrayFloat;
 import com.nurverek.vanguard.VLListInt;
-import com.nurverek.vanguard.VLVCurved;
-import com.nurverek.vanguard.VLVariable;
 
 import java.util.Arrays;
 

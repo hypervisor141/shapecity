@@ -86,7 +86,7 @@ public class Start extends FSActivity{
         FSViewConfig config = FSControl.getViewConfig();
         config.setPerspectiveMode();
         config.viewPort(0, 0, width, height);
-        config.perspective(60f, (float)width / height, 0.1F, 10000F);
+        config.perspective(70f, (float)width / height, 0.1F, 10000F);
         config.updateViewPort();
     }
 

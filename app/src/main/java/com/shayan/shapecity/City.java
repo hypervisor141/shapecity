@@ -1,7 +1,11 @@
 package com.shayan.shapecity;
 
+import com.nurverek.firestorm.FSArrayModel;
 import com.nurverek.firestorm.FSControl;
+import com.nurverek.firestorm.FSInstance;
+import com.nurverek.firestorm.FSMatrixModel;
 import com.nurverek.firestorm.FSMesh;
+import com.nurverek.firestorm.FSSchematics;
 import com.nurverek.firestorm.FSViewConfig;
 import com.nurverek.vanguard.VLVCurved;
 import com.nurverek.vanguard.VLVManager;
@@ -71,26 +75,26 @@ public final class City{
     public static void initialize(Gen gen){
         phaseindex = 0;
 
-        phase1 = new VLVRunner(gen.phase1_pillars.size() * 2, 20);
-        phase2 = new VLVRunner(gen.phase2.size() * 3, 20);
-        phase3 = new VLVRunner(gen.phase3.size() * 2 + 1, 20);
-        phase3_baseframes = new VLVRunner(gen.phase3_baseframe1.size() * 4, 20);
-        phase4 = new VLVRunner(gen.phase4.size(), 20);
-        phase4_caps = new VLVRunner(gen.phase4_caps.size() * 2, 20);
-        phase5_layer1 = new VLVRunner(gen.phase5_layer1.size() * 2, 20);
-        phase5_layer2 = new VLVRunner(gen.phase5_layer2.size() * 2, 20);
-        phase5_layer3 = new VLVRunner(gen.phase5_layer3.size() * 3, 20);
-        phase5_trapezoids = new VLVRunner(gen.phase5_trapezoidx1.size() * 4, 20);
-        phase6_layer2 = new VLVRunner(gen.phase6_layer2.size(), 20);
-        phase6_layer3 = new VLVRunner(gen.phase6_layer3.size(), 20);
-        phase6_layer4 = new VLVRunner(gen.phase6_layer4.size(), 20);
-        phase6_layer5 = new VLVRunner(gen.phase6_layer5.size(), 20);
-        phase6_layer6 = new VLVRunner(gen.phase6_layer6.size(), 20);
-        phase6_layer7 = new VLVRunner(gen.phase6_layer7.size(), 20);
-        phase6_layer8 = new VLVRunner(gen.phase6_layer8.size(), 20);
-        phase6_layer9 = new VLVRunner(gen.phase6_layer9.size(), 20);
-        phase6_layer10 = new VLVRunner(gen.phase6_layer10.size(), 20);
-        phase6_layer11 = new VLVRunner(gen.phase6_layer11.size(), 20);
+        phase1 = new VLVRunner(50, 50);
+        phase2 = new VLVRunner(50, 50);
+        phase3 = new VLVRunner(50, 50);
+        phase3_baseframes = new VLVRunner(50, 50);
+        phase4 = new VLVRunner(50, 50);
+        phase4_caps = new VLVRunner(50, 50);
+        phase5_layer1 = new VLVRunner(50, 50);
+        phase5_layer2 = new VLVRunner(50, 50);
+        phase5_layer3 = new VLVRunner(50, 50);
+        phase5_trapezoids = new VLVRunner(50, 50);
+        phase6_layer2 = new VLVRunner(50, 50);
+        phase6_layer3 = new VLVRunner(50, 50);
+        phase6_layer4 = new VLVRunner(50, 50);
+        phase6_layer5 = new VLVRunner(50, 50);
+        phase6_layer6 = new VLVRunner(50, 50);
+        phase6_layer7 = new VLVRunner(50, 50);
+        phase6_layer8 = new VLVRunner(50, 50);
+        phase6_layer9 = new VLVRunner(50, 50);
+        phase6_layer10 = new VLVRunner(50, 50);
+        phase6_layer11 = new VLVRunner(50, 50);
 
         VLVCurved.Curve curve = VLVCurved.CURVE_ACC_SINE_SQRT;
 
@@ -218,7 +222,7 @@ public final class City{
     }
 
     public static void raisePhase1(Gen gen, Runnable post){
-        reveal(gen, 70F, 80F,130F, 1F, 120,120, new VLVRunner[]{
+        reveal(gen, 70F, 80F, 130F, 1F, 120, 120, new VLVRunner[]{
                 phase1
         }, post);
     }

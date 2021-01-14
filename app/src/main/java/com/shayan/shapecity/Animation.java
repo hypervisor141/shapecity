@@ -3,6 +3,7 @@ package com.shayan.shapecity;
 import com.nurverek.firestorm.FSInstance;
 import com.nurverek.firestorm.FSMatrixModel;
 import com.nurverek.firestorm.FSMesh;
+import com.nurverek.vanguard.VLMath;
 import com.nurverek.vanguard.VLVCurved;
 import com.nurverek.vanguard.VLVMatrix;
 import com.nurverek.vanguard.VLVRunner;
@@ -54,9 +55,11 @@ public class Animation{
                 FSInstance instance = mesh.instance(i2);
                 FSMatrixModel model = instance.modelMatrix();
 
+                float height = instance.schematics().modelHeight();
                 float y = model.getY(0).get();
+                float randomization = VLMath.range(Gen.RANDOM.nextFloat(),height * 0.25F, height);
 
-                VLVCurved var = new VLVCurved(y - decrease, y, cyclediff == 0 ? maxcycles : mincycles + Gen.RANDOM.nextInt(cyclediff), VLVariable.LOOP_NONE, curve);
+                VLVCurved var = new VLVCurved(y - decrease, y - randomization, cyclediff == 0 ? maxcycles : mincycles + Gen.RANDOM.nextInt(cyclediff), VLVariable.LOOP_NONE, curve);
                 var.SYNCER.add(new VLVMatrix.Definition(model));
 
                 model.setY(0, var);

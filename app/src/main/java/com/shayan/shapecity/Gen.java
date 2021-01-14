@@ -147,8 +147,8 @@ public final class Gen extends FSG{
         puzzlebase_innerwalls1_linings8 = register(bpsingular, "puzzlebase_innerwalls1_linings8_Cube.035", Animation.COLOR_BLUE_LESS8, MATERIAL_WHITE_LESS_SPECULAR);
         puzzlebase_innerwalls2 = register(bpsingular, "puzzlebase_innerwalls2_Cube.025", Animation.COLOR_PURPLE_MORE, MATERIAL_WHITE_LESS_SPECULAR);
         puzzlebase_bottom = register(bpsingular, "puzzlebase_bottom_Cube.026", Animation.COLOR_BLUE, MATERIAL_WHITE_LESS_SPECULAR);
-        mainbase1 = register(bpsingular, "mainbase1_Cube.037", Animation.COLOR_PURPLE_MORE, MATERIAL_WHITE);
-        mainbase2 = register(bpsingular, "mainbase2_Cube.157", Animation.COLOR_RED_LESS1, MATERIAL_WHITE);
+        mainbase1 = register(bpsingular, "mainbase1_Cube.037", Animation.COLOR_RED_LESS1, MATERIAL_WHITE);
+        mainbase2 = register(bpsingular, "mainbase2_Cube.157", Animation.COLOR_PURPLE_MORE, MATERIAL_WHITE);
         phase1_base = register(bpinstanced, "phase1_base_Cube.027", Animation.COLOR_PURPLE_MORE, MATERIAL_WHITE);
         phase1_base_inner = register(bpinstanced, "phase1_base_inner_Cube.039", Animation.COLOR_PURPLE_LESS, MATERIAL_WHITE);
         phase1_base_inner_lining = register(bpinstanced, "phase1_base_inner_lining_Cube.040", Animation.COLOR_BLUE, MATERIAL_WHITE);
@@ -178,16 +178,16 @@ public final class Gen extends FSG{
         phase5_trapezoidy1 = register(bpinstanced, "phase5_trapezoidy1.", Animation.COLOR_OBSIDIAN_LESS2, MATERIAL_WHITE);
         phase5_trapezoidx2 = register(bpinstanced, "phase5_trapezoidx2.", Animation.COLOR_OBSIDIAN_LESS3, MATERIAL_WHITE);
         phase5_trapezoidy2 = register(bpinstanced, "phase5_trapezoidy2.", Animation.COLOR_OBSIDIAN_LESS3, MATERIAL_WHITE);
-        phase6_layer1 = register(bpinstanced, "phase6_layer1.", Animation.COLOR_OBSIDIAN_LESS1, MATERIAL_WHITE);
-        phase6_layer2 = register(bpinstanced, "phase6_layer2.", Animation.COLOR_OBSIDIAN_LESS2, MATERIAL_WHITE);
-        phase6_layer3 = register(bpinstanced, "phase6_layer3.", Animation.COLOR_OBSIDIAN_LESS3, MATERIAL_WHITE);
-        phase6_layer4 = register(bpinstanced, "phase6_layer4.", Animation.COLOR_OBSIDIAN_LESS4, MATERIAL_WHITE);
-        phase6_layer5 = register(bpinstanced, "phase6_layer5.", Animation.COLOR_OBSIDIAN_LESS5, MATERIAL_WHITE);
-        phase6_layer6 = register(bpinstanced, "phase6_layer6.", Animation.COLOR_OBSIDIAN_LESS1, MATERIAL_WHITE);
-        phase6_layer7 = register(bpinstanced, "phase6_layer7.", Animation.COLOR_OBSIDIAN_LESS2, MATERIAL_WHITE);
-        phase6_layer8 = register(bpinstanced, "phase6_layer8.", Animation.COLOR_OBSIDIAN_LESS3, MATERIAL_WHITE);
-        phase6_layer9 = register(bpinstanced, "phase6_layer9.", Animation.COLOR_OBSIDIAN_LESS4, MATERIAL_WHITE);
-        phase6_layer10 = register(bpinstanced, "phase6_layer10.", Animation.COLOR_OBSIDIAN_LESS5, MATERIAL_WHITE);
+        phase6_layer1 = register(bpinstanced, "phase6_layer1.", Animation.COLOR_BLUE, MATERIAL_WHITE);
+        phase6_layer2 = register(bpinstanced, "phase6_layer2.", Animation.COLOR_OBSIDIAN_LESS3, MATERIAL_WHITE);
+        phase6_layer3 = register(bpinstanced, "phase6_layer3.", Animation.COLOR_BLUE_LESS1, MATERIAL_WHITE);
+        phase6_layer4 = register(bpinstanced, "phase6_layer4.", Animation.COLOR_BLUE_LESS2, MATERIAL_WHITE);
+        phase6_layer5 = register(bpinstanced, "phase6_layer5.", Animation.COLOR_BLUE_LESS3, MATERIAL_WHITE);
+        phase6_layer6 = register(bpinstanced, "phase6_layer6.", Animation.COLOR_BLUE_LESS4, MATERIAL_WHITE);
+        phase6_layer7 = register(bpinstanced, "phase6_layer7.", Animation.COLOR_BLUE_LESS5, MATERIAL_WHITE);
+        phase6_layer8 = register(bpinstanced, "phase6_layer8.", Animation.COLOR_BLUE_LESS6, MATERIAL_WHITE);
+        phase6_layer9 = register(bpinstanced, "phase6_layer9.", Animation.COLOR_BLUE_LESS7, MATERIAL_WHITE);
+        phase6_layer10 = register(bpinstanced, "phase6_layer10.", Animation.COLOR_BLUE_LESS8, MATERIAL_WHITE);
         phase6_layer11 = register(bpinstanced, "phase6_layer11.", Animation.COLOR_BLUE, MATERIAL_WHITE);
 
         automator().run(DEBUG_MODE_AUTOMATOR);

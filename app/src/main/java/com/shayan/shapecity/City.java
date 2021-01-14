@@ -41,7 +41,6 @@ public final class City{
     private static final int CYCLES_APPEAR_MAX = 200;
     private static final int DELAY_APPEAR_MIN = 0;
     private static final int DELAY_APPEAR_MAX = 200;
-    private static final VLVCurved.Curve CURVE_DEFAULT = VLVCurved.CURVE_ACC_DEC_CUBIC;
 
     private static VLVRunner phase1;
     private static VLVRunner phase2;
@@ -93,7 +92,9 @@ public final class City{
         phase6_layer10 = new VLVRunner(gen.phase6_layer10.size(), 20);
         phase6_layer11 = new VLVRunner(gen.phase6_layer11.size(), 20);
 
-        Animation.lower(phase1, CYCLES_APPEAR_MIN, CYCLES_APPEAR_MAX, 17F, DELAY_APPEAR_MIN, DELAY_APPEAR_MAX, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
+        VLVCurved.Curve curve = VLVCurved.CURVE_ACC_SINE_SQRT;
+
+        Animation.lower(phase1, CYCLES_APPEAR_MIN, CYCLES_APPEAR_MAX, 17F, DELAY_APPEAR_MIN, DELAY_APPEAR_MAX, VLVCurved.CURVE_ACC_SINE_SQRT, new FSMesh[]{
                 gen.phase1_pillars,
                 gen.phase1_pillars_stripes
         });
@@ -236,7 +237,7 @@ public final class City{
     }
 
     public static void raisePhase4(Gen gen, Runnable post){
-        reveal(gen, 600F, 600F,1800F, 25F, 360,120, new VLVRunner[]{
+        reveal(gen, 600F, 1000F,1800F, 25F, 360,120, new VLVRunner[]{
                 phase4,
                 phase4_caps
         }, post);
@@ -267,15 +268,15 @@ public final class City{
     }
 
     private static void reveal(final Gen gen, final float lighty, final float cameray, final float cameraxz, float near, final int ascendcycles, final int rotatecyclesbae, final VLVRunner[] phases, final Runnable post){
-        Camera.rotate(0F, 45F, 0F, 1F, 0F, 0, rotatecyclesbae / 2, CURVE_DEFAULT, VLVariable.LOOP_NONE, new Runnable(){
+        Camera.rotate(0F, 45F, 0F, 1F, 0F, 0, rotatecyclesbae / 2, VLVCurved.CURVE_DEC_SINE_SQRT, VLVariable.LOOP_NONE, new Runnable(){
 
             @Override
             public void run(){
-                Light.movePosition(gen, 0, lighty, 0, 0, ascendcycles, CURVE_DEFAULT, null);
-                Light.moveRadius(gen, lighty * 5F, 0, (int)Math.floor(ascendcycles * 1.25F), CURVE_DEFAULT, null);
+                Light.movePosition(gen, 0, lighty, 0, 0, ascendcycles, VLVCurved.CURVE_ACC_DEC_COS, null);
+                Light.moveRadius(gen, lighty * 5F, 0, (int)Math.floor(ascendcycles * 1.25F), VLVCurved.CURVE_ACC_DEC_COS, null);
 
-                Camera.moveNear(near, 0, ascendcycles, CURVE_DEFAULT, null);
-                Camera.movePosition(cameraxz, cameray, cameraxz, 0, ascendcycles, CURVE_DEFAULT, new Runnable(){
+                Camera.moveNear(near, 0, ascendcycles, VLVCurved.CURVE_ACC_DEC_COS, null);
+                Camera.movePosition(cameraxz, cameray, cameraxz, 0, ascendcycles, VLVCurved.CURVE_ACC_DEC_COS, new Runnable(){
 
                     @Override
                     public void run(){
@@ -287,7 +288,7 @@ public final class City{
                         angle = Gen.RANDOM.nextBoolean() ? angle : -angle;
 
                         Camera.rotate(0F, angle, lighty, lighty * 7F, lighty,
-                                0, rotatecyclesbae * 4, CURVE_DEFAULT, VLVariable.LOOP_NONE, new Runnable(){
+                                0, rotatecyclesbae * 4, VLVCurved.CURVE_ACC_DEC_COS, VLVariable.LOOP_NONE, new Runnable(){
 
                             @Override
                             public void run(){

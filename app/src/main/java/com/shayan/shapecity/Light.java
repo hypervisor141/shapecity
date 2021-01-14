@@ -42,9 +42,9 @@ public final class Light{
         radiate(gen,20F);
     }
 
-    public static void radiateForPuzzle(final Gen gen, int cycles){
-        moveRadius(gen, 1.5F, 0, cycles, CURVE_DEFAULT, null);
-        movePosition(gen, 0.1F, 1.5F, 0.1F, 0, cycles, CURVE_DEFAULT, new Runnable(){
+    public static void radiateForPuzzle(final Gen gen, int delay, int cycles){
+        moveRadius(gen, 1.5F, delay, cycles, CURVE_DEFAULT, null);
+        movePosition(gen, 0.1F, 1.5F, 0.1F, delay, cycles, CURVE_DEFAULT, new Runnable(){
 
             @Override
             public void run(){

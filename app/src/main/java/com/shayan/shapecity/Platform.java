@@ -1,8 +1,10 @@
 package com.shayan.shapecity;
 
 import com.nurverek.firestorm.FSMesh;
+import com.nurverek.vanguard.VLV;
 import com.nurverek.vanguard.VLVCurved;
 import com.nurverek.vanguard.VLVRunner;
+import com.nurverek.vanguard.VLVTypeVariable;
 
 public final class Platform{
 
@@ -20,8 +22,14 @@ public final class Platform{
     public static void initialize(Gen gen){
         runner_platformrise = new VLVRunner(1, 0);
 
-        Animation.lower(runner_platformrise, CYCLES_RISE, CYCLES_RISE, 14, DELAY_RISE, DELAY_RISE, CURVE_RISE, new FSMesh[]{
+        VLVTypeVariable y = gen.platform.instance(0).modelMatrix().getY(0);
+        gen.platform.instance(0).modelMatrix().getY(0).set(y.get() - 0.05F);
+
+        Animation.lower(runner_platformrise, CYCLES_RISE, CYCLES_RISE, DELAY_RISE, DELAY_RISE, CURVE_RISE, new FSMesh[]{
                 gen.platform
+
+        }, new float[]{
+                14F
         });
 
         gen.vManager().add(runner_platformrise);

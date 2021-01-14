@@ -7,6 +7,8 @@ import com.nurverek.firestorm.FSMatrixModel;
 import com.nurverek.firestorm.FSMesh;
 import com.nurverek.firestorm.FSSchematics;
 import com.nurverek.firestorm.FSViewConfig;
+import com.nurverek.vanguard.VLMath;
+import com.nurverek.vanguard.VLVControl;
 import com.nurverek.vanguard.VLVCurved;
 import com.nurverek.vanguard.VLVManager;
 import com.nurverek.vanguard.VLVRunner;
@@ -49,26 +51,11 @@ public final class City{
     private static VLVRunner phase1;
     private static VLVRunner phase2;
     private static VLVRunner phase3;
-    private static VLVRunner phase3_baseframes;
-
     private static VLVRunner phase4;
-    private static VLVRunner phase4_caps;
+    private static VLVRunner phase5;
+    private static VLVRunner phase6;
 
-    private static VLVRunner phase5_layer1;
-    private static VLVRunner phase5_layer2;
-    private static VLVRunner phase5_layer3;
-    private static VLVRunner phase5_trapezoids;
-
-    private static VLVRunner phase6_layer2;
-    private static VLVRunner phase6_layer3;
-    private static VLVRunner phase6_layer4;
-    private static VLVRunner phase6_layer5;
-    private static VLVRunner phase6_layer6;
-    private static VLVRunner phase6_layer7;
-    private static VLVRunner phase6_layer8;
-    private static VLVRunner phase6_layer9;
-    private static VLVRunner phase6_layer10;
-    private static VLVRunner phase6_layer11;
+    private static VLVRunner randomcontrol;
 
     private static int phaseindex;
 
@@ -78,124 +65,61 @@ public final class City{
         phase1 = new VLVRunner(50, 50);
         phase2 = new VLVRunner(50, 50);
         phase3 = new VLVRunner(50, 50);
-        phase3_baseframes = new VLVRunner(50, 50);
+        phase3 = new VLVRunner(50, 50);
         phase4 = new VLVRunner(50, 50);
-        phase4_caps = new VLVRunner(50, 50);
-        phase5_layer1 = new VLVRunner(50, 50);
-        phase5_layer2 = new VLVRunner(50, 50);
-        phase5_layer3 = new VLVRunner(50, 50);
-        phase5_trapezoids = new VLVRunner(50, 50);
-        phase6_layer2 = new VLVRunner(50, 50);
-        phase6_layer3 = new VLVRunner(50, 50);
-        phase6_layer4 = new VLVRunner(50, 50);
-        phase6_layer5 = new VLVRunner(50, 50);
-        phase6_layer6 = new VLVRunner(50, 50);
-        phase6_layer7 = new VLVRunner(50, 50);
-        phase6_layer8 = new VLVRunner(50, 50);
-        phase6_layer9 = new VLVRunner(50, 50);
-        phase6_layer10 = new VLVRunner(50, 50);
-        phase6_layer11 = new VLVRunner(50, 50);
+        phase5 = new VLVRunner(50, 50);
+        phase6 = new VLVRunner(50, 50);
+        randomcontrol = new VLVRunner(50, 50);
 
-        VLVCurved.Curve curve = VLVCurved.CURVE_ACC_SINE_SQRT;
+        VLVCurved.Curve curve = VLVCurved.CURVE_DEC_SINE_SQRT;
 
-        Animation.lower(phase1, CYCLES_APPEAR_MIN, CYCLES_APPEAR_MAX, 17F, DELAY_APPEAR_MIN, DELAY_APPEAR_MAX, VLVCurved.CURVE_ACC_SINE_SQRT, new FSMesh[]{
-                gen.phase1_pillars,
-                gen.phase1_pillars_stripes
+        Animation.lower(phase1, CYCLES_APPEAR_MIN, CYCLES_APPEAR_MAX, DELAY_APPEAR_MIN, DELAY_APPEAR_MAX, curve, new FSMesh[]{
+                gen.phase1_pillars, gen.phase1_pillars_stripes
+
+        }, new float[]{
+                17F, 17F
         });
-        Animation.lower(phase2, CYCLES_APPEAR_MIN, CYCLES_APPEAR_MAX, 64F, DELAY_APPEAR_MIN, DELAY_APPEAR_MAX, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
-                gen.phase2,
-                gen.phase2_stripes,
-                gen.phase2_caps
+        Animation.lower(phase2, CYCLES_APPEAR_MIN, CYCLES_APPEAR_MAX, DELAY_APPEAR_MIN, DELAY_APPEAR_MAX, curve, new FSMesh[]{
+                gen.phase2, gen.phase2_stripes, gen.phase2_caps
+
+        }, new float[]{
+                64F, 64F, 64F
         });
-        Animation.lower(phase3, CYCLES_APPEAR_MIN, CYCLES_APPEAR_MAX, 289F, DELAY_APPEAR_MIN, DELAY_APPEAR_MAX, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
-                gen.phase3,
-                gen.phase3_caps,
-                gen.phase3_blades
+        Animation.lower(phase3, CYCLES_APPEAR_MIN, CYCLES_APPEAR_MAX, DELAY_APPEAR_MIN, DELAY_APPEAR_MAX, curve, new FSMesh[]{
+                gen.phase3, gen.phase3_caps, gen.phase3_blades, gen.phase3_baseframe1, gen.phase3_baseframe2, gen.phase3_baseframe3, gen.phase3_baseframe4
+
+        }, new float[]{
+                289F, 289F, 289F, 134F, 134F, 134F, 134F
         });
-        Animation.lower(phase3_baseframes, CYCLES_APPEAR_MIN, CYCLES_APPEAR_MAX, 134F, DELAY_APPEAR_MIN, DELAY_APPEAR_MAX, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
-                gen.phase3_baseframe1,
-                gen.phase3_baseframe2,
-                gen.phase3_baseframe3,
-                gen.phase3_baseframe4
+        Animation.lower(phase4, CYCLES_APPEAR_MIN, CYCLES_APPEAR_MAX, DELAY_APPEAR_MIN, DELAY_APPEAR_MAX, curve, new FSMesh[]{
+                gen.phase4, gen.phase4_caps, gen.phase4_caps2
+
+        }, new float[]{
+                309F, 139F, 139F,
         });
-        Animation.lower(phase4, CYCLES_APPEAR_MIN, CYCLES_APPEAR_MAX, 309, DELAY_APPEAR_MIN, DELAY_APPEAR_MAX, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
-                gen.phase4
+        Animation.lower(phase5, CYCLES_APPEAR_MIN, CYCLES_APPEAR_MAX, DELAY_APPEAR_MIN, DELAY_APPEAR_MAX, curve, new FSMesh[]{
+                gen.phase5_layer1, gen.phase5_layer1_stripes, gen.phase5_layer2, gen.phase5_layer2_stripes, gen.phase5_layer3, gen.phase5_layer3_stripes,
+                gen.phase5_trapezoidx1, gen.phase5_trapezoidy1, gen.phase5_trapezoidx2, gen.phase5_trapezoidy2
+
+        }, new float[]{
+                689F, 689F, 1289F, 1289F, 1739F, 1739F, 189F, 189F, 189F, 189F
         });
-        Animation.lower(phase4_caps, CYCLES_APPEAR_MIN, CYCLES_APPEAR_MAX, 139, DELAY_APPEAR_MIN, DELAY_APPEAR_MAX, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
-                gen.phase4_caps,
-                gen.phase4_caps2
-        });
-        Animation.lower(phase5_layer1, CYCLES_APPEAR_MIN, CYCLES_APPEAR_MAX, 689F, DELAY_APPEAR_MIN, DELAY_APPEAR_MAX, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
-                gen.phase5_layer1,
-                gen.phase5_layer1_stripes
-        });
-        Animation.lower(phase5_layer1, CYCLES_APPEAR_MIN, CYCLES_APPEAR_MAX, 1289F, DELAY_APPEAR_MIN, DELAY_APPEAR_MAX, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
-                gen.phase5_layer2,
-                gen.phase5_layer2_stripes
-        });
-        Animation.lower(phase5_layer1, CYCLES_APPEAR_MIN, CYCLES_APPEAR_MAX, 1739F, DELAY_APPEAR_MIN, DELAY_APPEAR_MAX, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
-                gen.phase5_layer3,
-                gen.phase5_layer3_stripes,
-                gen.phase5_caps
-        });
-        Animation.lower(phase5_trapezoids, CYCLES_APPEAR_MIN, CYCLES_APPEAR_MAX, 189F, DELAY_APPEAR_MIN, DELAY_APPEAR_MAX, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
-                gen.phase5_trapezoidx1,
-                gen.phase5_trapezoidy1,
-                gen.phase5_trapezoidx2,
-                gen.phase5_trapezoidy2
-        });
-        Animation.lower(phase6_layer2, CYCLES_APPEAR_MIN, CYCLES_APPEAR_MAX, 169F, DELAY_APPEAR_MIN, DELAY_APPEAR_MAX, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
-                gen.phase6_layer2
-        });
-        Animation.lower(phase6_layer3, CYCLES_APPEAR_MIN, CYCLES_APPEAR_MAX, 444F, DELAY_APPEAR_MIN, DELAY_APPEAR_MAX, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
-                gen.phase6_layer3
-        });
-        Animation.lower(phase6_layer4, CYCLES_APPEAR_MIN, CYCLES_APPEAR_MAX, 756F, DELAY_APPEAR_MIN, DELAY_APPEAR_MAX, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
-                gen.phase6_layer4
-        });
-        Animation.lower(phase6_layer5, CYCLES_APPEAR_MIN, CYCLES_APPEAR_MAX, 1051F, DELAY_APPEAR_MIN, DELAY_APPEAR_MAX, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
-                gen.phase6_layer5
-        });
-        Animation.lower(phase6_layer6, CYCLES_APPEAR_MIN, CYCLES_APPEAR_MAX, 1339F, DELAY_APPEAR_MIN, DELAY_APPEAR_MAX, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
-                gen.phase6_layer6
-        });
-        Animation.lower(phase6_layer7, CYCLES_APPEAR_MIN, CYCLES_APPEAR_MAX, 1619F, DELAY_APPEAR_MIN, DELAY_APPEAR_MAX, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
-                gen.phase6_layer7
-        });
-        Animation.lower(phase6_layer8, CYCLES_APPEAR_MIN, CYCLES_APPEAR_MAX, 1892F, DELAY_APPEAR_MIN, DELAY_APPEAR_MAX, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
-                gen.phase6_layer8
-        });
-        Animation.lower(phase6_layer9, CYCLES_APPEAR_MIN, CYCLES_APPEAR_MAX, 2155F, DELAY_APPEAR_MIN, DELAY_APPEAR_MAX, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
-                gen.phase6_layer9
-        });
-        Animation.lower(phase6_layer10, CYCLES_APPEAR_MIN, CYCLES_APPEAR_MAX, 2297F, DELAY_APPEAR_MIN, DELAY_APPEAR_MAX, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
-                gen.phase6_layer10
-        });
-        Animation.lower(phase6_layer11, CYCLES_APPEAR_MIN, CYCLES_APPEAR_MAX, 2297F, DELAY_APPEAR_MIN, DELAY_APPEAR_MAX, VLVCurved.CURVE_DEC_SINE_SQRT, new FSMesh[]{
-                gen.phase6_layer11
+        Animation.lower(phase6, CYCLES_APPEAR_MIN, CYCLES_APPEAR_MAX, DELAY_APPEAR_MIN, DELAY_APPEAR_MAX, curve, new FSMesh[]{
+                gen.phase6_layer2, gen.phase6_layer3, gen.phase6_layer4, gen.phase6_layer5, gen.phase6_layer6, gen.phase6_layer7,
+                gen.phase6_layer8, gen.phase6_layer9, gen.phase6_layer10, gen.phase6_layer11
+
+        }, new float[]{
+                169F, 444F, 756F, 1051F, 1339F, 1619F, 1892F, 2155F, 2297F, 2297F
         });
 
         VLVManager m = gen.vManager();
         m.add(phase1);
         m.add(phase2);
         m.add(phase3);
-        m.add(phase3_baseframes);
         m.add(phase4);
-        m.add(phase4_caps);
-        m.add(phase5_layer1);
-        m.add(phase5_layer2);
-        m.add(phase5_layer3);
-        m.add(phase5_trapezoids);
-        m.add(phase6_layer2);
-        m.add(phase6_layer3);
-        m.add(phase6_layer4);
-        m.add(phase6_layer5);
-        m.add(phase6_layer6);
-        m.add(phase6_layer7);
-        m.add(phase6_layer8);
-        m.add(phase6_layer9);
-        m.add(phase6_layer10);
-        m.add(phase6_layer11);
+        m.add(phase5);
+        m.add(phase6);
+        m.add(randomcontrol);
     }
 
     public static void initiateNextPhase(Gen gen, Runnable post){
@@ -222,57 +146,31 @@ public final class City{
     }
 
     public static void raisePhase1(Gen gen, Runnable post){
-        reveal(gen, 70F, 80F, 130F, 1F, 120, 120, new VLVRunner[]{
-                phase1
-        }, post);
+        reveal(gen, 70F, 80F, 130F, 1F, 120, 120, phase1, post);
     }
 
     public static void raisePhase2(Gen gen, Runnable post){
-        reveal(gen, 200F, 300F,750F, 5F, 240,120, new VLVRunner[]{
-                phase2
-        }, post);
+        reveal(gen, 200F, 300F,750F, 5F, 240,120, phase2, post);
     }
 
     public static void raisePhase3(Gen gen, Runnable post){
-        reveal(gen, 400F, 600F,1200F, 10F, 300,120, new VLVRunner[]{
-                phase3,
-                phase3_baseframes
-        }, post);
+        reveal(gen, 400F, 600F,1200F, 10F, 300,120, phase3, post);
     }
 
     public static void raisePhase4(Gen gen, Runnable post){
-        reveal(gen, 600F, 1000F,1800F, 25F, 360,120, new VLVRunner[]{
-                phase4,
-                phase4_caps
-        }, post);
+        reveal(gen, 600F, 1000F,1800F, 25F, 360,120, phase4, post);
     }
 
     public static void raisePhase5(Gen gen, Runnable post){
-        reveal(gen, 1000F, 2000F,2750F, 50F, 420,120, new VLVRunner[]{
-                phase5_layer1,
-                phase5_layer2,
-                phase5_layer3,
-                phase5_trapezoids,
-        }, post);
+        reveal(gen, 1000F, 2000F,2750F, 50F, 420,120, phase5, post);
     }
 
     public static void raisePhase6(Gen gen, Runnable post){
-        reveal(gen, 1500F, 3000F,3500F, 100F, 480,120, new VLVRunner[]{
-                phase6_layer2,
-                phase6_layer3,
-                phase6_layer4,
-                phase6_layer5,
-                phase6_layer6,
-                phase6_layer7,
-                phase6_layer8,
-                phase6_layer9,
-                phase6_layer10,
-                phase6_layer11
-        }, post);
+        reveal(gen, 1500F, 3000F,3500F, 100F, 480,120, phase6, post);
     }
 
-    private static void reveal(final Gen gen, final float lighty, final float cameray, final float cameraxz, float near, final int ascendcycles, final int rotatecyclesbae, final VLVRunner[] phases, final Runnable post){
-        Camera.rotate(0F, 45F, 0F, 1F, 0F, 0, rotatecyclesbae / 2, VLVCurved.CURVE_DEC_SINE_SQRT, VLVariable.LOOP_NONE, new Runnable(){
+    private static void reveal(final Gen gen, final float lighty, final float cameray, final float cameraxz, float near, final int ascendcycles, final int rotatecyclesbase, final VLVRunner phase, final Runnable post){
+        Camera.rotate(0F, 45F, 0F, 1F, 0F, 0, rotatecyclesbase / 2, VLVCurved.CURVE_DEC_SINE_SQRT, VLVariable.LOOP_NONE, new Runnable(){
 
             @Override
             public void run(){
@@ -284,20 +182,20 @@ public final class City{
 
                     @Override
                     public void run(){
-                        for(int i = 0; i < phases.length; i++){
-                            phases[i].start();
-                        }
+                        phase.start();
 
                         float angle = (45F + Gen.RANDOM.nextInt(180));
                         angle = Gen.RANDOM.nextBoolean() ? angle : -angle;
 
                         Camera.rotate(0F, angle, lighty, lighty * 7F, lighty,
-                                0, rotatecyclesbae * 4, VLVCurved.CURVE_ACC_DEC_COS, VLVariable.LOOP_NONE, new Runnable(){
+                                0, rotatecyclesbase * 4, VLVCurved.CURVE_ACC_DEC_COS, VLVariable.LOOP_NONE, new Runnable(){
 
                             @Override
                             public void run(){
-                                Light.radiateForPuzzle(gen, rotatecyclesbae);
-                                Camera.lookAtPuzzle((int)Math.floor(rotatecyclesbae * 1.25F));
+                                Animation.randomize(gen, phase1, -10F, -1F, gen.phase1_pillars.size(), 120);
+
+                                Light.radiateForPuzzle(gen, 150, rotatecyclesbase);
+                                Camera.lookAtPuzzle(150, (int)Math.floor(rotatecyclesbase * 1.25F));
 
                                 post.run();
                             }

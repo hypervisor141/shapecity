@@ -43,23 +43,22 @@ public class Animation{
     public static final float[] COLOR_PURPLE = new float[]{ 0F, 0.137F, 0.22F, 1F };
     public static final float[] COLOR_PURPLE_MORE = new float[]{ 0F, 0.237F, 0.380F, 1F };
 
-    protected static void lower(VLVRunner runner, int mincycles, int maxcycles, float decrease, int mindelay, int maxdelay, VLVCurved.Curve curve, FSMesh[] group){
+    protected static void lower(VLVRunner runner, int mincycles, int maxcycles, int mindelay, int maxdelay, VLVCurved.Curve curve, FSMesh[] group, float[] decrease){
         int size = group.length;
         int cyclediff = maxcycles - mincycles;
         int delaydiff = maxdelay - mindelay;
 
         for(int i = 0; i < size; i++){
             FSMesh mesh = group[i];
+            float decrement = decrease[i];
 
             for(int i2 = 0; i2 < mesh.size(); i2++){
                 FSInstance instance = mesh.instance(i2);
                 FSMatrixModel model = instance.modelMatrix();
 
-                float height = instance.schematics().modelHeight();
                 float y = model.getY(0).get();
-                float randomization = VLMath.range(Gen.RANDOM.nextFloat(),height * 0.25F, height);
 
-                VLVCurved var = new VLVCurved(y - decrease, y - randomization, cyclediff == 0 ? maxcycles : mincycles + Gen.RANDOM.nextInt(cyclediff), VLVariable.LOOP_NONE, curve);
+                VLVCurved var = new VLVCurved(y - decrement, y, cyclediff == 0 ? maxcycles : mincycles + Gen.RANDOM.nextInt(cyclediff), VLVariable.LOOP_NONE, curve);
                 var.SYNCER.add(new VLVMatrix.Definition(model));
 
                 model.setY(0, var);
@@ -70,5 +69,21 @@ public class Animation{
 
         runner.findEndPointIndex();
         runner.targetSync();
+    }
+
+    public static void randomize(Gen gen, VLVRunner phase, float min, float max, int instancesize, int cycles){
+        int size = phase.size();
+
+        for(int i = 0; i < instancesize; i++){
+            float value = VLMath.range(Gen.RANDOM.nextFloat(), min, max);
+
+            for(int i2 = i; i2 < size; i2 += instancesize){
+                VLVCurved v = (VLVCurved)phase.get(i).target;
+                v.chain(cycles, value);
+                v.activate();
+            }
+        }
+
+        phase.start();
     }
 }

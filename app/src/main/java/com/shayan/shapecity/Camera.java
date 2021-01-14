@@ -68,16 +68,16 @@ public final class Camera{
 
             @Override
             public void run(){
-                Light.radiateForPuzzle(gen, 60);
-                lookAtPuzzle(100);
+                Light.radiateForPuzzle(gen, 0, 60);
+                lookAtPuzzle(0, 100);
             }
         });
     }
 
-    public static void lookAtPuzzle(int cycles){
-        moveView(0F, 0F, 0F, 0, cycles, CURVE_CAMERA_PLACEMENT, null);
-        movePosition(0F, DISTANCE_FROM_PLATFORM_FINAL, -0.01F, 0, cycles, CURVE_CAMERA_PLACEMENT, null);
-        moveNear(0.1F, 0, cycles, CURVE_CAMERA_PLACEMENT, null);
+    public static void lookAtPuzzle(int delay, int cycles){
+        moveView(0F, 0F, 0F, delay, cycles, CURVE_CAMERA_PLACEMENT, null);
+        movePosition(0F, DISTANCE_FROM_PLATFORM_FINAL, -0.01F, delay, cycles, CURVE_CAMERA_PLACEMENT, null);
+        moveNear(0.1F, delay, cycles, CURVE_CAMERA_PLACEMENT, null);
     }
 
     public static void perspective(float fov, float aspect, float near, float far){

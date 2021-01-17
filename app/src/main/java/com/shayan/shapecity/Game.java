@@ -1,6 +1,5 @@
 package com.shayan.shapecity;
 
-import com.nurverek.vanguard.VLArrayFloat;
 import com.nurverek.vanguard.VLListInt;
 
 import java.util.Arrays;
@@ -22,7 +21,7 @@ public final class Game{
     public static void initialize(Gen gen){
         Platform.initialize(gen);
         Puzzle.initialize(gen);
-        City.initialize(gen);
+        City1.initialize(gen);
         Light.initialize(gen);
         Camera.initialize(gen);
 
@@ -205,7 +204,7 @@ public final class Game{
 
     private static void startNextPhase(Gen gen){
         Puzzle.reset(gen);
-        City.initiateNextPhase(gen, new Runnable(){
+        City1.initiateNextPhase(gen, new Runnable(){
 
             @Override
             public void run(){

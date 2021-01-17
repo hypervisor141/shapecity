@@ -60,6 +60,7 @@ public class Animation{
 
                 VLVCurved var = new VLVCurved(y - decrement, y, cyclediff == 0 ? maxcycles : mincycles + Gen.RANDOM.nextInt(cyclediff), VLVariable.LOOP_NONE, curve);
                 var.SYNCER.add(new VLVMatrix.Definition(model));
+                
 
                 model.setY(0, var);
 

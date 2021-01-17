@@ -26,7 +26,7 @@ public final class Game{
         Camera.initialize(gen);
 
         Light.descend(gen);
-        Camera.descend(gen, new Runnable(){
+        Camera.descend(new Runnable(){
 
             @Override
             public void run(){
@@ -72,10 +72,10 @@ public final class Game{
         Arrays.fill(enabledPieces, true);
         Arrays.fill(revealedPieces, false);
 
-        symbols = gen.bppieces.prepareMatchSymTexture(gen.pieces);
+        symbols = gen.bppieces.prepareMatchSymTexture(City1.pieces);
         Puzzle.revealRepeat();
 
-        Input.activateInputListeners(gen.pieces, new Runnable(){
+        Input.activateInputListeners(City1.pieces, new Runnable(){
 
             @Override
             public void run(){

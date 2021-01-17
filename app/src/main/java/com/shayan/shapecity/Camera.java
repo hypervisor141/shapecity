@@ -50,8 +50,8 @@ public final class Camera{
         FSRenderer.getControlManager().add(controllerrotate);
     }
 
-    public static void descend(Gen gen, Runnable post){
-        final float platformy = gen.platform.instance(0).modelMatrix().getY(0).get();
+    public static void descend(Runnable post){
+        final float platformy = City1.platform.instance(0).modelMatrix().getY(0).get();
         final float initialvalue = platformy + DISTANCE_FROM_PLATFORM_ASCEND;
 
         position(0F, 4000F, 0.01F);

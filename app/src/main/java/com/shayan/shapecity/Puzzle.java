@@ -57,7 +57,7 @@ public final class Puzzle{
         rootmanager = new VLVManager(2, 0);
         controllerrevealinterval = new VLVRunner(10, 10);
         controllerpiecerecycle = new VLVRunner(10, 10);
-        raisecontroller = new VLVRunner(gen.pieces.size(), 0);
+        raisecontroller = new VLVRunner(City1.pieces.size(), 0);
 
         VLVManager vmanager = gen.vManager();
         vmanager.add(rootmanager);
@@ -69,11 +69,11 @@ public final class Puzzle{
     }
 
     public static void setupGameplay(Gen gen){
-        VLArrayFloat linkdata = ((ModColor.TextureControlLink)gen.pieces.link(0)).data;
+        VLArrayFloat linkdata = ((ModColor.TextureControlLink)City1.pieces.link(0)).data;
 
         // basics
-        for(int i2 = 0; i2 < gen.pieces.size(); i2++){
-            FSInstance instance = gen.pieces.instance(i2);
+        for(int i2 = 0; i2 < City1.pieces.size(); i2++){
+            FSInstance instance = City1.pieces.instance(i2);
             FSMatrixModel modelmatrix = instance.modelMatrix();
             FSSchematics schematics = instance.schematics();
 
@@ -92,8 +92,8 @@ public final class Puzzle{
         reveal.add(bounce);
         rootmanager.add(reveal);
 
-        for(int i2 = 0; i2 < gen.pieces.size(); i2++){
-            FSInstance instance = gen.pieces.instance(i2);
+        for(int i2 = 0; i2 < City1.pieces.size(); i2++){
+            FSInstance instance = City1.pieces.instance(i2);
             FSMatrixModel modelmatrix = instance.modelMatrix();
 
             float ybounce = instance.schematics().modelHeight() * Y_BOUNCE_HEIGHT_MULTIPLIER;
@@ -119,8 +119,8 @@ public final class Puzzle{
 
         reveal.add(blink);
 
-        for(int i2 = 0; i2 < gen.pieces.size(); i2++){
-            VLArrayFloat colorarray = gen.pieces.instance(i2).colors();
+        for(int i2 = 0; i2 < City1.pieces.size(); i2++){
+            VLArrayFloat colorarray = City1.pieces.instance(i2).colors();
 
             VLVCurved blinkred = new VLVCurved(COLOR_LAYER[0], COLOR_BLINK[0], CYCLES_REVEAL_MAX, VLVariable.LOOP_RETURN_ONCE, CURVE_TYPE);
             VLVCurved blinkgreen = new VLVCurved(COLOR_LAYER[1], COLOR_BLINK[1], CYCLES_REVEAL_MAX, VLVariable.LOOP_RETURN_ONCE, CURVE_TYPE);
@@ -152,8 +152,8 @@ public final class Puzzle{
 
         rootmanager.add(deactivate);
 
-        for(int i2 = 0; i2 < gen.pieces.size(); i2++){
-            VLArrayFloat colorarray = gen.pieces.instance(i2).colors();
+        for(int i2 = 0; i2 < City1.pieces.size(); i2++){
+            VLArrayFloat colorarray = City1.pieces.instance(i2).colors();
 
             VLVCurved deactivatedred = new VLVCurved(COLOR_LAYER[0], COLOR_DEACTIVATED[0], CYCLES_REVEAL_MAX, VLVariable.LOOP_NONE, CURVE_TYPE);
             VLVCurved deactivatedgreen = new VLVCurved(COLOR_LAYER[1], COLOR_DEACTIVATED[1], CYCLES_REVEAL_MAX, VLVariable.LOOP_NONE, CURVE_TYPE);
@@ -178,7 +178,7 @@ public final class Puzzle{
         VLVRunner texblink = new VLVRunner(BPLayer.INSTANCE_COUNT, 0);
         reveal.add(texblink);
 
-        for(int i2 = 0; i2 < gen.pieces.size(); i2++){
+        for(int i2 = 0; i2 < City1.pieces.size(); i2++){
             VLVCurved texblinkvar = new VLVCurved(TEXCONTROL_IDLE, TEXCONTROL_ACTIVE, CYCLES_REVEAL_MAX, VLVariable.LOOP_RETURN_ONCE, CURVE_TYPE);
             texblinkvar.SYNCER.add(new VLArray.DefinitionVLV(linkdata, i2));
 
@@ -191,10 +191,10 @@ public final class Puzzle{
     }
 
     public static void raisePuzzleAndStartGame(Gen gen){
-        final float platformy = gen.platform.instance(0).modelMatrix().getY(0).get();
+        final float platformy = City1.platform.instance(0).modelMatrix().getY(0).get();
 
-        for(int i2 = 0; i2 < gen.pieces.size(); i2++){
-            FSInstance instance = gen.pieces.instance(i2);
+        for(int i2 = 0; i2 < City1.pieces.size(); i2++){
+            FSInstance instance = City1.pieces.instance(i2);
             FSMatrixModel model = instance.modelMatrix();
 
             VLVCurved var = new VLVCurved(platformy + instance.schematics().modelHeight(), model.getY(2).get(), Platform.CYCLES_RISE, VLVariable.LOOP_NONE, Platform.CURVE_RISE);
@@ -385,7 +385,7 @@ public final class Puzzle{
 
         VLVariable var;
 
-        for(int i = 0; i < gen.pieces.size(); i++){
+        for(int i = 0; i < City1.pieces.size(); i++){
             ((VLVariable)((VLVRunnerEntry)bounce.get(i)).target).setLoop(VLVariable.LOOP_RETURN_ONCE);
 
             for(int i2 = 0; i2 < 4; i2++){

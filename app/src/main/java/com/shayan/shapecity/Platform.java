@@ -22,11 +22,11 @@ public final class Platform{
     public static void initialize(Gen gen){
         runner_platformrise = new VLVRunner(1, 0);
 
-        VLVTypeVariable y = gen.platform.instance(0).modelMatrix().getY(0);
-        gen.platform.instance(0).modelMatrix().getY(0).set(y.get() - 0.05F);
+        VLVTypeVariable y = City1.platform.instance(0).modelMatrix().getY(0);
+        City1.platform.instance(0).modelMatrix().getY(0).set(y.get() - 0.05F);
 
         Animation.lower(runner_platformrise, CYCLES_RISE, CYCLES_RISE, DELAY_RISE, DELAY_RISE, CURVE_RISE, new FSMesh[]{
-                gen.platform
+                City1.platform
 
         }, new float[]{
                 14F

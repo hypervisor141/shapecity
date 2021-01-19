@@ -63,21 +63,17 @@ public final class Gen extends FSG{
 
         light = new FSLightPoint(new FSAttenuation.Radius(new VLFloat(20000F)), new VLArrayFloat(new float[]{ 0F, 5F, -50F, 1.0F }));
 
-        try{
-            constructAutomator(act.getAssets().open("meshes.fsm"), ByteOrder.LITTLE_ENDIAN, true, 300);
-
-        }catch(Exception ex){
-            throw new RuntimeException(ex.getMessage());
-        }
-
         bppieces = new BPLayer(this);
         bpsingular = new BPBase(this);
         bpinstanced = new BPInstanced(this, 60);
 
-        City1.register(this, automator());
+        Base.build(act, this);
+        Placeholder.build(act, this);
 
-        automator().run(DEBUG_MODE_AUTOMATOR);
         Game.initialize(this);
+        Camera.position(10F, 10F, 10F);
+        Light.position(this, 0F, 10F, 0F);
+        Light.radiate(this, 500F);
     }
 
     public FSMesh register(CustomBluePrint bp, String name, float[] color, FSLightMaterial material){

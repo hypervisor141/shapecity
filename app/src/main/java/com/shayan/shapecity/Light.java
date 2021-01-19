@@ -55,6 +55,7 @@ public final class Light{
 
     public static void position(Gen gen, float x, float y, float z){
         float[] pos = gen.light.position().provider();
+
         pos[0] = x;
         pos[1] = y;
         pos[2] = z;

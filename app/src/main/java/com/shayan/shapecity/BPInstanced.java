@@ -14,7 +14,7 @@ import com.nurverek.firestorm.FSP;
 import com.nurverek.firestorm.FSVertexBuffer;
 import com.nurverek.vanguard.VLBufferFloat;
 
-public final class BPInstanced extends CustomBluePrint{
+public class BPInstanced extends CustomBluePrint{
 
     public FSP program;
     public int maxinstancecount;

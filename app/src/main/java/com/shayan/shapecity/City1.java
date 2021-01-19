@@ -6,6 +6,11 @@ import com.nurverek.vanguard.VLVCurved;
 import com.nurverek.vanguard.VLVManager;
 import com.nurverek.vanguard.VLVRunner;
 import com.nurverek.vanguard.VLVariable;
+import com.shayan.shapecity.Animation;
+import com.shayan.shapecity.Camera;
+import com.shayan.shapecity.Gen;
+import com.shayan.shapecity.Light;
+import com.shayan.shapecity.Puzzle;
 
 public final class City1{
 
@@ -205,7 +210,7 @@ public final class City1{
                 phase4, phase4_caps, phase4_caps2
 
         }, new float[]{
-                309F, 139F, 139F,
+                309F, 139F, 139F
         });
         Animation.lower(runner_phase5, CYCLES_APPEAR_MIN, CYCLES_APPEAR_MAX, DELAY_APPEAR_MIN, DELAY_APPEAR_MAX, curve, new FSMesh[]{
                 phase5_layer1, phase5_layer1_stripes, phase5_layer2, phase5_layer2_stripes, phase5_layer3, phase5_layer3_stripes,

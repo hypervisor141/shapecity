@@ -18,13 +18,12 @@ import com.nurverek.vanguard.VLBufferFloat;
 import com.nurverek.vanguard.VLBufferShort;
 import com.nurverek.vanguard.VLFloat;
 
-import java.nio.ByteOrder;
 import java.security.SecureRandom;
 
 public final class Gen extends FSG{
 
     public static final int DEBUG_MODE_AUTOMATOR = FSControl.DEBUG_FULL;
-    public static final int DEBUG_MODE_PROGRAMS = FSControl.DEBUG_DISABLED;
+    public static final int DEBUG_MODE_PROGRAMS = FSControl.DEBUG_FULL;
 
     public static final FSLightMaterial MATERIAL_GOLD = new FSLightMaterial(new VLArrayFloat(new float[]{ 0.24725f, 0.1995f, 0.0745f }), new VLArrayFloat(new float[]{ 0.75164f, 0.60648f, 0.22648f }), new VLArrayFloat(new float[]{ 0.628281f, 0.555802f, 0.366065f }), new VLFloat(16));
     public static final FSLightMaterial MATERIAL_OBSIDIAN = new FSLightMaterial(new VLArrayFloat(new float[]{ 0.05375f, 0.05f, 0.06625f }), new VLArrayFloat(new float[]{ 0.18275f, 0.17f, 0.72525f }), new VLArrayFloat(new float[]{ 0.332741f, 0.328634f, 0.346435f }), new VLFloat(16));
@@ -61,19 +60,27 @@ public final class Gen extends FSG{
         BUFFER_ELEMENT_SHORT_DEFAULT = manager.add(new FSBufferManager.EntryShort(new FSVertexBuffer(GLES32.GL_ELEMENT_ARRAY_BUFFER, GLES32.GL_STATIC_DRAW), new VLBufferShort()));
         BUFFER_ARRAY_FLOAT_DEFAULT = manager.add(new FSBufferManager.EntryFloat(new FSVertexBuffer(GLES32.GL_ARRAY_BUFFER, GLES32.GL_STATIC_DRAW), new VLBufferFloat()));
 
-        light = new FSLightPoint(new FSAttenuation.Radius(new VLFloat(20000F)), new VLArrayFloat(new float[]{ 0F, 5F, -50F, 1.0F }));
+        light = new FSLightPoint(new FSAttenuation.Radius(new VLFloat(20000F)), new VLArrayFloat(new float[]{ 0F, 10F, 0F, 1.0F }));
 
         bppieces = new BPLayer(this);
         bpsingular = new BPBase(this);
-        bpinstanced = new BPInstanced(this, 60);
+        bpinstanced = new BPInstanced(this, 252);
 
         Base.build(act, this);
-        Placeholder.build(act, this);
+//        Placeholder.build(act, this);
 
-        Game.initialize(this);
+        Camera.lookAt(0F, 0F, 0F);
         Camera.position(10F, 10F, 10F);
+        Camera.near(1F);
+        Camera.far(500F);
+
         Light.position(this, 0F, 10F, 0F);
-        Light.radiate(this, 500F);
+        Light.radiate(this, 100F);
+
+        FSControl.setRenderLimitControl(false);
+        FSControl.signalFrameRender(true);
+
+//        Game.initialize(this);
     }
 
     public FSMesh register(CustomBluePrint bp, String name, float[] color, FSLightMaterial material){

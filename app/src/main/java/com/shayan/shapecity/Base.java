@@ -14,10 +14,10 @@ public class Base{
             ex.printStackTrace();
         }
 
-//        FSMesh mesh = gen.register(gen.bpsingular, "foundation_Cube.001", Animation.COLOR_BLUE, Gen.MATERIAL_WHITE_MORE_SPECULAR);
-//        gen.register(gen.bpsingular, "surface_Cube.002", Animation.COLOR_OBSIDIAN_LESS2, Gen.MATERIAL_WHITE_MORE_SPECULAR);
-        gen.register(gen.bpsingular, "center_Cube.255", Animation.COLOR_OBSIDIAN_LESS2, Gen.MATERIAL_WHITE_MORE_SPECULAR);
-//        gen.register(gen.bpinstanced, "placeholder.", Animation.COLOR_BLUE, Gen.MATERIAL_WHITE_MORE_SPECULAR);
+        gen.register(gen.bpsingular, "foundation_Cube.001", Animation.COLOR_OBSIDIAN_LESS4, Gen.MATERIAL_WHITE_MORE_SPECULAR);
+        gen.register(gen.bpsingular, "surface_Cube.002", Animation.COLOR_OBSIDIAN_LESS4, Gen.MATERIAL_WHITE_MORE_SPECULAR);
+        gen.register(gen.bpsingular, "center_Cube.255", Animation.COLOR_OBSIDIAN_LESS4, Gen.MATERIAL_WHITE_MORE_SPECULAR);
+        gen.register(gen.bpinstanced, "placeholder.", Animation.COLOR_BLUE, Gen.MATERIAL_WHITE_MORE_SPECULAR);
 
         gen.automator().run(Gen.DEBUG_MODE_AUTOMATOR);
     }

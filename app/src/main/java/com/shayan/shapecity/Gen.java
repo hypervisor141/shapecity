@@ -67,15 +67,15 @@ public final class Gen extends FSG{
         bpinstanced = new BPInstanced(this, 252);
 
         Base.build(act, this);
-//        Placeholder.build(act, this);
+        Placeholder.build(act, this);
 
         Camera.lookAt(0F, 0F, 0F);
-        Camera.position(10F, 10F, 10F);
+        Camera.position(50F, 20F, 50F);
         Camera.near(1F);
         Camera.far(500F);
 
         Light.position(this, 0F, 10F, 0F);
-        Light.radiate(this, 100F);
+        Light.radiate(this, 200F);
 
         FSControl.setRenderLimitControl(false);
         FSControl.signalFrameRender(true);

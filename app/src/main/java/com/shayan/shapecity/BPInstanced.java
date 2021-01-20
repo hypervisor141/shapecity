@@ -34,7 +34,7 @@ public class BPInstanced extends CustomBluePrint{
         program = new FSP(Gen.DEBUG_MODE_PROGRAMS);
         program.modify(new ModModel.UBO(1, maxinstancecount), FSConfig.POLICY_ALWAYS);
         program.modify(new ModColor.UBO(1, maxinstancecount), FSConfig.POLICY_ALWAYS);
-        program.modify(new ModLight.Point(Gen.GAMMA, null, Gen.BRIGHTNESS, Gen.light, null, Gen.MATERIAL_WHITE_RUBBER.getGLSLSize()), FSConfig.POLICY_ALWAYS);
+        program.modify(new ModLight.Point(Gen.GAMMA, null, Gen.BRIGHTNESS, Gen.light, null, Material.MATERIAL_WHITE_RUBBER.getGLSLSize()), FSConfig.POLICY_ALWAYS);
         program.addMeshConfig(new FSP.DrawElementsInstanced(FSConfig.POLICY_ALWAYS, 0));
         program.build();
     }

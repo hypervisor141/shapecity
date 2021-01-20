@@ -8,6 +8,7 @@ import com.nurverek.firestorm.FSBrightness;
 import com.nurverek.firestorm.FSBufferManager;
 import com.nurverek.firestorm.FSControl;
 import com.nurverek.firestorm.FSG;
+import com.nurverek.firestorm.FSGAutomator;
 import com.nurverek.firestorm.FSGamma;
 import com.nurverek.firestorm.FSLightMaterial;
 import com.nurverek.firestorm.FSLightPoint;
@@ -23,7 +24,7 @@ import java.security.SecureRandom;
 public final class Gen extends FSG{
 
     public static final int DEBUG_MODE_AUTOMATOR = FSControl.DEBUG_FULL;
-    public static final int DEBUG_MODE_PROGRAMS = FSControl.DEBUG_FULL;
+    public static final int DEBUG_MODE_PROGRAMS = FSControl.DEBUG_DISABLED;
     
     public static final int MAIN_PROGRAMSET = 0;
     public static final FSBrightness BRIGHTNESS = new FSBrightness(new VLFloat(1F));
@@ -41,6 +42,7 @@ public final class Gen extends FSG{
     public BPLayer bppieces;
     public BPBase bpsingular;
     public BPInstanced bpinstanced;
+    public FSGAutomator automator;
 
     public Gen(){
         super(2, 50, 10);
@@ -48,6 +50,8 @@ public final class Gen extends FSG{
 
     @Override
     public void assemble(FSActivity act){
+        automator = new FSGAutomator(this, 100, 300);
+
         FSBufferManager manager = bufferManager();
         BUFFER_ELEMENT_SHORT_DEFAULT = manager.add(new FSBufferManager.EntryShort(new FSVertexBuffer(GLES32.GL_ELEMENT_ARRAY_BUFFER, GLES32.GL_STATIC_DRAW), new VLBufferShort()));
         BUFFER_ARRAY_FLOAT_DEFAULT = manager.add(new FSBufferManager.EntryFloat(new FSVertexBuffer(GLES32.GL_ARRAY_BUFFER, GLES32.GL_STATIC_DRAW), new VLBufferFloat()));
@@ -59,7 +63,10 @@ public final class Gen extends FSG{
         bpinstanced = new BPInstanced(this, 252);
 
         Base.build(act, this);
+        clearBluePrints();
+
         Placeholder.build(act, this);
+        clearBluePrints();
 
         Camera.lookAt(0F, 0F, 0F);
         Camera.position(50F, 20F, 50F);
@@ -69,15 +76,18 @@ public final class Gen extends FSG{
         Light.position(this, 0F, 10F, 0F);
         Light.radiate(this, 200F);
 
-        FSControl.setRenderLimitControl(false);
-        FSControl.signalFrameRender(true);
-
 //        Game.initialize(this);
+    }
+
+    public void clearBluePrints(){
+        bpsingular.clear();
+        bpinstanced.clear();
+        bppieces.clear();
     }
 
     public FSMesh register(CustomBluePrint bp, String name, float[] color, FSLightMaterial material){
         bp.addCustoms(name, color, material);
-        return automator().register(bp, name);
+        return automator.register(bp, name);
     }
 
     @Override

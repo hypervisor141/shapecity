@@ -8,7 +8,7 @@ public class Base{
 
     public static void build(Context cxt, Gen gen){
         try{
-            gen.constructAutomator(cxt.getAssets().open("base.fsm"), ByteOrder.LITTLE_ENDIAN, true, 300);
+            gen.automator.add(cxt.getAssets().open("base.fsm"), ByteOrder.LITTLE_ENDIAN, true, 300);
 
         }catch(Exception ex){
             ex.printStackTrace();
@@ -19,6 +19,6 @@ public class Base{
         gen.register(gen.bpsingular, "center_Cube.255", Animation.COLOR_OBSIDIAN_LESS4, Material.MATERIAL_WHITE_MORE_SPECULAR);
         gen.register(gen.bpinstanced, "placeholder.", Animation.COLOR_BLUE, Material.MATERIAL_WHITE_MORE_SPECULAR);
 
-        gen.automator().run(Gen.DEBUG_MODE_AUTOMATOR);
+        gen.automator.run(Gen.DEBUG_MODE_AUTOMATOR);
     }
 }

@@ -32,6 +32,10 @@ public abstract class CustomBluePrint extends FSGBluePrint{
         entries.put(name.toLowerCase(), new Entry(color, material));
     }
 
+    public void clear(){
+        entries.clear();
+    }
+
     private static final class Entry{
 
         protected float[] color;

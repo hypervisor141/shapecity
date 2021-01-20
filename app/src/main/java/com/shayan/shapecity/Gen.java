@@ -63,10 +63,9 @@ public final class Gen extends FSG{
         bpinstanced = new BPInstanced(this, 252);
 
         Base.build(act, this);
-        clearBluePrints();
-
         Placeholder.build(act, this);
-        clearBluePrints();
+
+        automator.run(Gen.DEBUG_MODE_AUTOMATOR);
 
         Camera.lookAt(0F, 0F, 0F);
         Camera.position(50F, 20F, 50F);
@@ -77,12 +76,6 @@ public final class Gen extends FSG{
         Light.radiate(this, 200F);
 
 //        Game.initialize(this);
-    }
-
-    public void clearBluePrints(){
-        bpsingular.clear();
-        bpinstanced.clear();
-        bppieces.clear();
     }
 
     public FSMesh register(CustomBluePrint bp, String name, float[] color, FSLightMaterial material){

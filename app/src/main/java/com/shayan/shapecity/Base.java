@@ -18,7 +18,5 @@ public class Base{
         gen.register(gen.bpsingular, "surface_Cube.002", Animation.COLOR_OBSIDIAN_LESS4, Material.MATERIAL_WHITE_MORE_SPECULAR);
         gen.register(gen.bpsingular, "center_Cube.255", Animation.COLOR_OBSIDIAN_LESS4, Material.MATERIAL_WHITE_MORE_SPECULAR);
         gen.register(gen.bpinstanced, "placeholder.", Animation.COLOR_BLUE, Material.MATERIAL_WHITE_MORE_SPECULAR);
-
-        gen.automator.run(Gen.DEBUG_MODE_AUTOMATOR);
     }
 }

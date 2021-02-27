@@ -72,14 +72,6 @@ public class Start extends FSActivity{
     @Override
     protected void onDestroy(){
         super.onDestroy();
-
         FSControl.setKeepAlive(false);
-        destroy();
-        System.gc();
-    }
-
-    @Override
-    protected void destroy(){
-        super.destroy();
     }
 }

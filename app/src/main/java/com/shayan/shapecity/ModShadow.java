@@ -5,6 +5,7 @@ import android.opengl.GLES32;
 import com.nurverek.firestorm.FSConfig;
 import com.nurverek.firestorm.FSConfigDynamicSelective;
 import com.nurverek.firestorm.FSControl;
+import com.nurverek.firestorm.FSDimensions;
 import com.nurverek.firestorm.FSFrameBuffer;
 import com.nurverek.firestorm.FSG;
 import com.nurverek.firestorm.FSMesh;
@@ -191,7 +192,7 @@ public final class ModShadow{
                 public void configure(FSP program, FSMesh mesh, int meshindex, int passindex){
                     FSViewConfig config = FSControl.getViewConfig();
 
-                    config.viewPort(0, 0, FSControl.getContainerWidth(), FSControl.getContainerHeight());
+                    config.viewPort(0, 0, FSDimensions.getSurfaceWidth(), FSDimensions.getSurfaceHeight());
                     config.updateViewPort();
 
                     shadow.frameBuffer().unbind();

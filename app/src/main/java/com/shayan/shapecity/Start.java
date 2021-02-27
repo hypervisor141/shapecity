@@ -59,7 +59,7 @@ public class Start extends FSActivity{
         }
 
         synchronized(FSRenderer.RENDERLOCK){
-            FSControl.getSurfaceConfig().setKeepAlive(true);
+            FSControl.setKeepAlive(true);
             FSControl.setClearColor(BG_COLOR[0], BG_COLOR[1], BG_COLOR[2], BG_COLOR[3]);
 
             FSRenderer.enable(GLES32.GL_CULL_FACE);
@@ -111,6 +111,11 @@ public class Start extends FSActivity{
     }
 
     @Override
+    public void onClick(View v){
+
+    }
+
+    @Override
     protected void onPause(){
         super.onPause();
     }
@@ -124,7 +129,7 @@ public class Start extends FSActivity{
     protected void onDestroy(){
         super.onDestroy();
 
-        FSControl.getSurfaceConfig().setKeepAlive(false);
+        FSControl.setKeepAlive(false);
         destroy();
         System.gc();
     }

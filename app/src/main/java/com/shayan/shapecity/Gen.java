@@ -1,5 +1,6 @@
 package com.shayan.shapecity;
 
+import android.app.Activity;
 import android.opengl.GLES32;
 
 import com.nurverek.firestorm.FSActivity;
@@ -49,7 +50,7 @@ public final class Gen extends FSG{
     }
 
     @Override
-    public void assemble(FSActivity act){
+    public void assemble(Activity act){
         automator = new FSGAutomator(this, 100, 300);
 
         FSBufferManager manager = bufferManager();

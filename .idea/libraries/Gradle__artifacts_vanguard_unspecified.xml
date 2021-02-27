@@ -1,9 +1,11 @@
 <component name="libraryTable">
   <library name="Gradle: artifacts:vanguard:unspecified">
     <CLASSES>
-      <root url="jar://$PROJECT_DIR$/vanguard/build/.transforms/74ab472dbe0f0ef72a35aa5c61a25845/jetified-vanguard-debug/jars/classes.jar!/" />
       <root url="file://$PROJECT_DIR$/vanguard/build/.transforms/74ab472dbe0f0ef72a35aa5c61a25845/jetified-vanguard-debug/res" />
-      <root url="file://$PROJECT_DIR$/vanguard/build/.transforms/74ab472dbe0f0ef72a35aa5c61a25845/jetified-vanguard-debug/AndroidManifest.xml" />
+      <root url="file://$PROJECT_DIR$/vanguard/build/.transforms/475a4fba76758989ba9a79bc8eab9643/jetified-vanguard-debug/res" />
+      <root url="file://$PROJECT_DIR$/vanguard/build/.transforms/9af082b2110c201a2ed26eff7dc7856b/transformed/jetified-vanguard-debug/AndroidManifest.xml" />
+      <root url="jar://$PROJECT_DIR$/vanguard/build/.transforms/9af082b2110c201a2ed26eff7dc7856b/transformed/jetified-vanguard-debug/jars/classes.jar!/" />
+      <root url="file://$PROJECT_DIR$/vanguard/build/.transforms/9af082b2110c201a2ed26eff7dc7856b/transformed/jetified-vanguard-debug/res" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

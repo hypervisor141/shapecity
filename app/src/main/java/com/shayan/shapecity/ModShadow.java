@@ -11,7 +11,7 @@ import com.nurverek.firestorm.FSG;
 import com.nurverek.firestorm.FSMesh;
 import com.nurverek.firestorm.FSP;
 import com.nurverek.firestorm.FSPMod;
-import com.nurverek.firestorm.FSRenderer;
+import com.nurverek.firestorm.FSR;
 import com.nurverek.firestorm.FSShader;
 import com.nurverek.firestorm.FSShadow;
 import com.nurverek.firestorm.FSShadowDirect;
@@ -49,11 +49,11 @@ public final class ModShadow{
 
                     shadow.frameBuffer().bind();
 
-                    FSRenderer.clear(GLES32.GL_DEPTH_BUFFER_BIT);
-                    FSRenderer.colorMask(false, false, false, false);
+                    FSR.clear(GLES32.GL_DEPTH_BUFFER_BIT);
+                    FSR.colorMask(false, false, false, false);
 
                     if(cull){
-                        FSRenderer.cullFace(GLES32.GL_FRONT);
+                        FSR.cullFace(GLES32.GL_FRONT);
                     }
                 }
 
@@ -197,8 +197,8 @@ public final class ModShadow{
 
                     shadow.frameBuffer().unbind();
                     
-                    FSRenderer.colorMask(true, true, true, true);
-                    FSRenderer.cullFace(GLES32.GL_BACK);
+                    FSR.colorMask(true, true, true, true);
+                    FSR.cullFace(GLES32.GL_BACK);
                 }
 
                 @Override

@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.opengl.GLES32;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -12,8 +13,8 @@ import android.widget.RelativeLayout;
 
 import com.nurverek.firestorm.FSActivity;
 import com.nurverek.firestorm.FSControl;
-import com.nurverek.firestorm.FSRenderPass;
-import com.nurverek.firestorm.FSRenderer;
+import com.nurverek.firestorm.FSRPass;
+import com.nurverek.firestorm.FSR;
 import com.nurverek.firestorm.FSViewConfig;
 
 public class Start extends FSActivity{
@@ -58,25 +59,25 @@ public class Start extends FSActivity{
             return;
         }
 
-        synchronized(FSRenderer.RENDERLOCK){
+        synchronized(FSR.RENDERLOCK){
             FSControl.setKeepAlive(true);
             FSControl.setClearColor(BG_COLOR[0], BG_COLOR[1], BG_COLOR[2], BG_COLOR[3]);
 
-            FSRenderer.enable(GLES32.GL_CULL_FACE);
-            FSRenderer.enable(GLES32.GL_BLEND);
-            FSRenderer.enable(GLES32.GL_DEPTH_TEST);
+            FSR.enable(GLES32.GL_CULL_FACE);
+            FSR.enable(GLES32.GL_BLEND);
+            FSR.enable(GLES32.GL_DEPTH_TEST);
 
-            FSRenderer.cullFace(GLES32.GL_BACK);
-            FSRenderer.frontFace(GLES32.GL_CCW);
-            FSRenderer.blendFunc(GLES32.GL_SRC_ALPHA, GLES32.GL_ONE_MINUS_SRC_ALPHA);
-            FSRenderer.depthMask(true);
+            FSR.cullFace(GLES32.GL_BACK);
+            FSR.frontFace(GLES32.GL_CCW);
+            FSR.blendFunc(GLES32.GL_SRC_ALPHA, GLES32.GL_ONE_MINUS_SRC_ALPHA);
+            FSR.depthMask(true);
 
             Gen gen = new Gen();
             gen.assemble(this);
 
-            FSRenderPass mainpass = new FSRenderPass(FSControl.DEBUG_FULL).build();
-            mainpass.add(new FSRenderPass.Entry(gen, Gen.MAIN_PROGRAMSET));
-            FSRenderer.addRenderPass(mainpass);
+            FSRPass mainpass = new FSRPass(FSControl.DEBUG_FULL).build();
+            mainpass.add(new FSRPass.Entry(gen, Gen.MAIN_PROGRAMSET));
+            FSR.addRenderPass(mainpass);
         }
     }
 
@@ -91,18 +92,8 @@ public class Start extends FSActivity{
     }
 
     @Override
-    public void GLPreDraw(){
-
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults){
-
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data){
-
+    public void GLPostSurfaceDestroy(){
+        Log.d("wtf", "CALLED : " + FSControl.getKeepAlive());
     }
 
     @Override
@@ -128,6 +119,8 @@ public class Start extends FSActivity{
     @Override
     protected void onDestroy(){
         super.onDestroy();
+
+        Log.d("wtf", "CALLED");
 
         FSControl.setKeepAlive(false);
         destroy();

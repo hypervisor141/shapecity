@@ -3,7 +3,7 @@ package com.shayan.shapecity;
 import android.opengl.Matrix;
 
 import com.nurverek.firestorm.FSAttenuation;
-import com.nurverek.firestorm.FSRenderer;
+import com.nurverek.firestorm.FSR;
 import com.nurverek.vanguard.VLTask;
 import com.nurverek.vanguard.VLTaskContinous;
 import com.nurverek.vanguard.VLVControl;
@@ -25,9 +25,9 @@ public final class Light{
         controllerradius = new VLVRunner(10, 10);
         controllerotate = new VLVRunner(10, 10);
 
-        FSRenderer.getControlManager().add(controllerpos);
-        FSRenderer.getControlManager().add(controllerradius);
-        FSRenderer.getControlManager().add(controllerotate);
+        FSR.getControlManager().add(controllerpos);
+        FSR.getControlManager().add(controllerradius);
+        FSR.getControlManager().add(controllerotate);
     }
 
     public static void descend(Gen gen){

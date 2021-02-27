@@ -43,7 +43,6 @@ animator mtrl_card_state_list_anim
 animator mtrl_chip_state_list_anim
 animator mtrl_extended_fab_change_size_collapse_motion_spec
 animator mtrl_extended_fab_change_size_expand_motion_spec
-animator mtrl_extended_fab_change_size_motion_spec
 animator mtrl_extended_fab_hide_motion_spec
 animator mtrl_extended_fab_show_motion_spec
 animator mtrl_extended_fab_state_list_animator
@@ -945,7 +944,6 @@ color abc_decor_view_status_guard
 color abc_decor_view_status_guard_light
 color abc_hint_foreground_material_dark
 color abc_hint_foreground_material_light
-color abc_input_method_navigation_guard
 color abc_primary_text_disable_only_material_dark
 color abc_primary_text_disable_only_material_light
 color abc_primary_text_material_dark
@@ -1083,7 +1081,6 @@ color mtrl_card_view_foreground
 color mtrl_card_view_ripple
 color mtrl_chip_background_color
 color mtrl_chip_close_icon_tint
-color mtrl_chip_ripple_color
 color mtrl_chip_surface_color
 color mtrl_chip_text_color
 color mtrl_choice_chip_background_color

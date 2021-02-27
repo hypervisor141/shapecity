@@ -3,7 +3,7 @@ package com.shayan.shapecity;
 import android.opengl.Matrix;
 
 import com.nurverek.firestorm.FSControl;
-import com.nurverek.firestorm.FSRenderer;
+import com.nurverek.firestorm.FSR;
 import com.nurverek.firestorm.FSViewConfig;
 import com.nurverek.vanguard.VLTask;
 import com.nurverek.vanguard.VLTaskContinous;
@@ -41,13 +41,13 @@ public final class Camera{
         controllerview = new VLVRunner(4, 5);
         controllerrotate = new VLVRunner(1, 5);
 
-        FSRenderer.getControlManager().add(controllerfov);
-        FSRenderer.getControlManager().add(controlleraspect);
-        FSRenderer.getControlManager().add(controllernear);
-        FSRenderer.getControlManager().add(controllerfar);
-        FSRenderer.getControlManager().add(controllerpos);
-        FSRenderer.getControlManager().add(controllerview);
-        FSRenderer.getControlManager().add(controllerrotate);
+        FSR.getControlManager().add(controllerfov);
+        FSR.getControlManager().add(controlleraspect);
+        FSR.getControlManager().add(controllernear);
+        FSR.getControlManager().add(controllerfar);
+        FSR.getControlManager().add(controllerpos);
+        FSR.getControlManager().add(controllerview);
+        FSR.getControlManager().add(controllerrotate);
     }
 
     public static void descend(Runnable post){

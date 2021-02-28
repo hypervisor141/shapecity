@@ -16,6 +16,7 @@ import com.nurverek.firestorm.FSControl;
 import com.nurverek.firestorm.FSEvents;
 import com.nurverek.firestorm.FSRPass;
 import com.nurverek.firestorm.FSR;
+import com.nurverek.firestorm.FSSurface;
 import com.nurverek.firestorm.FSViewConfig;
 
 public class Start extends FSActivity{
@@ -41,8 +42,8 @@ public class Start extends FSActivity{
     }
 
     @Override
-    protected FSEvents createEvents(){
-        return new Events();
+    protected FSSurface createSurface(){
+        return FSControl.initialize(this, new FSSurface(this, new Events()), FSR.DEFAULT_INTERFACE);
     }
 
     @Override

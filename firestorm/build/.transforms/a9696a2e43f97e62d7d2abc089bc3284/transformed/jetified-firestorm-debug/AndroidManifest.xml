@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.nurverek.firestorm"
     android:versionCode="2400"
-    android:versionName="10.6.0" >
+    android:versionName="10.6.1" >
 
     <uses-sdk
         android:minSdkVersion="24"

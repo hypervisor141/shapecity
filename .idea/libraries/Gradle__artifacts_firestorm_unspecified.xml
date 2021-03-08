@@ -3,9 +3,10 @@
     <CLASSES>
       <root url="file://$PROJECT_DIR$/firestorm/build/.transforms/060dcd81d7552220397084a6e1c0c07e/jetified-firestorm-debug/res" />
       <root url="file://$PROJECT_DIR$/firestorm/build/.transforms/c09d5d5b1b768c1aea876c97bb825be1/jetified-firestorm-debug/res" />
-      <root url="jar://$PROJECT_DIR$/firestorm/build/.transforms/a9696a2e43f97e62d7d2abc089bc3284/transformed/jetified-firestorm-debug/jars/classes.jar!/" />
       <root url="file://$PROJECT_DIR$/firestorm/build/.transforms/a9696a2e43f97e62d7d2abc089bc3284/transformed/jetified-firestorm-debug/res" />
-      <root url="file://$PROJECT_DIR$/firestorm/build/.transforms/a9696a2e43f97e62d7d2abc089bc3284/transformed/jetified-firestorm-debug/AndroidManifest.xml" />
+      <root url="jar://$PROJECT_DIR$/firestorm/build/.transforms/56d8424cffbb48749e1b3514d4da2098/transformed/jetified-firestorm-debug/jars/classes.jar!/" />
+      <root url="file://$PROJECT_DIR$/firestorm/build/.transforms/56d8424cffbb48749e1b3514d4da2098/transformed/jetified-firestorm-debug/res" />
+      <root url="file://$PROJECT_DIR$/firestorm/build/.transforms/56d8424cffbb48749e1b3514d4da2098/transformed/jetified-firestorm-debug/AndroidManifest.xml" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

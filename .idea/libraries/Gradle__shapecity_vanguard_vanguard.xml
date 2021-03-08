@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="Gradle: shapecity.vanguard.vanguard">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/vanguard/vanguard.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
